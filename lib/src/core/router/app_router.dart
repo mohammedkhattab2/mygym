@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import 'package:mygym/src/features/onboarding/presentation/views/onboarding_view.dart';
+import 'package:mygym/src/features/splash/presentation/views/splash_view.dart';
 
 import 'guards/auth_guard.dart';
 import 'guards/role_guard.dart';
@@ -49,7 +51,7 @@ class AppRouter {
           GoRoute(
             path: RoutePaths.splash,
             name: 'splash',
-            builder: (context, state) => const _PlaceholderPage(title: 'Splash'),
+            builder: (context, state) => const SplashView()
           ),
 
           // Auth routes
@@ -92,8 +94,7 @@ class AppRouter {
               GoRoute(
                 path: 'slides',
                 name: 'onboarding-slides',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Onboarding Slides'),
+                builder: (context, state) => const OnboardingView(),
               ),
               GoRoute(
                 path: 'city',
