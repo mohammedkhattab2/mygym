@@ -4,22 +4,28 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'src/app.dart';
+import 'src/core/config/app_config.dart';
+import 'src/core/config/environment.dart';
 import 'src/core/di/injection.dart';
 
 /// Application entry point
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize EasyLocalization
+
+  /// - Environment.production
+  AppConfig.initialize(Environment.development);
+
+ 
   await EasyLocalization.ensureInitialized();
 
-  // Set preferred orientations
+ 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // Set system UI overlay style
+  
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -29,12 +35,12 @@ void main() async {
     ),
   );
 
-  // Initialize Hive for Flutter
+  
   await Hive.initFlutter();
 
-  // Initialize dependency injection
+  
   await configureDependencies();
 
-  // Run the app with localization
+  
   runApp(const MyGymAppWithLocalization());
 }

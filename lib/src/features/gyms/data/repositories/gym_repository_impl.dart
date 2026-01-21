@@ -60,6 +60,12 @@ class GymRepositoryImpl implements GymRepository {
 
   @override
   Future<Either<Failure, Gym>> getGymById(String id) async {
+    // Return dummy data for development (no backend available)
+    final dummyGym = _getDummyGymById(id);
+    if (dummyGym != null) {
+      return Right(dummyGym);
+    }
+    
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -72,6 +78,130 @@ class GymRepositoryImpl implements GymRepository {
     } catch (e) {
       return Left(UnexpectedFailure(e.toString()));
     }
+  }
+
+  /// Returns dummy gym data for development when no backend is available
+  Gym? _getDummyGymById(String id) {
+    final dummyGyms = {
+      '1': Gym(
+        id: '1',
+        name: "Gold's Gym",
+        address: 'Maadi, Cairo, Egypt',
+        description: 'Gold\'s Gym is a premier fitness center offering state-of-the-art equipment, personal training, and group fitness classes. Our facility features a full range of free weights, cardio machines, and dedicated areas for functional training.',
+        latitude: 29.9602,
+        longitude: 31.2569,
+        city: 'Cairo',
+        images: [],
+        facilities: ['Free Weights', 'Cardio Area', 'Personal Trainers', 'Locker Rooms', 'Showers', 'Parking'],
+        rating: 4.8,
+        reviewCount: 156,
+        crowdLevel: 'medium',
+        currentOccupancy: 45,
+        maxCapacity: 100,
+        workingHours: WorkingHours(
+          monday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 23, minute: 0)),
+          tuesday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 23, minute: 0)),
+          wednesday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 23, minute: 0)),
+          thursday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 23, minute: 0)),
+          friday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 23, minute: 0)),
+          saturday: DayHours(openTime: TimeOfDay(hour: 8, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+          sunday: DayHours(openTime: TimeOfDay(hour: 8, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+        ),
+        isOpen: true,
+        isPartner: true,
+        status: GymStatus.active,
+        distance: 1.2,
+      ),
+      '2': Gym(
+        id: '2',
+        name: 'Fitness First',
+        address: 'Zamalek, Cairo, Egypt',
+        description: 'Fitness First is a world-class gym with modern equipment and expert trainers. We offer a wide variety of group classes including yoga, spinning, and HIIT training.',
+        latitude: 30.0626,
+        longitude: 31.2197,
+        city: 'Cairo',
+        images: [],
+        facilities: ['Machines', 'Group Classes', 'Swimming Pool', 'Sauna', 'Steam Room', 'Towel Service'],
+        rating: 4.6,
+        reviewCount: 203,
+        crowdLevel: 'low',
+        currentOccupancy: 28,
+        maxCapacity: 80,
+        workingHours: WorkingHours(
+          monday: DayHours(openTime: TimeOfDay(hour: 5, minute: 30), closeTime: TimeOfDay(hour: 23, minute: 30)),
+          tuesday: DayHours(openTime: TimeOfDay(hour: 5, minute: 30), closeTime: TimeOfDay(hour: 23, minute: 30)),
+          wednesday: DayHours(openTime: TimeOfDay(hour: 5, minute: 30), closeTime: TimeOfDay(hour: 23, minute: 30)),
+          thursday: DayHours(openTime: TimeOfDay(hour: 5, minute: 30), closeTime: TimeOfDay(hour: 23, minute: 30)),
+          friday: DayHours(openTime: TimeOfDay(hour: 5, minute: 30), closeTime: TimeOfDay(hour: 23, minute: 30)),
+          saturday: DayHours(openTime: TimeOfDay(hour: 7, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+          sunday: DayHours(openTime: TimeOfDay(hour: 7, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+        ),
+        isOpen: true,
+        isPartner: true,
+        status: GymStatus.active,
+        distance: 2.5,
+      ),
+      '3': Gym(
+        id: '3',
+        name: 'Smart Gym',
+        address: 'Nasr City, Cairo, Egypt',
+        description: 'Smart Gym provides affordable fitness solutions with quality equipment. Perfect for beginners and experienced gym-goers alike.',
+        latitude: 30.0511,
+        longitude: 31.3656,
+        city: 'Cairo',
+        images: [],
+        facilities: ['Free Weights', 'Cardio Area', 'Lockers', 'WiFi'],
+        rating: 4.5,
+        reviewCount: 89,
+        crowdLevel: 'high',
+        currentOccupancy: 65,
+        maxCapacity: 75,
+        workingHours: WorkingHours(
+          monday: DayHours(openTime: TimeOfDay(hour: 7, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+          tuesday: DayHours(openTime: TimeOfDay(hour: 7, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+          wednesday: DayHours(openTime: TimeOfDay(hour: 7, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+          thursday: DayHours(openTime: TimeOfDay(hour: 7, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+          friday: DayHours(openTime: TimeOfDay(hour: 7, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+          saturday: DayHours(openTime: TimeOfDay(hour: 9, minute: 0), closeTime: TimeOfDay(hour: 20, minute: 0)),
+          sunday: DayHours.closed(),
+        ),
+        isOpen: true,
+        isPartner: false,
+        status: GymStatus.active,
+        distance: 3.0,
+      ),
+      '4': Gym(
+        id: '4',
+        name: 'Power House',
+        address: 'Heliopolis, Cairo, Egypt',
+        description: 'Power House is the ultimate destination for serious lifters. We specialize in strength training with Olympic platforms and heavy-duty equipment.',
+        latitude: 30.0866,
+        longitude: 31.3225,
+        city: 'Cairo',
+        images: [],
+        facilities: ['Free Weights', 'Olympic Platforms', 'Personal Trainers', 'Supplement Shop', 'Parking'],
+        rating: 4.7,
+        reviewCount: 127,
+        crowdLevel: 'medium',
+        currentOccupancy: 42,
+        maxCapacity: 90,
+        workingHours: WorkingHours(
+          monday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 24, minute: 0)),
+          tuesday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 24, minute: 0)),
+          wednesday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 24, minute: 0)),
+          thursday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 24, minute: 0)),
+          friday: DayHours(openTime: TimeOfDay(hour: 6, minute: 0), closeTime: TimeOfDay(hour: 24, minute: 0)),
+          saturday: DayHours(openTime: TimeOfDay(hour: 8, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+          sunday: DayHours(openTime: TimeOfDay(hour: 8, minute: 0), closeTime: TimeOfDay(hour: 22, minute: 0)),
+        ),
+        isOpen: true,
+        isPartner: true,
+        status: GymStatus.active,
+        distance: 4.2,
+      ),
+    };
+    
+    return dummyGyms[id];
   }
 
   @override
@@ -252,6 +382,12 @@ class GymRepositoryImpl implements GymRepository {
     int page = 1,
     int limit = 20,
   }) async {
+    // Return dummy reviews for development (no backend available)
+    final dummyReviews = _getDummyReviewsForGym(gymId);
+    if (dummyReviews.isNotEmpty) {
+      return Right(dummyReviews);
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -272,6 +408,42 @@ class GymRepositoryImpl implements GymRepository {
     } catch (e) {
       return Left(UnexpectedFailure(e.toString()));
     }
+  }
+
+  /// Returns dummy reviews for development when no backend is available
+  List<GymReview> _getDummyReviewsForGym(String gymId) {
+    return [
+      GymReview(
+        id: '${gymId}_review_1',
+        gymId: gymId,
+        userId: 'user_1',
+        userName: 'Ahmed Mohamed',
+        rating: 5,
+        comment: 'Excellent gym with great equipment and friendly staff. Highly recommended!',
+        createdAt: DateTime.now().subtract(const Duration(days: 2)),
+        isVerified: true,
+      ),
+      GymReview(
+        id: '${gymId}_review_2',
+        gymId: gymId,
+        userId: 'user_2',
+        userName: 'Sara Ali',
+        rating: 4,
+        comment: 'Good facilities and clean environment. Would love more group classes.',
+        createdAt: DateTime.now().subtract(const Duration(days: 5)),
+        isVerified: true,
+      ),
+      GymReview(
+        id: '${gymId}_review_3',
+        gymId: gymId,
+        userId: 'user_3',
+        userName: 'Omar Hassan',
+        rating: 5,
+        comment: 'Best gym in the area! The trainers are very professional.',
+        createdAt: DateTime.now().subtract(const Duration(days: 10)),
+        isVerified: false,
+      ),
+    ];
   }
 
   @override

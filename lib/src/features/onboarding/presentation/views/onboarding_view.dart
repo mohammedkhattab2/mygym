@@ -84,7 +84,7 @@ class _OnboardingViewState extends State<OnboardingView>
   }
 
   void _completeOnboarding() {
-    context.go('/onboarding/city');
+    context.go('/auth/login');
   }
 
   void _skip() {
