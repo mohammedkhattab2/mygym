@@ -384,8 +384,15 @@ class GymRepositoryImpl implements GymRepository {
   }) async {
     // Return dummy reviews for development (no backend available)
     final dummyReviews = _getDummyReviewsForGym(gymId);
-    if (dummyReviews.isNotEmpty) {
-      return Right(dummyReviews);
+    
+    // Include user-submitted reviews for this gym
+    final userReviewsForGym = _userSubmittedReviews
+        .where((r) => r.gymId == gymId)
+        .toList();
+    
+    if (dummyReviews.isNotEmpty || userReviewsForGym.isNotEmpty) {
+      // User reviews first (newest), then dummy reviews
+      return Right([...userReviewsForGym.reversed, ...dummyReviews]);
     }
 
     if (!await _networkInfo.isConnected) {
@@ -446,31 +453,50 @@ class GymRepositoryImpl implements GymRepository {
     ];
   }
 
+  // Local cache for user-submitted reviews (for development without backend)
+  final List<GymReview> _userSubmittedReviews = [];
+
   @override
   Future<Either<Failure, GymReview>> submitReview({
     required String gymId,
     required int rating,
     String? comment,
   }) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(NetworkFailure());
-    }
+    // For development: create a dummy review locally
+    final newReview = GymReview(
+      id: 'user_review_${DateTime.now().millisecondsSinceEpoch}',
+      gymId: gymId,
+      userId: 'current_user',
+      userName: 'You',
+      rating: rating,
+      comment: comment,
+      createdAt: DateTime.now(),
+      isVerified: false,
+    );
+    
+    _userSubmittedReviews.add(newReview);
+    return Right(newReview);
 
-    try {
-      final response = await _dioClient.dio.post(
-        '${ApiEndpoints.gyms}/$gymId/reviews',
-        data: {
-          'rating': rating,
-          if (comment != null) 'comment': comment,
-        },
-      );
-
-      return Right(_parseReview(response.data));
-    } on DioException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Failed to submit review'));
-    } catch (e) {
-      return Left(UnexpectedFailure(e.toString()));
-    }
+    // TODO: Uncomment when backend is available
+    // if (!await _networkInfo.isConnected) {
+    //   return const Left(NetworkFailure());
+    // }
+    //
+    // try {
+    //   final response = await _dioClient.dio.post(
+    //     '${ApiEndpoints.gyms}/$gymId/reviews',
+    //     data: {
+    //       'rating': rating,
+    //       if (comment != null) 'comment': comment,
+    //     },
+    //   );
+    //
+    //   return Right(_parseReview(response.data));
+    // } on DioException catch (e) {
+    //   return Left(ServerFailure(e.message ?? 'Failed to submit review'));
+    // } catch (e) {
+    //   return Left(UnexpectedFailure(e.toString()));
+    // }
   }
 
   @override

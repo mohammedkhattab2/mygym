@@ -9,6 +9,15 @@ import 'package:mygym/src/core/theme/app_text_styles.dart';
 import 'package:mygym/src/core/theme/app_theme.dart';
 import 'package:mygym/src/features/gyms/domain/entities/gym.dart';
 import 'package:mygym/src/features/gyms/presentation/bloc/gyms_bloc.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_about_section.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_bottom_button.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_contact_info.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_facilities.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_reviews_section.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_status_and_crowd.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_title_section.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_working_hours.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/circule_icon_button.dart';
 
 class GymDetailsView extends StatelessWidget {
   final String gymId;
@@ -17,40 +26,72 @@ class GymDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(AppTheme.darkSystemUiOverlayStyle);
-    return BlocBuilder<GymsBloc, GymsState>(
-      builder: (context, state) {
-        final isloading = state.detailStatus == GymsStatus.loading;
-        final hasError = state.detailStatus == GymsStatus.failure;
-        final gym = state.selectedGym;
-        return Scaffold(
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFF0A0A14), Color(0xFF0F0F1A)],
-              ),
-            ),
-            child: SafeArea(
-              child: Column(
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0A0A14), Color(0xFF0F0F1A)],
+          ),
+        ),
+        child: SafeArea(
+          child: BlocBuilder<GymsBloc, GymsState>(
+            builder: (context, state) {
+              final detailStatus = state.detailStatus;
+              final gym = state.selectedGym;
+
+              if (detailStatus == GymsStatus.loading || gym == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (detailStatus == GymsStatus.failure) {
+                return _buildError(state.errorMessage);
+              }
+              final isFavorite = state.favoriteIds.contains(gym.id);
+
+              return Column(
                 children: [
                   Expanded(
-                    child: isloading
-                        ? const Center(child: CircularProgressIndicator())
-                        : hasError
-                        ? _buildError(state.errorMessage)
-                        : gym == null
-                        ? const Center(child: Text('Gym not found'))
-                        : _buildcontent(context, state, gym),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeaderImage(context, gym, isFavorite),
+                          SizedBox(height: 16.h),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 24.w),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                BuildTitleSection(gym: gym),
+                                SizedBox(height: 16.h),
+                                BuildStatusAndCrowd(gym: gym),
+                                SizedBox(height: 16.h),
+                                BuildFacilities(gym: gym),
+                                SizedBox(height: 24.h),
+                                BuildAboutSection(gym: gym),
+                                SizedBox(height: 24.h),
+                                BuildWorkingHours(gym: gym),
+                                SizedBox(height: 24.h),
+                                BuildContactInfo(gym: gym),
+                                SizedBox(height: 24.h),
+                                BuildReviewsSection(context: context, state: state),
+                                SizedBox(height: 24.h),
+
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  if (!isloading && !hasError && gym != null)
-                    _buildBottomButton(context, gym),
+                     BuildBottomButton(context: context, gym: gym)
                 ],
-              ),
-            ),
+              );
+            },
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -63,61 +104,8 @@ class GymDetailsView extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomButton(BuildContext context, Gym gym) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDark,
-        border: Border(top: BorderSide(color: AppColors.borderDark)),
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () {
-            context.go(RoutePaths.qr);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            padding: EdgeInsets.symmetric(vertical: 14.h),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.r),
-            ),
-          ),
-          child: Text(
-            " Check In",
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildcontent(BuildContext context, GymsState state, Gym gym) {
-    final isFavorite = state.favoriteIds.contains(gym.id);
-    final reviews = state.reviews;
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitleSection(context, gym, isFavorite),
-          SizedBox(height: 16.h),
-          // _buildAmenities(gym),
-          SizedBox(height: 24.h),
-          // _buildAboutSection(gym),
-          SizedBox(height: 24.h),
-          // _buildOpeningHours(gym),
-          SizedBox(height: 24.h),
-          // _buildReviewsSection(context, state, reviews),
-          SizedBox(height: 24.h),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTitleSection(BuildContext context, Gym gym, bool isfavorite) {
+  Widget _buildHeaderImage(BuildContext context, Gym gym, bool isFavorite) {
+    final heroLetter = gym.name.isNotEmpty ? gym.name[0].toUpperCase() : "G";
     return Stack(
       children: [
         Container(
@@ -131,7 +119,16 @@ class GymDetailsView extends StatelessWidget {
               ],
             ),
           ),
-          child: Center(child: Icon(Icons.fitness_center, size: 64.sp)),
+          child: Center(
+            child: Text(
+              heroLetter,
+              style: TextStyle(
+                fontSize: 72.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white.withValues(alpha: 0.15),
+              ),
+            ),
+          ),
         ),
         Positioned(
           top: 16.h,
@@ -140,15 +137,15 @@ class GymDetailsView extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _circularButton(
+              CirculeIconButton(
                 icon: Icons.arrow_back_ios_new_rounded,
                 onTap: () => Navigator.of(context).pop(),
               ),
-              _circularButton(
-                icon: isfavorite
+              CirculeIconButton(
+                icon: isFavorite
                     ? Icons.favorite_rounded
                     : Icons.favorite_border_rounded,
-                iconColor: isfavorite ? Colors.red : Colors.white,
+                iconColor: isFavorite ? Colors.red : Colors.white,
                 onTap: () {
                   context.read<GymsBloc>().add(
                     GymsEvent.toggleFavorite(gym.id),
@@ -159,26 +156,6 @@ class GymDetailsView extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _circularButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    Color iconColor = Colors.white,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40.w,
-        height: 40.w,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        ),
-        child: Icon(icon, color: iconColor, size: 16.sp),
-      ),
     );
   }
 }

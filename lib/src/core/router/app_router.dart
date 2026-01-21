@@ -6,7 +6,7 @@ import 'package:injectable/injectable.dart';
 import 'package:mygym/src/features/auth/presentation/views/login_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/otp_view.dart';
 import 'package:mygym/src/features/home/presentation/views/home_view.dart';
-import 'package:mygym/src/features/onboarding/presentation/views/onboarding_view.dart';
+import 'package:mygym/src/features/onboarding/presentation/presentation/views/onboarding_view.dart';
 import 'package:mygym/src/features/splash/presentation/views/splash_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mygym/src/features/gyms/presentation/views/gym_details_view.dart';
