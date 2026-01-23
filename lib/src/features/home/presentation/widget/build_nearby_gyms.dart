@@ -27,7 +27,7 @@ class BuildNearbyGyms extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: _onSeeAllGyms,
+                onTap: () => _onSeeAllGyms(context),
                 child: Text(
                   "See all",
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -59,8 +59,8 @@ class BuildNearbyGyms extends StatelessWidget {
     );
   }
 
-  void _onSeeAllGyms() {
-    // todo : navigate to gyms screen
+  void _onSeeAllGyms(BuildContext context) {
+    context.go(RoutePaths.gymsList);
   }
   
   void onGymTap(BuildContext context, GymEntity gym) {

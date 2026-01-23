@@ -185,6 +185,31 @@ class AuthCubit extends Cubit<AuthState> {
       emit(AuthState.error(e.toString()));
     }
   }
+  /// Update user profile (name / phone / photoUrl)
+  Future<void> updateProfile({
+    String? name,
+    String? phone,
+    String? photoUrl,
+  }) async {
+    try {
+      final result = await _authRepository.updateProfile(
+        name: name,
+        phone: phone,
+        photoUrl: photoUrl,
+      );
+
+      result.fold(
+        (failure) {
+          emit(AuthState.error(failure.message));
+        },
+        (user) {
+          emit(AuthState.authenticated(user));
+        },
+      );
+    } catch (e) {
+      emit(AuthState.error(e.toString()));
+    }
+  }
 
   /// Sign out
   Future<void> signOut() async {

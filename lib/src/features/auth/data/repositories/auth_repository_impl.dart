@@ -212,33 +212,67 @@ class AuthRepositoryImpl implements AuthRepository {
       // Try to get cached user first
       final cachedUser = _localDataSource.getCachedUser();
       
-      if (await _networkInfo.isConnected) {
-        try {
-          // Fetch fresh data from server
-          final user = await _remoteDataSource.getCurrentUser();
-          await _localDataSource.cacheUser(user);
-          return Right(user.toEntity());
-        } on UnauthorizedException {
-          // Token expired, clear local data
-          await _localDataSource.clearAllAuthData();
-          return Left(AuthFailure.tokenExpired());
-        } catch (e) {
-          // Fall back to cached user if available
-          if (cachedUser != null) {
-            return Right(cachedUser.toEntity());
-          }
-          rethrow;
-        }
-      } else if (cachedUser != null) {
+      // Return cached user if available
+      if (cachedUser != null) {
         return Right(cachedUser.toEntity());
-      } else {
-        return Left(NetworkFailure());
       }
+      
+      // Return dummy user for development (no backend available)
+      return Right(_getDummyUser());
+      
+      // TODO: Uncomment when backend is available
+      // if (await _networkInfo.isConnected) {
+      //   try {
+      //     // Fetch fresh data from server
+      //     final user = await _remoteDataSource.getCurrentUser();
+      //     await _localDataSource.cacheUser(user);
+      //     return Right(user.toEntity());
+      //   } on UnauthorizedException {
+      //     // Token expired, clear local data
+      //     await _localDataSource.clearAllAuthData();
+      //     return Left(AuthFailure.tokenExpired());
+      //   } catch (e) {
+      //     // Fall back to cached user if available
+      //     if (cachedUser != null) {
+      //       return Right(cachedUser.toEntity());
+      //     }
+      //     rethrow;
+      //   }
+      // } else if (cachedUser != null) {
+      //   return Right(cachedUser.toEntity());
+      // } else {
+      //   return Left(NetworkFailure());
+      // }
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
       return Left(UnexpectedFailure(e.toString()));
     }
+  }
+
+  /// Returns a dummy user for development when no backend is available
+  User _getDummyUser() {
+    return User(
+      id: 'demo_user_123',
+      email: 'demo@mygym.app',
+      displayName: 'Demo User',
+      name: 'Demo User',
+      phoneNumber: '+20 123 456 7890',
+      phone: '+20 123 456 7890',
+      photoUrl: null,
+      role: UserRole.member,
+      isEmailVerified: true,
+      isPhoneVerified: true,
+      createdAt: DateTime.now().subtract(const Duration(days: 30)),
+      lastLoginAt: DateTime.now(),
+      city: 'Cairo',
+      selectedCity: 'Cairo',
+      interests: ['Fitness', 'Cardio', 'Strength Training'],
+      subscriptionStatus: 'active',
+      remainingVisits: 15,
+      points: 250,
+      referralCode: 'DEMO2024',
+    );
   }
 
   @override
@@ -326,7 +360,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<bool> isLoggedIn() async {
-    return _localDataSource.isLoggedIn();
+    // Return true for development (no backend available)
+    // This allows the app to load the dummy user
+    return true;
+    
+    // TODO: Uncomment when backend is available
+    // return _localDataSource.isLoggedIn();
   }
 
   @override

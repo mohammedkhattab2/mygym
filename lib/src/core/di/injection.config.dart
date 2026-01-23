@@ -42,6 +42,21 @@ import '../../features/qr_checkin/domain/repositories/qr_repository.dart'
     as _i631;
 import '../../features/qr_checkin/presentation/bloc/qr_checkin_cubit.dart'
     as _i846;
+import '../../features/settings/data/datasources/settings_local_data_source.dart'
+    as _i599;
+import '../../features/settings/data/repositories/settings_repository_impl.dart'
+    as _i955;
+import '../../features/settings/domain/repositories/settings_repository.dart'
+    as _i674;
+import '../../features/settings/presentation/cubit/settings_cubit.dart'
+    as _i792;
+import '../../features/support/data/datasources/support_local_data_source.dart'
+    as _i855;
+import '../../features/support/data/repositories/support_repository_impl.dart'
+    as _i387;
+import '../../features/support/domain/repositories/support_repository.dart'
+    as _i275;
+import '../../features/support/presentation/cubit/support_cubit.dart' as _i196;
 import '../network/dio_client.dart' as _i667;
 import '../network/network_info.dart' as _i932;
 import '../router/app_router.dart' as _i81;
@@ -78,6 +93,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i204.SubscriptionGuard>(() => _i204.SubscriptionGuard());
     gh.lazySingleton<_i107.FirebaseAuthHelper>(
         () => _i107.FirebaseAuthHelper());
+    gh.lazySingleton<_i599.SettingsLocalDataSource>(
+        () => _i599.SettingsLocalDataSource());
+    gh.lazySingleton<_i855.SupportLocalDataSource>(
+        () => _i855.SupportLocalDataSource());
     await gh.factoryAsync<_i986.Box<String>>(
       () => storageModule.userBox,
       instanceName: 'userBox',
@@ -93,8 +112,14 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'cacheBox',
       preResolve: true,
     );
+    gh.lazySingleton<_i674.SettingsRepository>(() =>
+        _i955.SettingsRepositoryImpl(gh<_i599.SettingsLocalDataSource>()));
     gh.lazySingleton<_i107.AuthRemoteDataSource>(
         () => _i107.AuthRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i275.SupportRepository>(
+        () => _i387.SupportRepositoryImpl(gh<_i855.SupportLocalDataSource>()));
+    gh.factory<_i792.SettingsCubit>(
+        () => _i792.SettingsCubit(gh<_i674.SettingsRepository>()));
     gh.lazySingleton<_i619.SecureStorageService>(
         () => _i619.SecureStorageService(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i530.AuthGuard>(
@@ -111,6 +136,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),
         ));
+    gh.factory<_i196.SupportCubit>(
+        () => _i196.SupportCubit(gh<_i275.SupportRepository>()));
     gh.lazySingleton<_i631.QrRepository>(() => _i971.QrRepositoryImpl(
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),

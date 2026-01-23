@@ -4,7 +4,7 @@ import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/app_text_styles.dart';
 import 'package:mygym/src/features/gyms/domain/repositories/gym_repository.dart';
 import 'package:mygym/src/features/gyms/presentation/bloc/gyms_bloc.dart';
-import 'package:mygym/src/features/gyms/presentation/views/show_add_review_bottom_sheet.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/show_add_review_bottom_sheet.dart';
 
 class BuildReviewsSection extends StatelessWidget {
   final BuildContext context;

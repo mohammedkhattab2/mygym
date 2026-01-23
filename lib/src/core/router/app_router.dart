@@ -7,12 +7,28 @@ import 'package:mygym/src/features/auth/presentation/views/login_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/otp_view.dart';
 import 'package:mygym/src/features/home/presentation/views/home_view.dart';
 import 'package:mygym/src/features/onboarding/presentation/presentation/views/onboarding_view.dart';
+import 'package:mygym/src/features/profile/presentation/edit_profile_view.dart';
+import 'package:mygym/src/features/profile/presentation/views/profile_view.dart';
+import 'package:mygym/src/features/qr_checkin/presentation/bloc/qr_checkin_cubit.dart';
+import 'package:mygym/src/features/qr_checkin/presentation/views/qr_check_in_view.dart';
+import 'package:mygym/src/features/qr_checkin/presentation/views/visit_history_view.dart';
+import 'package:mygym/src/features/settings/presentation/cubit/settings_cubit.dart';
+import 'package:mygym/src/features/settings/presentation/views/language_settings_view.dart';
+import 'package:mygym/src/features/settings/presentation/views/notification_settings_view.dart';
+import 'package:mygym/src/features/settings/presentation/views/settings_view.dart';
 import 'package:mygym/src/features/splash/presentation/views/splash_view.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mygym/src/features/gyms/presentation/views/gym_details_view.dart';
 import 'package:mygym/src/features/gyms/presentation/bloc/gyms_bloc.dart';
 import 'package:mygym/src/core/di/injection.dart';
+import 'package:mygym/src/features/gyms/presentation/views/gyms_map_view.dart';
 
+import 'package:mygym/src/features/gyms/presentation/views/gyms_list_view.dart';
+import 'package:mygym/src/features/support/presentation/cubit/support_cubit.dart';
+import 'package:mygym/src/features/support/presentation/views/about_view.dart';
+import 'package:mygym/src/features/support/presentation/views/faq_view.dart';
+import 'package:mygym/src/features/support/presentation/views/support_hub_view.dart';
+import 'package:mygym/src/features/support/presentation/views/tickets_view.dart';
 import 'guards/auth_guard.dart';
 import 'guards/role_guard.dart';
 import 'guards/subscription_guard.dart';
@@ -146,14 +162,36 @@ class AppRouter {
               GoRoute(
                 path: 'map',
                 name: 'gyms-map',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Gyms Map'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<GymsBloc>()
+                      // Presentation logic بس: بنبعت event للـ ViewModel
+                      // مؤقتاً Location ثابتة (القاهرة) لحد ما نوصل geolocator
+                      ..add(
+                        const GymsEvent.updateLocation(
+                          latitude: 30.0444,
+                          longitude: 31.2357,
+                        ),
+                      ),
+                    child: const GymsMapView(),
+                  );
+                },
               ),
               GoRoute(
                 path: 'list',
                 name: 'gyms-list',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Gyms List'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<GymsBloc>()
+                      ..add(
+                        const GymsEvent.updateLocation(
+                          latitude: 30.0444, // Cairo lat
+                          longitude: 31.2357, // Cairo lng
+                        ),
+                      ),
+                    child: const GymsListView(),
+                  );
+                },
               ),
               GoRoute(
                 path: ':gymId',
@@ -161,10 +199,9 @@ class AppRouter {
                 builder: (context, state) {
                   final gymId = state.pathParameters['gymId']!;
                   return BlocProvider(
-                    create: (ctx) =>
-                        getIt<GymsBloc>()
-                          ..add(GymsEvent.loadGymDetails(gymId))
-                          ..add(GymsEvent.loadReviews(gymId)),
+                    create: (ctx) => getIt<GymsBloc>()
+                      ..add(GymsEvent.loadGymDetails(gymId))
+                      ..add(GymsEvent.loadReviews(gymId)),
                     child: GymDetailsView(gymId: gymId),
                   );
                 },
@@ -222,8 +259,12 @@ class AppRouter {
           GoRoute(
             path: RoutePaths.qr,
             name: 'qr',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'QR Check-in'),
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<QrCheckinCubit>(),
+                child: const QrCheckInView(),
+              );
+            },
           ),
 
           // Classes
@@ -296,8 +337,12 @@ class AppRouter {
           GoRoute(
             path: RoutePaths.history,
             name: 'history',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'Visit History'),
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<QrCheckinCubit>(),
+                child: const VisitHistoryView(),
+              );
+            },
           ),
 
           // Profile
@@ -305,7 +350,7 @@ class AppRouter {
             path: RoutePaths.profile,
             name: 'profile',
             redirect: (context, state) {
-              if (state.matchedLocation == RoutePaths.profile) {
+              if (state.uri.path == RoutePaths.profile) {
                 return RoutePaths.profileView;
               }
               return null;
@@ -314,36 +359,90 @@ class AppRouter {
               GoRoute(
                 path: 'view',
                 name: 'profile-view',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Profile'),
+                builder: (context, state) => const ProfileView(),
               ),
               GoRoute(
                 path: 'edit',
                 name: 'profile-edit',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Edit Profile'),
+                builder: (context, state) => const EditProfileView(),
               ),
             ],
           ),
 
           // Settings
           GoRoute(
-            path: RoutePaths.settings,
+            path: RoutePaths.settings, // '/member/settings'
             name: 'settings',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'Settings'),
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<SettingsCubit>(),
+                child: const SettingsView(),
+              );
+            },
             routes: [
               GoRoute(
-                path: 'language',
+                path: 'language', // '/member/settings/language'
                 name: 'language-settings',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Language Settings'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<SettingsCubit>(),
+                    child: const LanguageSettingsView(),
+                  );
+                },
               ),
               GoRoute(
-                path: 'notifications',
+                path: 'notifications', // '/member/settings/notifications'
                 name: 'notification-settings',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Notification Settings'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<SettingsCubit>(),
+                    child: const NotificationSettingsView(),
+                  );
+                },
+              ),
+            ],
+          ),
+          // Help & Support تحت settings
+          GoRoute(
+            path:
+                '${RoutePaths.settings}/support', // '/member/settings/support'
+            name: 'support-hub',
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<SupportCubit>(),
+                child: const SupportHubView(),
+              );
+            },
+            routes: [
+              GoRoute(
+                path: 'faq',
+                name: 'support-faq',
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<SupportCubit>(),
+                    child: const FaqView(),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'tickets',
+                name: 'support-tickets',
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<SupportCubit>(),
+                    child: const TicketsView(),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'about',
+                name: 'support-about',
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<SupportCubit>(),
+                    child: const AboutView(),
+                  );
+                },
               ),
             ],
           ),
@@ -500,16 +599,33 @@ class _PlaceholderPage extends StatelessWidget {
 }
 
 /// Member shell scaffold with bottom navigation
-class _MemberShellScaffold extends StatelessWidget {
+class _MemberShellScaffold extends StatefulWidget {
   const _MemberShellScaffold({required this.child});
 
   final Widget child;
 
   @override
+  State<_MemberShellScaffold> createState() => _MemberShellScaffoldState();
+}
+
+class _MemberShellScaffoldState extends State<_MemberShellScaffold> {
+  int _currentIndex = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentIndex = _getIndexForLocation(
+      GoRouterState.of(context).matchedLocation,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: child,
+      body: widget.child,
       bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: _onDestinationSelected,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.map), label: 'Gyms'),
@@ -520,11 +636,46 @@ class _MemberShellScaffold extends StatelessWidget {
           ),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        onDestinationSelected: (index) {
-          // TODO: Implement navigation
-        },
       ),
     );
+  }
+
+  int _getIndexForLocation(String location) {
+    if (location.startsWith(RoutePaths.home)) {
+      return 0;
+    } else if (location.startsWith(RoutePaths.gyms)) {
+      return 1;
+    } else if (location.startsWith(RoutePaths.qr)) {
+      return 2;
+    } else if (location.startsWith(RoutePaths.classes)) {
+      return 3;
+    } else if (location.startsWith(RoutePaths.profile)) {
+      return 4;
+    }
+    return 0;
+  }
+
+  void _onDestinationSelected(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+    switch (index) {
+      case 0:
+        context.go(RoutePaths.home);
+        break;
+      case 1:
+        context.go(RoutePaths.gymsMap);
+        break;
+      case 2:
+        context.go(RoutePaths.qr);
+        break;
+      case 3:
+        context.go(RoutePaths.classesCalendar);
+        break;
+      case 4:
+        context.go(RoutePaths.profileView);
+        break;
+    }
   }
 }
 

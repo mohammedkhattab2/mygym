@@ -45,7 +45,7 @@ dependencies:
   
   # Models & Serialization
   freezed_annotation: ^2.4.1
-  json_annotation: ^4.8.1
+  json_annotation: ^4.9.0
   
   # Firebase
   firebase_core: ^4.3.0
@@ -99,7 +99,6 @@ dev_dependencies:
   freezed: ^2.4.6
   json_serializable: ^6.8.0
   injectable_generator: ^2.4.2
-  hive_generator: ^2.0.1
   
   # Testing
   bloc_test: ^10.0.0

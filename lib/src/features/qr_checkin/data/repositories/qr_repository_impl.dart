@@ -19,24 +19,48 @@ class QrRepositoryImpl implements QrRepository {
 
   @override
   Future<Either<Failure, QrToken>> generateToken({String? gymId}) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(NetworkFailure());
-    }
+    // Return dummy token for development (no backend available)
+    final dummyToken = _generateDummyToken(gymId: gymId);
+    return Right(dummyToken);
 
-    try {
-      final response = await _dioClient.dio.post(
-        ApiEndpoints.generateQR,
-        data: {
-          if (gymId != null) 'gym_id': gymId,
-        },
-      );
+    // TODO: Uncomment when backend is available
+    // if (!await _networkInfo.isConnected) {
+    //   return const Left(NetworkFailure());
+    // }
+    //
+    // try {
+    //   final response = await _dioClient.dio.post(
+    //     ApiEndpoints.generateQR,
+    //     data: {
+    //       if (gymId != null) 'gym_id': gymId,
+    //     },
+    //   );
+    //
+    //   return Right(_parseQrToken(response.data));
+    // } on DioException catch (e) {
+    //   return Left(ServerFailure(e.message ?? 'Failed to generate QR token'));
+    // } catch (e) {
+    //   return Left(UnexpectedFailure(e.toString()));
+    // }
+  }
 
-      return Right(_parseQrToken(response.data));
-    } on DioException catch (e) {
-      return Left(ServerFailure(e.message ?? 'Failed to generate QR token'));
-    } catch (e) {
-      return Left(UnexpectedFailure(e.toString()));
-    }
+  /// Generates a dummy QR token for development when no backend is available
+  QrToken _generateDummyToken({String? gymId}) {
+    final now = DateTime.now();
+    final expiresAt = now.add(const Duration(seconds: 60));
+    final nonce = 'nonce_${now.millisecondsSinceEpoch}';
+    
+    return QrToken(
+      token: 'dummy_token_${now.millisecondsSinceEpoch}',
+      userId: 'demo_user_123',
+      gymId: gymId,
+      issuedAt: now,
+      expiresAt: expiresAt,
+      nonce: nonce,
+      status: QrTokenStatus.valid,
+      remainingVisits: 10,
+      subscriptionId: 'sub_demo_001',
+    );
   }
 
   @override
