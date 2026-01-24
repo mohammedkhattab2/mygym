@@ -30,12 +30,27 @@ import '../../features/auth/data/repositories/auth_repository_impl.dart'
     as _i153;
 import '../../features/auth/domain/repositories/auth_repository.dart' as _i787;
 import '../../features/auth/presentation/bloc/auth_cubit.dart' as _i52;
+import '../../features/classes/data/datasources/classes_local_data_source.dart'
+    as _i312;
+import '../../features/classes/data/repositories/classes_repository_impl.dart'
+    as _i418;
+import '../../features/classes/domain/repositories/classes_repository.dart'
+    as _i426;
+import '../../features/classes/presentation/cubit/classes_cubit.dart' as _i205;
 import '../../features/gyms/data/repositories/gym_repository_impl.dart'
     as _i541;
 import '../../features/gyms/domain/repositories/gym_repository.dart' as _i786;
 import '../../features/gyms/presentation/bloc/gyms_bloc.dart' as _i587;
 import '../../features/onboarding/presentation/bloc/onboarding_cubit.dart'
     as _i153;
+import '../../features/partner/data/datasources/partner_local_data_source.dart'
+    as _i824;
+import '../../features/partner/data/repositories/partner_repository_impl.dart'
+    as _i57;
+import '../../features/partner/domain/repositories/partner_repository.dart'
+    as _i1042;
+import '../../features/partner/presentation/cubit/partner_dashboard_cubit.dart'
+    as _i8;
 import '../../features/qr_checkin/data/repositories/qr_repository_impl.dart'
     as _i971;
 import '../../features/qr_checkin/domain/repositories/qr_repository.dart'
@@ -93,10 +108,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i204.SubscriptionGuard>(() => _i204.SubscriptionGuard());
     gh.lazySingleton<_i107.FirebaseAuthHelper>(
         () => _i107.FirebaseAuthHelper());
+    gh.lazySingleton<_i312.ClassesLocalDataSource>(
+        () => _i312.ClassesLocalDataSource());
     gh.lazySingleton<_i599.SettingsLocalDataSource>(
         () => _i599.SettingsLocalDataSource());
     gh.lazySingleton<_i855.SupportLocalDataSource>(
         () => _i855.SupportLocalDataSource());
+    gh.lazySingleton<_i824.PartnerLocalDataSource>(
+        () => _i824.PartnerLocalDataSource());
     await gh.factoryAsync<_i986.Box<String>>(
       () => storageModule.userBox,
       instanceName: 'userBox',
@@ -120,6 +139,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i387.SupportRepositoryImpl(gh<_i855.SupportLocalDataSource>()));
     gh.factory<_i792.SettingsCubit>(
         () => _i792.SettingsCubit(gh<_i674.SettingsRepository>()));
+    gh.lazySingleton<_i426.ClassesRepository>(
+        () => _i418.ClassesRepositoryImpl(gh<_i312.ClassesLocalDataSource>()));
     gh.lazySingleton<_i619.SecureStorageService>(
         () => _i619.SecureStorageService(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i530.AuthGuard>(
@@ -128,6 +149,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i746.RoleGuard(gh<_i619.SecureStorageService>()));
     gh.lazySingleton<_i932.NetworkInfo>(
         () => _i932.NetworkInfoImpl(gh<_i895.Connectivity>()));
+    gh.lazySingleton<_i1042.PartnerRepository>(
+        () => _i57.PartnerRepositoryImpl(gh<_i824.PartnerLocalDataSource>()));
     gh.lazySingleton<_i852.AuthLocalDataSource>(() => _i852.AuthLocalDataSource(
           gh<_i619.SecureStorageService>(),
           gh<_i986.Box<String>>(instanceName: 'userBox'),
@@ -138,6 +161,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i196.SupportCubit>(
         () => _i196.SupportCubit(gh<_i275.SupportRepository>()));
+    gh.factory<_i8.PartnerDashboardCubit>(
+        () => _i8.PartnerDashboardCubit(gh<_i1042.PartnerRepository>()));
     gh.lazySingleton<_i631.QrRepository>(() => _i971.QrRepositoryImpl(
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),
@@ -146,6 +171,8 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),
         ));
+    gh.factory<_i205.ClassesCubit>(
+        () => _i205.ClassesCubit(gh<_i426.ClassesRepository>()));
     gh.factory<_i273.AdminDashboardCubit>(
         () => _i273.AdminDashboardCubit(gh<_i583.AdminRepository>()));
     gh.lazySingleton<_i81.AppRouter>(() => _i81.AppRouter(

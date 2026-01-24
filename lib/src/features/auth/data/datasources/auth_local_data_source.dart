@@ -176,4 +176,5 @@ class AuthLocalDataSource {
   Future<String?> getFcmToken() async {
     return _secureStorage.read(StorageKeys.fcmToken);
   }
+
 }

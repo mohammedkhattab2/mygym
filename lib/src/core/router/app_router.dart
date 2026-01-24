@@ -5,12 +5,18 @@ import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mygym/src/features/auth/presentation/views/login_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/otp_view.dart';
+import 'package:mygym/src/features/classes/presentation/cubit/classes_cubit.dart';
+import 'package:mygym/src/features/classes/presentation/views/classes_calendar_view.dart';
 import 'package:mygym/src/features/home/presentation/views/home_view.dart';
 import 'package:mygym/src/features/onboarding/presentation/presentation/views/onboarding_view.dart';
+import 'package:mygym/src/features/partner/presentation/cubit/partner_dashboard_cubit.dart';
+import 'package:mygym/src/features/partner/presentation/views/partner_dashboard_view.dart';
+import 'package:mygym/src/features/partner/presentation/views/partner_reports_view.dart';
 import 'package:mygym/src/features/profile/presentation/edit_profile_view.dart';
 import 'package:mygym/src/features/profile/presentation/views/profile_view.dart';
 import 'package:mygym/src/features/qr_checkin/presentation/bloc/qr_checkin_cubit.dart';
 import 'package:mygym/src/features/qr_checkin/presentation/views/qr_check_in_view.dart';
+import 'package:mygym/src/features/qr_checkin/presentation/views/qr_scanner_view.dart';
 import 'package:mygym/src/features/qr_checkin/presentation/views/visit_history_view.dart';
 import 'package:mygym/src/features/settings/presentation/cubit/settings_cubit.dart';
 import 'package:mygym/src/features/settings/presentation/views/language_settings_view.dart';
@@ -281,8 +287,12 @@ class AppRouter {
               GoRoute(
                 path: 'calendar',
                 name: 'classes-calendar',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Classes Calendar'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<ClassesCubit>()..loadInitial(),
+                    child: const ClassesCalendarView(),
+                  );
+                },
               ),
               GoRoute(
                 path: ':classId',
@@ -459,20 +469,36 @@ class AppRouter {
           GoRoute(
             path: RoutePaths.partnerDashboard,
             name: 'partner-dashboard',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'Partner Dashboard'),
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<PartnerDashboardCubit>()..loadInitial(),
+                child: const PartnerDashboardView(),
+              );
+            },
           ),
           GoRoute(
             path: RoutePaths.partnerScanner,
             name: 'partner-scanner',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'QR Scanner'),
+            builder: (context, state) {
+              // gymId جاي من query parameter: /partner/scanner?gymId=G1
+              final gymId = state.uri.queryParameters['gymId'] ?? 'unknown';
+
+              return BlocProvider(
+                create: (ctx) => getIt<QrScannerCubit>(),
+                child: QrScannerView(gymId: gymId),
+              );
+            },
           ),
           GoRoute(
             path: RoutePaths.partnerReports,
             name: 'partner-reports',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'Reports'),
+            builder: (context, state) {
+              // نعيد استخدام نفس Cubit (نفس البيانات)
+              return BlocProvider.value(
+                value: getIt<PartnerDashboardCubit>(),
+                child: const PartnerReportsView(),
+              );
+            },
           ),
           GoRoute(
             path: RoutePaths.partnerSettings,
@@ -538,28 +564,119 @@ class AppRouter {
       ),
     ],
   );
+  String _defaultRouteForRole(UserRole role) {
+    switch (role) {
+      case UserRole.admin:
+        return RoutePaths.adminDashboard;
+      case UserRole.partner:
+        return RoutePaths.partnerDashboard;
+      case UserRole.member:
+        return RoutePaths.memberHome;
+      case UserRole.guest:
+      default:
+        return RoutePaths.login;
+    }
+  }
 
   /// Handle global redirects
   Future<String?> _handleRedirect(
     BuildContext context,
     GoRouterState state,
   ) async {
-    final location = state.matchedLocation;
+    // Get location from multiple sources
+    final uriPath = state.uri.path;
+    final matchedLocation = state.matchedLocation;
+    
+    // Debug logging
+    debugPrint('🔀 GoRouter redirect called:');
+    debugPrint('   - uriPath: $uriPath');
+    debugPrint('   - matchedLocation: $matchedLocation');
+    debugPrint('   - fullUri: ${state.uri}');
 
-    // Skip redirect for auth, onboarding routes
-    if (location.startsWith(RoutePaths.auth) ||
-        location.startsWith(RoutePaths.onboarding) ||
-        location == RoutePaths.splash) {
+    // ═══════════════════════════════════════════════════════════════════════
+    // ABSOLUTE FIRST CHECK: If target contains 'otp', allow immediately
+    // This must happen before ANY other logic to prevent redirect loops
+    // ═══════════════════════════════════════════════════════════════════════
+    if (uriPath.contains('otp') || matchedLocation.contains('otp')) {
+      debugPrint('✅ OTP route detected - allowing access unconditionally');
+      return null; // Allow access, no redirect
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // SECOND CHECK: Any other /auth/* route (login, etc.)
+    // ═══════════════════════════════════════════════════════════════════════
+    final bool isAuthRoute = uriPath == '/auth' ||
+        uriPath.startsWith('/auth/') ||
+        uriPath == '/auth/login' ||
+        matchedLocation == '/auth' ||
+        matchedLocation.startsWith('/auth/');
+    
+    if (isAuthRoute) {
+      debugPrint('🔐 Auth route detected: $uriPath');
+      
+      // Check authentication status
+      await authGuard.checkAuthState();
+      final isAuthenticated = authGuard.isAuthenticated;
+      
+      debugPrint('   - isAuthenticated: $isAuthenticated');
+      
+      if (isAuthenticated) {
+        // User is already logged in, redirect to their home
+        await roleGuard.refreshRole();
+        final homeRoute = _defaultRouteForRole(roleGuard.currentRole);
+        debugPrint('   - Redirecting to: $homeRoute');
+        return homeRoute;
+      }
+      
+      // Not authenticated - allow access to auth pages
+      debugPrint('✅ Allowing unauthenticated access to: $uriPath');
       return null;
     }
 
-    // Check authentication
+    // Use uriPath as the primary location
+    final location = uriPath;
+
+    // 1) فحص الـ token (Authentication)
     final authRedirect = await authGuard.canActivate(context, location);
-    if (authRedirect != null) {
-      return authRedirect;
+    final isAuthenticated = authRedirect == null;
+
+    // 2) Splash
+    if (location == RoutePaths.splash) {
+      // لو مش لوجّن → خليك في السبلش (هتودّي للّوجن/أونبوردنج بطريقتك)
+      if (!isAuthenticated) return null;
+
+      // لو لوجّن → وجّه حسب الـ role
+      await roleGuard.refreshRole();
+      return _defaultRouteForRole(roleGuard.currentRole);
     }
 
-    // Check role-based access
+    // 3) Auth routes (/auth, /auth/login) - NOT OTP, it's handled above
+    if (location == RoutePaths.auth ||
+        location == RoutePaths.login ||
+        location == '/auth' ||
+        location == '/auth/login') {
+      // لو مش لوجّن → دخله عادي على شاشة اللوجن
+      if (!isAuthenticated) return null;
+
+      // لو لوجّن بالفعل → رجّعه للـ default route حسب الـ role
+      await roleGuard.refreshRole();
+      return _defaultRouteForRole(roleGuard.currentRole);
+    }
+
+    // 4) Onboarding routes: سيبها دلوقتي زي ما هي
+    if (location.startsWith(RoutePaths.onboarding)) {
+      return null;
+    }
+
+    // 5) باقي المسارات:
+    // لو مش لوجّن (والمسار مش auth/onboarding/splash) → رجّعه لنتيجة الـ AuthGuard
+    if (!isAuthenticated) {
+      return authRedirect; // غالباً '/auth/login'
+    }
+
+    // 6) فحص role-based access للمناطق الحساسة
+
+    // Admin area
     if (location.startsWith(RoutePaths.admin)) {
       final roleRedirect = await roleGuard.canActivate(context, location, [
         UserRole.admin,
@@ -567,7 +684,9 @@ class AppRouter {
       if (roleRedirect != null) {
         return roleRedirect;
       }
-    } else if (location.startsWith(RoutePaths.partner)) {
+    }
+    // Partner area
+    else if (location.startsWith(RoutePaths.partner)) {
       final roleRedirect = await roleGuard.canActivate(context, location, [
         UserRole.admin,
         UserRole.partner,
@@ -577,6 +696,7 @@ class AppRouter {
       }
     }
 
+    // 7) أي مسار تاني (member مثلاً) → مسموح لو عدّى AuthGuard + RoleGuard أعلاه
     return null;
   }
 }
@@ -680,10 +800,60 @@ class _MemberShellScaffoldState extends State<_MemberShellScaffold> {
 }
 
 /// Partner shell scaffold with navigation rail
-class _PartnerShellScaffold extends StatelessWidget {
+class _PartnerShellScaffold extends StatefulWidget {
   const _PartnerShellScaffold({required this.child});
 
   final Widget child;
+
+  @override
+  State<_PartnerShellScaffold> createState() =>
+      _PartnerShellScaffoldState();
+}
+
+class _PartnerShellScaffoldState extends State<_PartnerShellScaffold> {
+  int _currentIndex = 0;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentIndex =
+        _getIndexForLocation(GoRouterState.of(context).matchedLocation);
+  }
+
+  int _getIndexForLocation(String location) {
+    if (location.startsWith(RoutePaths.partnerDashboard)) {
+      return 0;
+    } else if (location.startsWith(RoutePaths.partnerScanner)) {
+      return 1;
+    } else if (location.startsWith(RoutePaths.partnerReports)) {
+      return 2;
+    } else if (location.startsWith(RoutePaths.partnerSettings)) {
+      return 3;
+    }
+    return 0;
+  }
+
+  void _onDestinationSelected(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        context.go(RoutePaths.partnerDashboard);
+        break;
+      case 1:
+        // مؤقتًا gymId ثابت; بعدين نربطه بالجيم بتاع الـ partner
+        context.go('${RoutePaths.partnerScanner}?gymId=gym_1');
+        break;
+      case 2:
+        context.go(RoutePaths.partnerReports);
+        break;
+      case 3:
+        context.go(RoutePaths.partnerSettings);
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -709,13 +879,11 @@ class _PartnerShellScaffold extends StatelessWidget {
                 label: Text('Settings'),
               ),
             ],
-            selectedIndex: 0,
-            onDestinationSelected: (index) {
-              // TODO: Implement navigation
-            },
+            selectedIndex: _currentIndex,
+            onDestinationSelected: _onDestinationSelected,
           ),
           const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: child),
+          Expanded(child: widget.child),
         ],
       ),
     );
