@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
-import 'package:mygym/src/core/theme/app_text_styles.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/gyms/presentation/bloc/gyms_bloc.dart';
 
 /// Shows a bottom sheet for adding a gym review.
 void showAddReviewBottomSheet(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
   showModalBottomSheet(
     context: context,
-    backgroundColor: AppColors.surfaceDark,
+    backgroundColor: colorScheme.surface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
     ),
@@ -36,6 +36,11 @@ class _AddReviewContentState extends State<_AddReviewContent> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final textTheme = Theme.of(context).textTheme;
+    const warningColor = Color(0xFFFFB020);
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -55,15 +60,15 @@ class _AddReviewContentState extends State<_AddReviewContent> {
                 height: 4.h,
                 margin: EdgeInsets.only(bottom: 12.h),
                 decoration: BoxDecoration(
-                  color: AppColors.borderDark,
+                  color: colorScheme.outline.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(4.r),
                 ),
               ),
             ),
             Text(
               "Write a review",
-              style: AppTextStyles.titleMedium.copyWith(
-                color: AppColors.textPrimaryDark,
+              style: textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -83,8 +88,8 @@ class _AddReviewContentState extends State<_AddReviewContent> {
                   icon: Icon(
                     Icons.star_rounded,
                     color: isSelected
-                        ? AppColors.warning
-                        : AppColors.borderDark,
+                        ? warningColor
+                        : colorScheme.outline.withValues(alpha: 0.3),
                     size: 28.sp,
                   ),
                 );
@@ -93,27 +98,27 @@ class _AddReviewContentState extends State<_AddReviewContent> {
             SizedBox(height: 8.h),
             TextFormField(
               maxLines: 3,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimaryDark,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 hintText: 'Share your experience...',
-                hintStyle: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textTertiaryDark,
+                hintStyle: textTheme.bodyMedium?.copyWith(
+                  color: luxury.textTertiary,
                 ),
                 filled: true,
-                fillColor: AppColors.surfaceElevatedDark,
+                fillColor: luxury.surfaceElevated,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: AppColors.borderDark),
+                  borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: AppColors.borderDark),
+                  borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: AppColors.primary),
+                  borderSide: BorderSide(color: colorScheme.primary),
                 ),
               ),
               onChanged: (value) => _comment = value,
@@ -124,7 +129,7 @@ class _AddReviewContentState extends State<_AddReviewContent> {
               child: ElevatedButton(
                 onPressed: _submitReview,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: colorScheme.primary,
                   padding: EdgeInsets.symmetric(vertical: 12.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.r),
@@ -132,7 +137,7 @@ class _AddReviewContentState extends State<_AddReviewContent> {
                 ),
                 child: Text(
                   "Submit",
-                  style: AppTextStyles.bodyMedium.copyWith(
+                  style: textTheme.bodyMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),

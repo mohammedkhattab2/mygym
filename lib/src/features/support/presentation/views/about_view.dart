@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
-import 'package:mygym/src/core/theme/app_text_styles.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/support/presentation/cubit/support_cubit.dart';
 
 class AboutView extends StatelessWidget {
@@ -10,30 +9,36 @@ class AboutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final textTheme = Theme.of(context).textTheme;
+    
     return Scaffold(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
           "About",
-          style: AppTextStyles.titleLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+          style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: colorScheme.surface,
       ),
       body: BlocBuilder<SupportCubit, SupportState>(
         builder: (context, state) {
           final info = state.aboutInfo;
           if (state.isLoading && info == null) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(color: colorScheme.primary),
+            );
           }
           if (info == null) {
             return Center(
               child: Text(
                 "No about info available",
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             );
@@ -43,56 +48,57 @@ class AboutView extends StatelessWidget {
             children: [
               Text(
                 info.appName,
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: AppColors.textPrimaryDark,
+                style: textTheme.titleLarge?.copyWith(
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w700,
-                ) ,
-              ),SizedBox(height: 4.h,),
+                ),
+              ),
+              SizedBox(height: 4.h),
               Text(
                 'v${info.version} (${info.buildNumber})',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondaryDark,
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              SizedBox(height: 16.h,),
+              SizedBox(height: 16.h),
               Text(
                 info.websiteUrl,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.primary
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.primary,
                 ),
               ),
-              SizedBox(height: 24.h,),
+              SizedBox(height: 24.h),
               Text(
                 "Contact",
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textPrimaryDark,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 8.h,),
+              SizedBox(height: 8.h),
               Text(
                 'Email: ${info.contactEmail}',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondaryDark,
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 4.h,),
+              SizedBox(height: 4.h),
               Text(
                 'Website: ${info.websiteUrl}',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondaryDark,
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.bold,
-                  ),
+                ),
               ),
-              SizedBox(height:  24.h),
+              SizedBox(height: 24.h),
               Text(
                 info.copyright,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondaryDark,
-                  fontWeight: FontWeight.bold
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.bold,
                 ),
-              )
+              ),
             ],
           );
         },

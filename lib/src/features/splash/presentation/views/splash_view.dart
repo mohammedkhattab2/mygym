@@ -4,16 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-/// Premium Splash Screen for MyGym
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/luxury_theme_extension.dart';
+
+/// Luxury Premium Splash Screen for MyGym
 ///
 /// Features:
-/// - Animated floating particles background
-/// - Soft glowing circles
-/// - Logo with scale bounce and pulsing glow
-/// - Shimmer effect on app name
-/// - Animated loading dots
-/// - Auto-navigation after 3 seconds
+/// - Animated floating particles with gold accents
+/// - Multiple layered glowing orbs with purple/gold gradient
+/// - Logo with elegant scale animation and magical glow
+/// - Gold shimmer effect on app name
+/// - Elegant serif tagline
+/// - Premium animated loading indicator
+/// - Auto-navigation after 3.5 seconds
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
 
@@ -68,13 +73,16 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
 
   void _initParticles() {
     final random = math.Random();
-    _particles = List.generate(20, (index) {
+    _particles = List.generate(30, (index) {
+      // Mix of purple and gold particles
+      final isGold = index % 5 == 0;
       return _Particle(
         x: random.nextDouble(),
         y: random.nextDouble(),
-        size: 2 + random.nextDouble() * 4,
-        speed: 0.2 + random.nextDouble() * 0.5,
-        opacity: 0.1 + random.nextDouble() * 0.3,
+        size: 2 + random.nextDouble() * 5,
+        speed: 0.15 + random.nextDouble() * 0.4,
+        opacity: 0.1 + random.nextDouble() * 0.4,
+        isGold: isGold,
       );
     });
   }
@@ -188,7 +196,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
   }
 
   void _navigateAfterDelay() {
-    Future.delayed(const Duration(milliseconds: 3000), () {
+    Future.delayed(const Duration(milliseconds: 3500), () {
       if (mounted) {
         context.go('/onboarding');
       }
@@ -209,54 +217,62 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0A0A14),
-              Color(0xFF0F0F1A),
-            ],
-          ),
+        decoration: BoxDecoration(
+          gradient: luxury.backgroundGradient,
         ),
         child: Stack(
           children: [
-            // Animated floating particles
+            // Animated floating particles (gold & purple)
             _buildParticles(),
 
-            // Soft glowing circles
+            // Multiple layered glowing orbs
             _buildGlowingCircles(),
+            
+            // Subtle radial gradient overlay
+            _buildRadialOverlay(),
 
-            // Main content
+            // Main centered content - perfectly centered vertically and horizontally
             SafeArea(
-              child: Column(
-                children: [
-                  const Spacer(flex: 2),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Animated Logo with magical glow
+                    _buildAnimatedLogo(),
 
-                  // Animated Logo
-                  _buildAnimatedLogo(),
+                    SizedBox(height: 48.h),
 
-                  SizedBox(height: 40.h),
+                    // App name with gold shimmer
+                    _buildAppName(),
 
-                  // App name with shimmer
-                  _buildAppName(),
+                    SizedBox(height: 16.h),
 
-                  SizedBox(height: 12.h),
-
-                  // Tagline
-                  _buildTagline(),
-
-                  const Spacer(flex: 2),
-
-                  // Loading dots
-                  _buildLoadingDots(),
-
-                  SizedBox(height: 48.h),
-                ],
+                    // Elegant serif tagline
+                    _buildTagline(),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Premium loading indicator - positioned at bottom
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 40.h),
+                  child: _buildLoadingIndicator(),
+                ),
               ),
             ),
           ],
@@ -264,8 +280,30 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
       ),
     );
   }
+  
+  Widget _buildRadialOverlay() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: const Alignment(0, -0.3),
+            radius: 1.2,
+            colors: [
+              colorScheme.primary.withValues(alpha: 0.08),
+              Colors.transparent,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildParticles() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     return AnimatedBuilder(
       animation: _particlesController,
       builder: (context, child) {
@@ -277,6 +315,8 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
           painter: _ParticlesPainter(
             particles: _particles,
             progress: _particlesController.value,
+            purpleColor: colorScheme.primary,
+            goldColor: luxury.gold,
           ),
         );
       },
@@ -284,25 +324,28 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
   }
 
   Widget _buildGlowingCircles() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     return AnimatedBuilder(
       animation: _glowPulseController,
       builder: (context, child) {
         final pulseValue = _logoGlowAnimation.value;
         return Stack(
           children: [
-            // Top right glow
+            // Top right purple glow
             Positioned(
-              top: -100.h,
-              right: -80.w,
+              top: -120.h,
+              right: -100.w,
               child: Container(
-                width: 250.w,
-                height: 250.w,
+                width: 300.w,
+                height: 300.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF8B5CF6).withValues(alpha: 0.15 * pulseValue),
-                      const Color(0xFF8B5CF6).withValues(alpha: 0.05 * pulseValue),
+                      colorScheme.primary.withValues(alpha: 0.2 * pulseValue),
+                      colorScheme.primary.withValues(alpha: 0.08 * pulseValue),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.5, 1.0],
@@ -310,33 +353,74 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            // Center glow (behind logo)
+            // Top left gold accent glow
             Positioned(
-              top: MediaQuery.of(context).size.height * 0.28,
+              top: -60.h,
+              left: -80.w,
+              child: Container(
+                width: 180.w,
+                height: 180.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      luxury.gold.withValues(alpha: 0.12 * pulseValue),
+                      luxury.gold.withValues(alpha: 0.04 * pulseValue),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
+                ),
+              ),
+            ),
+            // Center glow (behind logo) - main magical effect
+            Positioned(
+              top: MediaQuery.of(context).size.height * 0.25,
               left: 0,
               right: 0,
               child: Center(
                 child: Container(
-                  width: 300.w,
-                  height: 300.w,
+                  width: 350.w,
+                  height: 350.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        const Color(0xFF8B5CF6).withValues(alpha: 0.25 * pulseValue),
-                        const Color(0xFF6366F1).withValues(alpha: 0.1 * pulseValue),
+                        colorScheme.primary.withValues(alpha: 0.3 * pulseValue),
+                        colorScheme.secondary.withValues(alpha: 0.15 * pulseValue),
+                        luxury.gold.withValues(alpha: 0.05 * pulseValue),
                         Colors.transparent,
                       ],
-                      stops: const [0.0, 0.4, 1.0],
+                      stops: const [0.0, 0.3, 0.6, 1.0],
                     ),
                   ),
                 ),
               ),
             ),
-            // Bottom left glow
+            // Bottom gold accent glow
+            Positioned(
+              bottom: -80.h,
+              left: MediaQuery.of(context).size.width * 0.3,
+              child: Container(
+                width: 220.w,
+                height: 220.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      luxury.gold.withValues(alpha: 0.1 * pulseValue),
+                      luxury.gold.withValues(alpha: 0.03 * pulseValue),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
+                ),
+              ),
+            ),
+            // Bottom left purple glow
             Positioned(
               bottom: -50.h,
-              left: -60.w,
+              left: -70.w,
               child: Container(
                 width: 200.w,
                 height: 200.w,
@@ -344,8 +428,8 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF6366F1).withValues(alpha: 0.1 * pulseValue),
-                      const Color(0xFF6366F1).withValues(alpha: 0.03 * pulseValue),
+                      colorScheme.secondary.withValues(alpha: 0.12 * pulseValue),
+                      colorScheme.secondary.withValues(alpha: 0.04 * pulseValue),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.5, 1.0],
@@ -360,6 +444,9 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
   }
 
   Widget _buildAnimatedLogo() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     return AnimatedBuilder(
       animation: Listenable.merge([_logoController, _glowPulseController]),
       builder: (context, child) {
@@ -369,44 +456,68 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
           child: ScaleTransition(
             scale: _logoScaleAnimation,
             child: Container(
-              width: 120.w,
-              height: 120.w,
+              width: 130.w,
+              height: 130.w,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF8B5CF6),
-                    Color(0xFF6366F1),
+                    colorScheme.primary,
+                    colorScheme.primaryContainer,
+                    colorScheme.secondary,
                   ],
+                  stops: const [0.0, 0.5, 1.0],
                 ),
-                borderRadius: BorderRadius.circular(32.r),
+                borderRadius: BorderRadius.circular(36.r),
+                border: Border.all(
+                  color: luxury.gold.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
                 boxShadow: [
-                  // Inner glow
+                  // Primary glow
                   BoxShadow(
-                    color: const Color(0xFF8B5CF6).withValues(alpha: glowOpacity),
-                    blurRadius: 40,
+                    color: colorScheme.primary.withValues(alpha: glowOpacity),
+                    blurRadius: 50,
+                    spreadRadius: 8,
+                  ),
+                  // Gold accent glow
+                  BoxShadow(
+                    color: luxury.gold.withValues(alpha: glowOpacity * 0.3),
+                    blurRadius: 60,
                     spreadRadius: 5,
                   ),
-                  // Outer glow
+                  // Outer purple glow
                   BoxShadow(
-                    color: const Color(0xFF8B5CF6).withValues(alpha: glowOpacity * 0.5),
-                    blurRadius: 80,
-                    spreadRadius: 20,
+                    color: colorScheme.primary.withValues(alpha: glowOpacity * 0.4),
+                    blurRadius: 100,
+                    spreadRadius: 25,
                   ),
                   // Deep ambient glow
                   BoxShadow(
-                    color: const Color(0xFF6366F1).withValues(alpha: glowOpacity * 0.3),
-                    blurRadius: 120,
-                    spreadRadius: 40,
+                    color: colorScheme.secondary.withValues(alpha: glowOpacity * 0.25),
+                    blurRadius: 150,
+                    spreadRadius: 50,
                   ),
                 ],
               ),
               child: Center(
-                child: Icon(
-                  Icons.fitness_center_rounded,
-                  size: 56.sp,
-                  color: Colors.white,
+                child: ShaderMask(
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      colors: [
+                        Colors.white,
+                        luxury.goldLight,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds);
+                  },
+                  child: Icon(
+                    Icons.fitness_center_rounded,
+                    size: 60.sp,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -459,18 +570,20 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
   }
 
   Widget _buildTagline() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return AnimatedBuilder(
       animation: _taglineController,
       builder: (context, child) {
         return FadeTransition(
           opacity: _taglineFadeAnimation,
           child: Text(
-            'Your Fitness Journey Starts Here',
-            style: TextStyle(
+            'Elevate Your Fitness Experience',
+            style: GoogleFonts.montserrat(
               fontSize: 14.sp,
               fontWeight: FontWeight.w400,
-              color: const Color(0xFF9CA3AF),
-              letterSpacing: 0.5,
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              letterSpacing: 2,
             ),
           ),
         );
@@ -478,58 +591,61 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLoadingDots() {
+  Widget _buildLoadingIndicator() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     return AnimatedBuilder(
       animation: _dotsController,
       builder: (context, child) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(3, (index) {
-            // Stagger the animation for each dot
-            final delay = index * 0.25;
-            final progress = (_dotsController.value + delay) % 1.0;
-
-            // Create a smooth bouncing effect
-            final bounceValue = math.sin(progress * math.pi);
-            final scale = 0.6 + (0.4 * bounceValue);
-            final opacity = 0.4 + (0.6 * bounceValue);
-            final yOffset = -8 * bounceValue;
-
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 6.w),
-              child: Transform.translate(
-                offset: Offset(0, yOffset),
-                child: Transform.scale(
-                  scale: scale,
-                  child: Opacity(
-                    opacity: opacity,
-                    child: Container(
-                      width: 10.w,
-                      height: 10.w,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF8B5CF6),
-                            Color(0xFF6366F1),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.4 * bounceValue),
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                          ),
+        return Column(
+          children: [
+            // Elegant loading bar
+            Container(
+              width: 120.w,
+              height: 3.h,
+              decoration: BoxDecoration(
+                color: colorScheme.outline.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+              child: Stack(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    width: 120.w * _dotsController.value,
+                    height: 3.h,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary,
+                          luxury.gold,
                         ],
                       ),
+                      borderRadius: BorderRadius.circular(2.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: luxury.primaryGlow,
+                          blurRadius: 8,
+                          spreadRadius: 0,
+                        ),
+                      ],
                     ),
                   ),
-                ),
+                ],
               ),
-            );
-          }),
+            ),
+            SizedBox(height: 16.h),
+            // Loading text
+            Text(
+              'LOADING',
+              style: GoogleFonts.montserrat(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w600,
+                color: luxury.textTertiary,
+                letterSpacing: 3,
+              ),
+            ),
+          ],
         );
       },
     );
@@ -546,6 +662,7 @@ class _Particle {
   final double size;
   final double speed;
   final double opacity;
+  final bool isGold;
 
   _Particle({
     required this.x,
@@ -553,16 +670,21 @@ class _Particle {
     required this.size,
     required this.speed,
     required this.opacity,
+    this.isGold = false,
   });
 }
 
 class _ParticlesPainter extends CustomPainter {
   final List<_Particle> particles;
   final double progress;
+  final Color purpleColor;
+  final Color goldColor;
 
   _ParticlesPainter({
     required this.particles,
     required this.progress,
+    required this.purpleColor,
+    required this.goldColor,
   });
 
   @override
@@ -582,7 +704,9 @@ class _ParticlesPainter extends CustomPainter {
               ? (1.0 - animatedY) / 0.1
               : 1.0;
 
-      paint.color = const Color(0xFF8B5CF6).withValues(alpha: particle.opacity * fadeMultiplier);
+      // Use gold or purple color based on particle type
+      final baseColor = particle.isGold ? goldColor : purpleColor;
+      paint.color = baseColor.withValues(alpha: particle.opacity * fadeMultiplier);
 
       canvas.drawCircle(
         Offset(x, y),

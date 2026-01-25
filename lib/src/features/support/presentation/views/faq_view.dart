@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
-import 'package:mygym/src/core/theme/app_text_styles.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/settings/domain/entities/app_settings.dart';
 import 'package:mygym/src/features/support/presentation/cubit/support_cubit.dart';
 
@@ -11,29 +10,34 @@ class FaqView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    
     return Scaffold(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
           "FAQ",
-          style: AppTextStyles.titleLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+          style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: colorScheme.surface,
       ),
       body: BlocBuilder<SupportCubit, SupportState>(
         builder: (context, state) {
           if (state.isLoading && state.faqItems.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(color: colorScheme.primary),
+            );
           }
           if (state.errorMessage != null && state.faqItems.isEmpty) {
             return Center(
               child: Text(
                 state.errorMessage!,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.error,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.error,
                 ),
               ),
             );
@@ -43,8 +47,8 @@ class FaqView extends StatelessWidget {
             return Center(
               child: Text(
                 "No faq available",
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             );
@@ -54,27 +58,38 @@ class FaqView extends StatelessWidget {
             itemCount: faq.length,
             itemBuilder: (context, index) {
               final item = faq[index];
-              return _buildFaqItem(item);
+              return _FaqItemWidget(item: item);
             },
           );
         },
       ),
     );
   }
+}
 
-  Widget _buildFaqItem(FaqItem item) {
+class _FaqItemWidget extends StatelessWidget {
+  final FaqItem item;
+  
+  const _FaqItemWidget({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final textTheme = Theme.of(context).textTheme;
+    
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevatedDark,
+        color: luxury.surfaceElevated,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.borderDark)
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: ExpansionTile(
         title: Text(
           item.question,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textPrimaryDark,
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -83,14 +98,14 @@ class FaqView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Text(
               item.answer,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondaryDark,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            )
+          ),
         ],
-        ),
+      ),
     );
   }
 }

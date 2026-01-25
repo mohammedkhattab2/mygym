@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
-import 'package:mygym/src/core/theme/app_text_styles.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mygym/src/features/auth/presentation/bloc/auth_state.dart';
 
@@ -34,9 +33,9 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   @override
   void dispose() {
-    super.dispose();
     _nameController.dispose();
     _phoneController.dispose();
+    super.dispose();
   }
 
   Future<void> _onSave() async {
@@ -60,18 +59,23 @@ class _EditProfileViewState extends State<EditProfileView> {
       _isSubmitting = false;
     });
 
+    if (!mounted) return;
+    
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+
     if (state.hasError) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(state.errorMessage ?? "Faild to update profile"),
-          backgroundColor: AppColors.error,
+          content: Text(state.errorMessage ?? "Failed to update profile"),
+          backgroundColor: colorScheme.error,
         ),
       );
     } else if (state.isAuthenticated) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("Profile updated successfully"),
-          backgroundColor: AppColors.success,
+          backgroundColor: luxury.success,
         ),
       );
       Navigator.of(context).pop();
@@ -80,17 +84,21 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final textTheme = Theme.of(context).textTheme;
+    
     return Scaffold(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
           "Edit Profile",
-          style: AppTextStyles.titleLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+          style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: colorScheme.surface,
       ),
       body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
@@ -99,8 +107,8 @@ class _EditProfileViewState extends State<EditProfileView> {
             return Center(
               child: Text(
                 "User data not available",
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondaryDark,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             );
@@ -114,61 +122,61 @@ class _EditProfileViewState extends State<EditProfileView> {
                 children: [
                   Text(
                     "Email",
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondaryDark,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   SizedBox(height: 4.h),
                   TextFormField(
                     initialValue: user.email,
                     enabled: false,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondaryDark,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
                     decoration: InputDecoration(
                       disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(color: AppColors.borderDark),
+                        borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
                       ),
                     ),
                   ),
                   SizedBox(height: 16.h),
                   Text(
                     "Name",
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondaryDark,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   SizedBox(height: 4.h),
                   TextFormField(
                     controller: _nameController,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textSecondaryDark,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
                       hintText: "Enter your name",
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textTertiaryDark,
+                      hintStyle: textTheme.bodyMedium?.copyWith(
+                        color: luxury.textTertiary,
                       ),
                       filled: true,
-                      fillColor: AppColors.surfaceElevatedDark,
+                      fillColor: luxury.surfaceElevated,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(color: AppColors.borderDark),
+                        borderSide: BorderSide(color: colorScheme.outline),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(color: AppColors.borderDark),
+                        borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(color: AppColors.primary),
+                        borderSide: BorderSide(color: colorScheme.primary),
                       ),
                     ),
                     validator: (value) {
                       if (value != null && value.trim().isNotEmpty) {
                         if (value.trim().length < 2) {
-                          return "Name is to Short";
+                          return "Name is too short";
                         }
                       }
                       return null;
@@ -177,76 +185,76 @@ class _EditProfileViewState extends State<EditProfileView> {
                   SizedBox(height: 16.h),
                   Text(
                     "Phone",
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondaryDark,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   SizedBox(height: 4.h),
                   TextFormField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimaryDark,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
                     ),
                     decoration: InputDecoration(
                       hintText: "Enter your phone number",
-                      hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textTertiaryDark,
+                      hintStyle: textTheme.bodyMedium?.copyWith(
+                        color: luxury.textTertiary,
                       ),
                       filled: true,
-                      fillColor: AppColors.surfaceElevatedDark,
+                      fillColor: luxury.surfaceElevated,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(color: AppColors.borderDark),
+                        borderSide: BorderSide(color: colorScheme.outline),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(color: AppColors.borderDark),
+                        borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide(color: AppColors.primary),
+                        borderSide: BorderSide(color: colorScheme.primary),
                       ),
                     ),
                     validator: (value) {
                       if (value != null && value.trim().isNotEmpty) {
                         if (value.trim().length < 8) {
-                          return "Phone number is to short";
+                          return "Phone number is too short";
                         }
                       }
                       return null;
                     },
                   ),
-                  SizedBox(height: 24.h,),
+                  SizedBox(height: 24.h),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _isSubmitting ? null : _onSave,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: colorScheme.primary,
                         padding: EdgeInsets.symmetric(vertical: 12.h),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.r)
-                        )
-                      ), 
-                      child: _isSubmitting 
-                           ? SizedBox(
-                            width: 18.w,
-                            height: 18.w,
-                            child: const CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                           )
-                           : Text(
-                            "Save",
-                            style: AppTextStyles.bodyMedium.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600
-                            ),
-                           )
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
                       ),
-                  )
+                      child: _isSubmitting
+                          ? SizedBox(
+                              width: 18.w,
+                              height: 18.w,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colorScheme.onPrimary,
+                              ),
+                            )
+                          : Text(
+                              "Save",
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
+                  ),
                 ],
               ),
             ),

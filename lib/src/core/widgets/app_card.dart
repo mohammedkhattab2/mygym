@@ -1,10 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import '../theme/app_theme.dart';
+import '../utils/responsive/responsive_utils.dart';
 
 /// ============================================
 /// BASE APP CARD
@@ -20,7 +21,7 @@ class AppCard extends StatelessWidget {
     this.borderRadius,
     this.backgroundColor,
     this.borderColor,
-    this.borderWidth = 1,
+    this.borderWidth,
     this.onTap,
     this.enableShadow = false,
     this.shadowColor,
@@ -32,7 +33,7 @@ class AppCard extends StatelessWidget {
   final double? borderRadius;
   final Color? backgroundColor;
   final Color? borderColor;
-  final double borderWidth;
+  final double? borderWidth;
   final VoidCallback? onTap;
   final bool enableShadow;
   final Color? shadowColor;
@@ -40,11 +41,12 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveBorderRadius = borderRadius ?? AppTheme.borderRadiusLarge;
+    final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
     final effectiveBgColor = backgroundColor ??
         (isDark ? AppColors.surfaceDark : AppColors.surface);
     final effectiveBorderColor = borderColor ??
         (isDark ? AppColors.borderDark : AppColors.border);
+    final effectiveBorderWidth = borderWidth ?? 1.w;
 
     Widget card = Container(
       margin: margin,
@@ -53,14 +55,14 @@ class AppCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         border: Border.all(
           color: effectiveBorderColor,
-          width: borderWidth,
+          width: effectiveBorderWidth,
         ),
         boxShadow: enableShadow
             ? [
                 BoxShadow(
                   color: shadowColor ?? AppColors.cardShadowDark,
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
+                  blurRadius: 16.r,
+                  offset: Offset(0, 4.h),
                 ),
               ]
             : null,
@@ -74,12 +76,12 @@ class AppCard extends StatelessWidget {
                   onTap: onTap,
                   borderRadius: BorderRadius.circular(effectiveBorderRadius),
                   child: Padding(
-                    padding: padding ?? const EdgeInsets.all(16),
+                    padding: padding ?? ResponsivePadding.card,
                     child: child,
                   ),
                 )
               : Padding(
-                  padding: padding ?? const EdgeInsets.all(16),
+                  padding: padding ?? ResponsivePadding.card,
                   child: child,
                 ),
         ),
@@ -117,7 +119,7 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveBorderRadius = borderRadius ?? AppTheme.borderRadiusLarge;
+    final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
 
     return Container(
       margin: margin,
@@ -125,7 +127,7 @@ class GlassCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         border: Border.all(
           color: AppColors.glassBorder,
-          width: 1,
+          width: 1.w,
         ),
       ),
       child: ClipRRect(
@@ -144,12 +146,12 @@ class GlassCard extends StatelessWidget {
                       onTap: onTap,
                       borderRadius: BorderRadius.circular(effectiveBorderRadius),
                       child: Padding(
-                        padding: padding ?? const EdgeInsets.all(16),
+                        padding: padding ?? ResponsivePadding.card,
                         child: child,
                       ),
                     )
                   : Padding(
-                      padding: padding ?? const EdgeInsets.all(16),
+                      padding: padding ?? ResponsivePadding.card,
                       child: child,
                     ),
             ),
@@ -187,7 +189,7 @@ class GradientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveBorderRadius = borderRadius ?? AppTheme.borderRadiusLarge;
+    final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
     final effectiveGradient = gradient ?? AppColors.primaryGradient;
 
     return Container(
@@ -199,8 +201,8 @@ class GradientCard extends StatelessWidget {
             ? [
                 BoxShadow(
                   color: AppColors.primaryGlow,
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  blurRadius: 20.r,
+                  offset: Offset(0, 8.h),
                 ),
               ]
             : null,
@@ -216,12 +218,12 @@ class GradientCard extends StatelessWidget {
                   splashColor: Colors.white.withValues(alpha: 0.2),
                   highlightColor: Colors.white.withValues(alpha: 0.1),
                   child: Padding(
-                    padding: padding ?? const EdgeInsets.all(16),
+                    padding: padding ?? ResponsivePadding.card,
                     child: child,
                   ),
                 )
               : Padding(
-                  padding: padding ?? const EdgeInsets.all(16),
+                  padding: padding ?? ResponsivePadding.card,
                   child: child,
                 ),
         ),
@@ -280,11 +282,11 @@ class GymCard extends StatelessWidget {
             children: [
               // Gym image
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(AppTheme.borderRadiusLarge - 1),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(ResponsiveSizes.radiusLg - 1.r),
                 ),
                 child: Container(
-                  height: 160,
+                  height: ResponsiveSizes.cardImageMedium,
                   width: double.infinity,
                   color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
                   child: imageUrl != null && imageUrl!.isNotEmpty
@@ -299,29 +301,31 @@ class GymCard extends StatelessWidget {
               
               // Status badge
               Positioned(
-                top: 12,
-                left: 12,
+                top: 12.h,
+                left: 12.w,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                   decoration: BoxDecoration(
                     color: isOpen ? AppColors.gymOpen : AppColors.gymClosed,
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusRound),
+                    borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 6,
-                        height: 6,
+                        width: 6.w,
+                        height: 6.w,
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      RGap.w4,
                       Text(
                         isOpen ? 'Open' : 'Closed',
-                        style: AppTextStyles.badge,
+                        style: AppTextStyles.badge.copyWith(
+                          fontSize: ResponsiveFontSizes.labelSmall,
+                        ),
                       ),
                     ],
                   ),
@@ -331,29 +335,30 @@ class GymCard extends StatelessWidget {
               // Rating badge
               if (rating != null)
                 Positioned(
-                  top: 12,
-                  right: onFavorite != null ? 52 : 12,
+                  top: 12.h,
+                  right: onFavorite != null ? 52.w : 12.w,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
                     decoration: BoxDecoration(
                       color: isDark
                           ? AppColors.surfaceDark.withValues(alpha: 0.9)
                           : Colors.white.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                      borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.star_rounded,
-                          size: 16,
+                          size: 16.sp,
                           color: AppColors.accent,
                         ),
-                        const SizedBox(width: 4),
+                        RGap.w4,
                         Text(
                           rating!.toStringAsFixed(1),
                           style: AppTextStyles.labelMedium.copyWith(
                             fontWeight: FontWeight.w700,
+                            fontSize: ResponsiveFontSizes.labelMedium,
                             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                           ),
                         ),
@@ -361,6 +366,7 @@ class GymCard extends StatelessWidget {
                           Text(
                             ' ($reviewCount)',
                             style: AppTextStyles.caption.copyWith(
+                              fontSize: ResponsiveFontSizes.caption,
                               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                             ),
                           ),
@@ -373,16 +379,16 @@ class GymCard extends StatelessWidget {
               // Favorite button
               if (onFavorite != null)
                 Positioned(
-                  top: 8,
-                  right: 8,
+                  top: 8.h,
+                  right: 8.w,
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: onFavorite,
-                      borderRadius: BorderRadius.circular(AppTheme.borderRadiusRound),
+                      borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
                       child: Container(
-                        width: 40,
-                        height: 40,
+                        width: 40.w,
+                        height: 40.w,
                         decoration: BoxDecoration(
                           color: isDark
                               ? AppColors.surfaceDark.withValues(alpha: 0.9)
@@ -392,7 +398,7 @@ class GymCard extends StatelessWidget {
                         child: Icon(
                           isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                           color: isFavorite ? AppColors.error : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimary),
-                          size: 22,
+                          size: 22.sp,
                         ),
                       ),
                     ),
@@ -403,7 +409,7 @@ class GymCard extends StatelessWidget {
           
           // Info section
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: ResponsivePadding.card,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -411,27 +417,29 @@ class GymCard extends StatelessWidget {
                 Text(
                   name,
                   style: AppTextStyles.titleMedium.copyWith(
+                    fontSize: ResponsiveFontSizes.titleMedium,
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 
-                const SizedBox(height: 8),
+                RGap.h8,
                 
                 // Address and distance
                 Row(
                   children: [
                     Icon(
                       Icons.location_on_outlined,
-                      size: 16,
+                      size: 16.sp,
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                     ),
-                    const SizedBox(width: 4),
+                    RGap.w4,
                     Expanded(
                       child: Text(
                         address,
                         style: AppTextStyles.bodySmall.copyWith(
+                          fontSize: ResponsiveFontSizes.bodySmall,
                           color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                         ),
                         maxLines: 1,
@@ -439,16 +447,17 @@ class GymCard extends StatelessWidget {
                       ),
                     ),
                     if (distance != null) ...[
-                      const SizedBox(width: 8),
+                      RGap.w8,
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                          borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                         ),
                         child: Text(
                           distance!,
                           style: AppTextStyles.caption.copyWith(
+                            fontSize: ResponsiveFontSizes.caption,
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -460,13 +469,13 @@ class GymCard extends StatelessWidget {
                 
                 // Crowd level
                 if (crowdLevel != null) ...[
-                  const SizedBox(height: 12),
+                  RGap.h12,
                   _CrowdLevelIndicator(level: crowdLevel!),
                 ],
                 
                 // Facilities
                 if (facilities.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  RGap.h12,
                   _FacilitiesRow(facilities: facilities, isDark: isDark),
                 ],
               ],
@@ -481,7 +490,7 @@ class GymCard extends StatelessWidget {
     return Center(
       child: Icon(
         Icons.fitness_center_rounded,
-        size: 48,
+        size: 48.sp,
         color: isDark ? AppColors.grey600 : AppColors.grey400,
       ),
     );
@@ -538,20 +547,21 @@ class _CrowdLevelIndicator extends StatelessWidget {
           children: List.generate(3, (index) {
             final isFilled = index < _filledBars;
             return Container(
-              width: 4,
-              height: 12 + (index * 4).toDouble(),
-              margin: const EdgeInsets.only(right: 3),
+              width: 4.w,
+              height: (12 + (index * 4)).h,
+              margin: EdgeInsets.only(right: 3.w),
               decoration: BoxDecoration(
                 color: isFilled ? _color : _color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(2.r),
               ),
             );
           }),
         ),
-        const SizedBox(width: 8),
+        RGap.w8,
         Text(
           _label,
           style: AppTextStyles.caption.copyWith(
+            fontSize: ResponsiveFontSizes.caption,
             color: _color,
             fontWeight: FontWeight.w600,
           ),
@@ -608,28 +618,29 @@ class _FacilitiesRow extends StatelessWidget {
     return Row(
       children: [
         ...displayFacilities.map((facility) => Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.all(8),
+              margin: EdgeInsets.only(right: 8.w),
+              padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
-                borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
               ),
               child: Icon(
                 _getIcon(facility),
-                size: 18,
+                size: 18.sp,
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
               ),
             )),
         if (remaining > 0)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
             decoration: BoxDecoration(
               color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+              borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
             ),
             child: Text(
               '+$remaining',
               style: AppTextStyles.caption.copyWith(
+                fontSize: ResponsiveFontSizes.caption,
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                 fontWeight: FontWeight.w600,
               ),
@@ -686,20 +697,20 @@ class SubscriptionCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: _tierGradient,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusXLarge),
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusXl),
         boxShadow: [
           BoxShadow(
             color: _tierColor.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            blurRadius: 20.r,
+            offset: Offset(0, 8.h),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(2),
+      padding: EdgeInsets.all(2.w),
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.surface,
-          borderRadius: BorderRadius.circular(AppTheme.borderRadiusXLarge - 2),
+          borderRadius: BorderRadius.circular(ResponsiveSizes.radiusXl - 2.r),
         ),
         child: _buildCardContent(context, isDark),
       ),
@@ -708,7 +719,7 @@ class SubscriptionCard extends StatelessWidget {
 
   Widget _buildNormalCard(BuildContext context, bool isDark) {
     return AppCard(
-      borderRadius: AppTheme.borderRadiusXLarge,
+      borderRadius: ResponsiveSizes.radiusXl,
       onTap: onTap,
       padding: EdgeInsets.zero,
       child: _buildCardContent(context, isDark),
@@ -718,9 +729,9 @@ class SubscriptionCard extends StatelessWidget {
   Widget _buildCardContent(BuildContext context, bool isDark) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppTheme.borderRadiusXLarge - 2),
+      borderRadius: BorderRadius.circular(ResponsiveSizes.radiusXl - 2.r),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: ResponsivePadding.cardLarge,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -729,19 +740,19 @@ class SubscriptionCard extends StatelessWidget {
               children: [
                 // Tier icon
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 48.w,
+                  height: 48.w,
                   decoration: BoxDecoration(
                     gradient: _tierGradient,
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                    borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
                   ),
                   child: Icon(
                     _tierIcon,
                     color: Colors.white,
-                    size: 24,
+                    size: 24.sp,
                   ),
                 ),
-                const SizedBox(width: 16),
+                RGap.w16,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -749,20 +760,21 @@ class SubscriptionCard extends StatelessWidget {
                       Text(
                         title,
                         style: AppTextStyles.titleLarge.copyWith(
+                          fontSize: ResponsiveFontSizes.titleLarge,
                           color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                         ),
                       ),
                       if (isPopular)
                         Container(
-                          margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          margin: EdgeInsets.only(top: 4.h),
+                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                           decoration: BoxDecoration(
                             gradient: AppColors.primaryGradient,
-                            borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                            borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                           ),
                           child: Text(
                             'MOST POPULAR',
-                            style: AppTextStyles.badge.copyWith(fontSize: 9),
+                            style: AppTextStyles.badge.copyWith(fontSize: 9.sp),
                           ),
                         ),
                     ],
@@ -771,7 +783,7 @@ class SubscriptionCard extends StatelessWidget {
               ],
             ),
             
-            const SizedBox(height: 24),
+            RGap.h24,
             
             // Price
             Row(
@@ -780,73 +792,79 @@ class SubscriptionCard extends StatelessWidget {
                 Text(
                   currency,
                   style: AppTextStyles.titleMedium.copyWith(
+                    fontSize: ResponsiveFontSizes.titleMedium,
                     color: _tierColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(width: 4),
+                RGap.w4,
                 Text(
                   price.toStringAsFixed(0),
                   style: AppTextStyles.priceLarge.copyWith(
+                    fontSize: ResponsiveFontSizes.numberLarge,
                     color: _tierColor,
                   ),
                 ),
-                const SizedBox(width: 4),
+                RGap.w4,
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: 8.h),
                   child: Text(
                     '/$period',
                     style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: ResponsiveFontSizes.bodyMedium,
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                     ),
                   ),
                 ),
                 if (originalPrice != null) ...[
-                  const SizedBox(width: 8),
+                  RGap.w8,
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.only(bottom: 8.h),
                     child: Text(
                       '$currency${originalPrice!.toStringAsFixed(0)}',
-                      style: AppTextStyles.priceOriginal,
+                      style: AppTextStyles.priceOriginal.copyWith(
+                        fontSize: ResponsiveFontSizes.bodyMedium,
+                      ),
                     ),
                   ),
                 ],
               ],
             ),
             
-            const SizedBox(height: 24),
+            RGap.h24,
             
             // Divider
             Container(
-              height: 1,
+              height: 1.h,
               color: isDark ? AppColors.borderDark : AppColors.border,
             ),
             
-            const SizedBox(height: 24),
+            RGap.h24,
             
             // Features
             ...features.map((feature) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: EdgeInsets.only(bottom: 12.h),
                   child: Row(
                     children: [
                       Container(
-                        width: 20,
-                        height: 20,
+                        width: 20.w,
+                        height: 20.w,
                         decoration: BoxDecoration(
                           color: AppColors.success.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.check_rounded,
-                          size: 14,
+                          size: 14.sp,
                           color: AppColors.success,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      RGap.w12,
                       Expanded(
                         child: Text(
                           feature,
                           style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: ResponsiveFontSizes.bodyMedium,
                             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                           ),
                         ),
@@ -941,40 +959,41 @@ class StatsCard extends StatelessWidget {
             children: [
               if (icon != null) ...[
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 44.w,
+                  height: 44.w,
                   decoration: BoxDecoration(
                     gradient: iconGradient,
                     color: iconGradient == null
                         ? (iconColor ?? AppColors.primary).withValues(alpha: 0.1)
                         : null,
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+                    borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
                   ),
                   child: Icon(
                     icon,
-                    size: 22,
+                    size: 22.sp,
                     color: iconGradient != null
                         ? Colors.white
                         : (iconColor ?? AppColors.primary),
                   ),
                 ),
-                const SizedBox(width: 12),
+                RGap.w12,
               ],
               Expanded(
                 child: Text(
                   title,
                   style: AppTextStyles.bodySmall.copyWith(
+                    fontSize: ResponsiveFontSizes.bodySmall,
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                   ),
                 ),
               ),
               if (trend != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
                     color: (trendUp == true ? AppColors.success : AppColors.error)
                         .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                    borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -983,13 +1002,14 @@ class StatsCard extends StatelessWidget {
                         trendUp == true
                             ? Icons.trending_up_rounded
                             : Icons.trending_down_rounded,
-                        size: 14,
+                        size: 14.sp,
                         color: trendUp == true ? AppColors.success : AppColors.error,
                       ),
-                      const SizedBox(width: 4),
+                      RGap.w4,
                       Text(
                         trend!,
                         style: AppTextStyles.caption.copyWith(
+                          fontSize: ResponsiveFontSizes.caption,
                           color: trendUp == true ? AppColors.success : AppColors.error,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1000,22 +1020,24 @@ class StatsCard extends StatelessWidget {
             ],
           ),
           
-          const SizedBox(height: 16),
+          RGap.h16,
           
           // Value
           Text(
             value,
             style: AppTextStyles.numberMedium.copyWith(
+              fontSize: ResponsiveFontSizes.numberMedium,
               color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             ),
           ),
           
           // Subtitle
           if (subtitle != null) ...[
-            const SizedBox(height: 4),
+            RGap.h4,
             Text(
               subtitle!,
               style: AppTextStyles.caption.copyWith(
+                fontSize: ResponsiveFontSizes.caption,
                 color: isDark ? AppColors.textTertiaryDark : AppColors.textSecondary,
               ),
             ),
@@ -1050,19 +1072,19 @@ class QrCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GlassCard(
-      padding: const EdgeInsets.all(24),
+      padding: ResponsivePadding.cardLarge,
       child: Column(
         children: [
           // QR Code
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+              borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primaryGlow,
-                  blurRadius: 20,
+                  blurRadius: 20.r,
                   spreadRadius: 0,
                 ),
               ],
@@ -1070,37 +1092,40 @@ class QrCard extends StatelessWidget {
             child: qrWidget,
           ),
           
-          const SizedBox(height: 24),
+          RGap.h24,
           
           // Gym name
           Text(
             gymName,
             style: AppTextStyles.titleMedium.copyWith(
+              fontSize: ResponsiveFontSizes.titleMedium,
               color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             ),
           ),
           
-          const SizedBox(height: 16),
+          RGap.h16,
           
           // Countdown
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.timer_outlined,
-                size: 20,
+                size: 20.sp,
                 color: AppColors.primary,
               ),
-              const SizedBox(width: 8),
+              RGap.w8,
               Text(
                 'Refreshes in ',
                 style: AppTextStyles.bodyMedium.copyWith(
+                  fontSize: ResponsiveFontSizes.bodyMedium,
                   color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                 ),
               ),
               Text(
                 '${secondsRemaining}s',
                 style: AppTextStyles.titleMedium.copyWith(
+                  fontSize: ResponsiveFontSizes.titleMedium,
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1109,10 +1134,10 @@ class QrCard extends StatelessWidget {
           ),
           
           if (onRefresh != null) ...[
-            const SizedBox(height: 16),
+            RGap.h16,
             TextButton.icon(
               onPressed: onRefresh,
-              icon: const Icon(Icons.refresh_rounded, size: 20),
+              icon: Icon(Icons.refresh_rounded, size: 20.sp),
               label: const Text('Refresh Now'),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.primary,
@@ -1161,27 +1186,28 @@ class ClassCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppCard(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12.w),
       onTap: onTap,
       child: Row(
         children: [
           // Image
           ClipRRect(
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+            borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
             child: Container(
-              width: 80,
-              height: 80,
+              width: 80.w,
+              height: 80.w,
               color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
               child: imageUrl != null
                   ? Image.network(imageUrl!, fit: BoxFit.cover)
                   : Icon(
                       Icons.fitness_center_rounded,
                       color: isDark ? AppColors.grey600 : AppColors.grey400,
+                      size: 32.sp,
                     ),
             ),
           ),
           
-          const SizedBox(width: 16),
+          RGap.w16,
           
           // Info
           Expanded(
@@ -1191,29 +1217,35 @@ class ClassCard extends StatelessWidget {
                 Text(
                   name,
                   style: AppTextStyles.titleSmall.copyWith(
+                    fontSize: ResponsiveFontSizes.titleSmall,
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                RGap.h4,
                 Text(
                   'with $instructor',
                   style: AppTextStyles.bodySmall.copyWith(
+                    fontSize: ResponsiveFontSizes.bodySmall,
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 8),
+                RGap.h8,
                 Row(
                   children: [
                     Icon(
                       Icons.access_time_rounded,
-                      size: 14,
+                      size: 14.sp,
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '$time • $duration',
-                      style: AppTextStyles.caption.copyWith(
-                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                    RGap.w4,
+                    Flexible(
+                      child: Text(
+                        '$time • $duration',
+                        style: AppTextStyles.caption.copyWith(
+                          fontSize: ResponsiveFontSizes.caption,
+                          color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -1229,28 +1261,31 @@ class ClassCard extends StatelessWidget {
                 Text(
                   '$spotsLeft/$maxSpots',
                   style: AppTextStyles.caption.copyWith(
+                    fontSize: ResponsiveFontSizes.caption,
                     color: spotsLeft! <= 3 ? AppColors.warning : AppColors.success,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              const SizedBox(height: 8),
+              RGap.h8,
               if (onBook != null)
                 Container(
                   decoration: BoxDecoration(
                     gradient: isBooked ? null : AppColors.primaryGradient,
                     color: isBooked ? AppColors.success : null,
-                    borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                    borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                   ),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: isBooked ? null : onBook,
-                      borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                      borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                         child: Text(
                           isBooked ? 'Booked' : 'Book',
-                          style: AppTextStyles.buttonSmall,
+                          style: AppTextStyles.buttonSmall.copyWith(
+                            fontSize: ResponsiveFontSizes.buttonSmall,
+                          ),
                         ),
                       ),
                     ),

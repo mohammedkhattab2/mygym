@@ -1,51 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
-import 'package:mygym/src/core/theme/app_text_styles.dart';
-import 'package:mygym/src/features/classes/domain/entities/fitness_class.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/home/data/datasources/home_dummy_data_source.dart';
 import 'package:mygym/src/features/home/domain/entities/fitness_class_entity.dart';
 
+/// Premium Luxury Popular Classes Section
+///
+/// Features:
+/// - Elegant section header with gold accent bar
+/// - Premium glassmorphism class cards
+/// - Gradient time badges
+/// - Instructor info with avatar placeholder
+/// - Press animations
 class BuildPopularClasses extends StatelessWidget {
   const BuildPopularClasses({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+
     return Column(
       children: [
+        // Section header with luxury styling
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Popular Classes',
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: AppColors.textPrimaryDark,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                children: [
+                  Container(
+                    width: 4.w,
+                    height: 20.h,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.secondary,
+                          luxury.gold,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Text(
+                    'Popular Classes',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ],
               ),
               GestureDetector(
                 onTap: _onSeeAllClasses,
-                child: Text(
-                  "see All",
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Row(
+                  children: [
+                    Text(
+                      "See all",
+                      style: GoogleFonts.inter(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: luxury.gold,
+                      ),
+                    ),
+                    SizedBox(width: 4.w),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 12.sp,
+                      color: luxury.gold.withValues(alpha: 0.7),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 18.h),
+        // Class cards
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
-            children: HomeDummyDataSource.classes.map((FitnessClass) {
+            children: HomeDummyDataSource.classes.asMap().entries.map((entry) {
+              final index = entry.key;
+              final fitnessClass = entry.value;
               return Padding(
-                padding: EdgeInsets.only(bottom: 12.h),
-                child: _buildClassCard(FitnessClass),
+                padding: EdgeInsets.only(bottom: 14.h),
+                child: _LuxuryClassCard(
+                  fitnessClass: fitnessClass,
+                  index: index,
+                  onTap: () => onClassTap(fitnessClass),
+                ),
               );
             }).toList(),
           ),
@@ -55,80 +105,231 @@ class BuildPopularClasses extends StatelessWidget {
   }
 
   void _onSeeAllClasses() {
-    // todo : navigate to classes screen
-  }
-  void onClassTap(FitnessClassEntity FitnessClass) {
-    // todo : navigate to class details screen
+    // todo: navigate to classes screen
   }
 
-  Widget? _buildClassCard(FitnessClassEntity fitnessClass) {
+  void onClassTap(FitnessClassEntity fitnessClass) {
+    // todo: navigate to class details screen
+  }
+}
+
+class _LuxuryClassCard extends StatefulWidget {
+  final FitnessClassEntity fitnessClass;
+  final int index;
+  final VoidCallback onTap;
+
+  const _LuxuryClassCard({
+    required this.fitnessClass,
+    required this.index,
+    required this.onTap,
+  });
+
+  @override
+  State<_LuxuryClassCard> createState() => _LuxuryClassCardState();
+}
+
+class _LuxuryClassCardState extends State<_LuxuryClassCard> {
+  bool _isPressed = false;
+
+  // Different accent colors for variety
+  Color _getAccentColor(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
+    final colors = [
+      colorScheme.primary,
+      colorScheme.secondary,
+      const Color(0xFF14B8A6), // Teal
+      luxury.gold,
+    ];
+    return colors[widget.index % colors.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final accentColor = _getAccentColor(colorScheme, luxury);
+
     return GestureDetector(
-      onTap: () => onClassTap(fitnessClass),
-      child: Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceDark,
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(color: AppColors.borderDark),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 60.w,
-              height: 60.w,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceElevatedDark,
-                borderRadius: BorderRadius.circular(12.r),
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        widget.onTap();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: Container(
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                luxury.surfaceElevated,
+                colorScheme.surface,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(
+              color: luxury.gold.withValues(alpha: 0.1),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-              child: Center(
-                child: Text(
-                  fitnessClass.emoji,
-                  style: TextStyle(fontSize: 28.sp),
+              BoxShadow(
+                color: accentColor.withValues(alpha: 0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Emoji container with gradient background
+              Container(
+                width: 64.w,
+                height: 64.w,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      accentColor.withValues(alpha: 0.2),
+                      accentColor.withValues(alpha: 0.08),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16.r),
+                  border: Border.all(
+                    color: accentColor.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    widget.fitnessClass.emoji,
+                    style: TextStyle(fontSize: 32.sp),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              SizedBox(width: 16.w),
+              // Class info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.fitnessClass.name,
+                      style: GoogleFonts.inter(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    Row(
+                      children: [
+                        // Instructor avatar placeholder
+                        Container(
+                          width: 20.w,
+                          height: 20.w,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                accentColor.withValues(alpha: 0.6),
+                                accentColor.withValues(alpha: 0.3),
+                              ],
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              widget.fitnessClass.instructor[0].toUpperCase(),
+                              style: GoogleFonts.inter(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          widget.fitnessClass.instructor,
+                          style: GoogleFonts.inter(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w400,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Time and duration
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    fitnessClass.name,
-                    style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textPrimaryDark,
-                      fontWeight: FontWeight.w600,
+                  // Time badge with gradient
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 5.h,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          accentColor,
+                          accentColor.withValues(alpha: 0.7),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(8.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: accentColor.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      widget.fitnessClass.time,
+                      style: GoogleFonts.spaceGrotesk(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    'by ${fitnessClass.instructor}',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondaryDark,
-                    ),
+                  SizedBox(height: 8.h),
+                  // Duration
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.timer_outlined,
+                        size: 12.sp,
+                        color: luxury.textTertiary,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        widget.fitnessClass.duration,
+                        style: GoogleFonts.inter(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  fitnessClass.time,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 4.h,),
-                Text(
-                  fitnessClass.duration,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondaryDark,
-                  ),
-                )
-              ],
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -14,12 +14,13 @@ dependencies:
   
   # UI
   cupertino_icons: ^1.0.8
-  google_fonts: ^7.0.2
+  google_fonts: ^6.2.1
   flutter_svg: ^2.0.9
   flutter_screenutil: ^5.9.0
   cached_network_image: ^3.3.0
   skeletonizer: ^2.1.2
   lottie: ^3.3.2
+  shimmer: ^3.0.0
   
   # State Management
   flutter_bloc: ^9.1.1
@@ -53,7 +54,7 @@ dependencies:
   firebase_messaging: ^16.1.0
   firebase_analytics: ^12.1.0
   firebase_crashlytics: ^5.0.6
-  google_sign_in: ^7.2.0
+  google_sign_in: ^6.2.1
   sign_in_with_apple: ^7.0.1
   
   # Maps & Location
@@ -111,3 +112,11 @@ flutter:
   assets:
     - assets/
     - assets/translations/
+  
+  # Premium Font Configuration
+  # Using Google Fonts package (runtime download) for:
+  # - Playfair Display: Elegant serif for hero headlines
+  # - Montserrat: Modern sans-serif for titles
+  # - Inter: Clean body text
+  # - Space Grotesk: Distinctive numerals
+  # No local font assets needed - google_fonts package handles everything

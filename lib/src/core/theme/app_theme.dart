@@ -1,26 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'app_colors.dart';
 import 'app_text_styles.dart';
+import 'luxury_theme_extension.dart';
 
-/// Application theme configuration - Premium Dark-First Design
+/// Application theme configuration - Luxury Premium Dark-First Design
+///
+/// Features:
+/// - Deep obsidian backgrounds for immersive experience
+/// - Royal purple and gold accents for luxury feel
+/// - Elegant typography with serif headers
+/// - Glassmorphism effects for modern premium look
+/// - Subtle glow effects for magical atmosphere
+/// - Fully responsive sizing and spacing
 class AppTheme {
   AppTheme._();
 
   // ============================================
-  // CONSTANTS
+  // STATIC CONSTANTS (for ThemeData - must be const)
   // ============================================
   
-  static const double borderRadiusSmall = 8.0;
-  static const double borderRadiusMedium = 12.0;
-  static const double borderRadiusLarge = 16.0;
-  static const double borderRadiusXLarge = 24.0;
-  static const double borderRadiusRound = 100.0;
+  static const double kBorderRadiusSmall = 8.0;
+  static const double kBorderRadiusMedium = 12.0;
+  static const double kBorderRadiusLarge = 16.0;
+  static const double kBorderRadiusXLarge = 24.0;
+  static const double kBorderRadiusXXLarge = 32.0;
+  static const double kBorderRadiusRound = 100.0;
 
-  static const double buttonHeight = 56.0;
-  static const double buttonHeightSmall = 44.0;
-  static const double inputHeight = 56.0;
+  static const double kButtonHeight = 56.0;
+  static const double kButtonHeightSmall = 44.0;
+  static const double kButtonHeightLarge = 64.0;
+  static const double kInputHeight = 56.0;
+  
+  // ============================================
+  // RESPONSIVE GETTERS (use these in UI code)
+  // ============================================
+  
+  /// Border radius values - responsive
+  static double get borderRadiusSmall => 8.r;
+  static double get borderRadiusMedium => 12.r;
+  static double get borderRadiusLarge => 16.r;
+  static double get borderRadiusXLarge => 24.r;
+  static double get borderRadiusXXLarge => 32.r;
+  static double get borderRadiusRound => 100.r;
+
+  /// Button heights - responsive
+  static double get buttonHeight => 56.h;
+  static double get buttonHeightSmall => 44.h;
+  static double get buttonHeightLarge => 64.h;
+  static double get inputHeight => 56.h;
+  
+  /// Spacing constants - responsive horizontal
+  static double get spacingXS => 4.w;
+  static double get spacingS => 8.w;
+  static double get spacingM => 16.w;
+  static double get spacingL => 24.w;
+  static double get spacingXL => 32.w;
+  static double get spacingXXL => 48.w;
+  
+  /// Vertical spacing - responsive
+  static double get spacingXSV => 4.h;
+  static double get spacingSV => 8.h;
+  static double get spacingMV => 16.h;
+  static double get spacingLV => 24.h;
+  static double get spacingXLV => 32.h;
+  static double get spacingXXLV => 48.h;
+  
+  // Animation durations (not responsive - time-based)
+  static const Duration animationFast = Duration(milliseconds: 150);
+  static const Duration animationNormal = Duration(milliseconds: 300);
+  static const Duration animationSlow = Duration(milliseconds: 500);
+  static const Duration animationVerySlow = Duration(milliseconds: 800);
 
   // ============================================
   // LIGHT THEME
@@ -84,10 +136,12 @@ class AppTheme {
         sliderTheme: _sliderTheme,
         tabBarTheme: _tabBarTheme,
         tooltipTheme: _tooltipTheme,
+        // Luxury Theme Extension for premium colors and gradients
+        extensions: [LuxuryThemeExtension.light],
       );
 
   // ============================================
-  // DARK THEME (PRIMARY)
+  // DARK THEME (PRIMARY) - LUXURY PREMIUM
   // ============================================
   
   static ThemeData get darkTheme => ThemeData(
@@ -95,19 +149,20 @@ class AppTheme {
         brightness: Brightness.dark,
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.backgroundDark,
-        colorScheme: const ColorScheme.dark(
+        colorScheme: ColorScheme.dark(
           primary: AppColors.primary,
           primaryContainer: AppColors.primaryDark,
           secondary: AppColors.secondary,
           secondaryContainer: AppColors.secondaryDark,
-          tertiary: AppColors.tertiary,
-          tertiaryContainer: AppColors.tertiaryDark,
+          tertiary: AppColors.gold, // Gold as tertiary for luxury
+          tertiaryContainer: AppColors.goldDark,
           surface: AppColors.surfaceDark,
+          surfaceContainerHighest: AppColors.surfaceElevatedDark,
           error: AppColors.error,
           errorContainer: AppColors.errorDark,
           onPrimary: AppColors.white,
           onSecondary: AppColors.white,
-          onTertiary: AppColors.white,
+          onTertiary: AppColors.backgroundDark,
           onSurface: AppColors.textPrimaryDark,
           onError: AppColors.white,
           outline: AppColors.borderDark,
@@ -148,13 +203,15 @@ class AppTheme {
         sliderTheme: _sliderThemeDark,
         tabBarTheme: _tabBarThemeDark,
         tooltipTheme: _tooltipThemeDark,
+        // Luxury Theme Extension for premium colors and gradients
+        extensions: [LuxuryThemeExtension.dark],
       );
 
   // ============================================
   // TEXT THEMES
   // ============================================
   
-  static const TextTheme _textTheme = TextTheme(
+  static TextTheme get _textTheme => TextTheme(
     displayLarge: AppTextStyles.displayLarge,
     displayMedium: AppTextStyles.displayMedium,
     displaySmall: AppTextStyles.displaySmall,
@@ -194,7 +251,7 @@ class AppTheme {
   // APP BAR THEME
   // ============================================
   
-  static const AppBarTheme _appBarTheme = AppBarTheme(
+  static AppBarTheme get _appBarTheme => AppBarTheme(
     backgroundColor: AppColors.surface,
     foregroundColor: AppColors.textPrimary,
     elevation: 0,
@@ -202,23 +259,21 @@ class AppTheme {
     centerTitle: true,
     systemOverlayStyle: SystemUiOverlayStyle.dark,
     titleTextStyle: AppTextStyles.titleLarge,
-    iconTheme: IconThemeData(color: AppColors.textPrimary, size: 24),
+    iconTheme: const IconThemeData(color: AppColors.textPrimary, size: 24),
   );
 
-  static const AppBarTheme _appBarThemeDark = AppBarTheme(
-    backgroundColor: AppColors.backgroundDark,
+  static AppBarTheme get _appBarThemeDark => AppBarTheme(
+    backgroundColor: Colors.transparent, // Transparent for gradient backgrounds
     foregroundColor: AppColors.textPrimaryDark,
     elevation: 0,
     scrolledUnderElevation: 0,
     centerTitle: true,
     systemOverlayStyle: SystemUiOverlayStyle.light,
-    titleTextStyle: TextStyle(
-      fontFamily: AppTextStyles.fontFamily,
-      fontSize: 20,
-      fontWeight: FontWeight.w600,
+    titleTextStyle: AppTextStyles.titleLarge.copyWith(
       color: AppColors.textPrimaryDark,
+      letterSpacing: 0.5,
     ),
-    iconTheme: IconThemeData(color: AppColors.textPrimaryDark, size: 24),
+    iconTheme: const IconThemeData(color: AppColors.textPrimaryDark, size: 24),
   );
 
   // ============================================
@@ -235,7 +290,7 @@ class AppTheme {
           elevation: 0,
           shadowColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          minimumSize: const Size(double.infinity, buttonHeight),
+          minimumSize: const Size(double.infinity, kButtonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadiusLarge),
           ),
@@ -253,7 +308,7 @@ class AppTheme {
           elevation: 0,
           shadowColor: AppColors.primaryGlow,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          minimumSize: const Size(double.infinity, buttonHeight),
+          minimumSize: const Size(double.infinity, kButtonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadiusLarge),
           ),
@@ -271,7 +326,7 @@ class AppTheme {
           foregroundColor: AppColors.primary,
           disabledForegroundColor: AppColors.grey400,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          minimumSize: const Size(double.infinity, buttonHeight),
+          minimumSize: const Size(double.infinity, kButtonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadiusLarge),
           ),
@@ -286,7 +341,7 @@ class AppTheme {
           foregroundColor: AppColors.primary,
           disabledForegroundColor: AppColors.grey600,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          minimumSize: const Size(double.infinity, buttonHeight),
+          minimumSize: const Size(double.infinity, kButtonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadiusLarge),
           ),
@@ -420,7 +475,7 @@ class AppTheme {
   // BOTTOM NAVIGATION BAR THEME
   // ============================================
   
-  static const BottomNavigationBarThemeData _bottomNavigationBarTheme =
+  static BottomNavigationBarThemeData get _bottomNavigationBarTheme =>
       BottomNavigationBarThemeData(
     backgroundColor: AppColors.surface,
     selectedItemColor: AppColors.primary,
@@ -433,7 +488,7 @@ class AppTheme {
     showUnselectedLabels: true,
   );
 
-  static const BottomNavigationBarThemeData _bottomNavigationBarThemeDark =
+  static BottomNavigationBarThemeData get _bottomNavigationBarThemeDark =>
       BottomNavigationBarThemeData(
     backgroundColor: AppColors.surfaceDark,
     selectedItemColor: AppColors.primary,
@@ -593,9 +648,9 @@ class AppTheme {
   static BottomSheetThemeData get _bottomSheetTheme => BottomSheetThemeData(
         backgroundColor: AppColors.surface,
         elevation: 0,
-        shape: const RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(borderRadiusXLarge),
+            top: Radius.circular(kBorderRadiusXLarge),
           ),
         ),
         dragHandleColor: AppColors.grey300,
@@ -605,9 +660,9 @@ class AppTheme {
   static BottomSheetThemeData get _bottomSheetThemeDark => BottomSheetThemeData(
         backgroundColor: AppColors.surfaceDark,
         elevation: 0,
-        shape: const RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(borderRadiusXLarge),
+            top: Radius.circular(kBorderRadiusXLarge),
           ),
         ),
         dragHandleColor: AppColors.grey600,
@@ -884,4 +939,80 @@ class AppTheme {
         systemNavigationBarColor: AppColors.backgroundDark,
         systemNavigationBarIconBrightness: Brightness.light,
       );
+  
+  // ============================================
+  // LUXURY DECORATION HELPERS
+  // ============================================
+  
+  /// Premium card decoration with subtle border and shadow
+  static BoxDecoration get premiumCardDecoration => BoxDecoration(
+    color: AppColors.surfaceDark,
+    borderRadius: BorderRadius.circular(borderRadiusLarge),
+    border: Border.all(color: AppColors.borderDark, width: 1),
+    boxShadow: [
+      BoxShadow(
+        color: AppColors.cardShadowDark,
+        blurRadius: 20,
+        offset: const Offset(0, 8),
+      ),
+    ],
+  );
+  
+  /// Glass card decoration for premium glassmorphism effect
+  static BoxDecoration get glassCardDecoration => BoxDecoration(
+    color: AppColors.glassWhite,
+    borderRadius: BorderRadius.circular(borderRadiusLarge),
+    border: Border.all(color: AppColors.glassBorder, width: 1),
+  );
+  
+  /// Gold accent card decoration for VIP elements
+  static BoxDecoration get goldCardDecoration => BoxDecoration(
+    gradient: AppColors.cardGradientDark,
+    borderRadius: BorderRadius.circular(borderRadiusLarge),
+    border: Border.all(color: AppColors.borderGold, width: 1),
+    boxShadow: [
+      BoxShadow(
+        color: AppColors.goldGlowLight,
+        blurRadius: 20,
+        offset: const Offset(0, 4),
+      ),
+    ],
+  );
+  
+  /// Gradient button decoration
+  static BoxDecoration gradientButtonDecoration({
+    Gradient? gradient,
+    double? radius,
+    bool enableGlow = true,
+  }) => BoxDecoration(
+    gradient: gradient ?? AppColors.primaryGradient,
+    borderRadius: BorderRadius.circular(radius ?? borderRadiusLarge),
+    boxShadow: enableGlow ? [
+      BoxShadow(
+        color: AppColors.primaryGlow,
+        blurRadius: 16,
+        offset: const Offset(0, 4),
+      ),
+    ] : null,
+  );
+  
+  /// Magical glow decoration for special elements
+  static BoxDecoration magicalGlowDecoration({
+    Color? glowColor,
+    double blurRadius = 30,
+    double spreadRadius = 5,
+  }) => BoxDecoration(
+    boxShadow: [
+      BoxShadow(
+        color: glowColor ?? AppColors.primaryGlow,
+        blurRadius: blurRadius,
+        spreadRadius: spreadRadius,
+      ),
+      BoxShadow(
+        color: (glowColor ?? AppColors.primaryGlow).withValues(alpha: 0.3),
+        blurRadius: blurRadius * 2,
+        spreadRadius: spreadRadius * 2,
+      ),
+    ],
+  );
 }

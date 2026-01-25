@@ -8,6 +8,7 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_data_source.dart';
 import '../datasources/auth_remote_data_source.dart';
+import '../datasources/firebase_auth_helper.dart';
 import '../models/user_model.dart';
 
 /// Implementation of [AuthRepository]
@@ -67,16 +68,46 @@ class AuthRepositoryImpl implements AuthRepository {
         return const Left(AuthFailure('Google sign-in was cancelled'));
       }
 
-      // Send to backend for verification
-      final response = await _remoteDataSource.signInWithSocial(
-        SocialLoginModel(
-          idToken: idToken,
-          provider: 'google',
-        ),
+      // Get Firebase user data directly (no backend available)
+      final firebaseUser = _firebaseAuthHelper.currentUser;
+      if (firebaseUser == null) {
+        return const Left(AuthFailure('Failed to get user data'));
+      }
+
+      // Create UserModel from Firebase data
+      final userModel = UserModel(
+        id: firebaseUser.uid,
+        email: firebaseUser.email ?? '',
+        name: firebaseUser.displayName ?? 'User',
+        phone: firebaseUser.phoneNumber,
+        photoUrl: firebaseUser.photoURL,
+        roleString: 'member',
+        selectedCity: null,
+        interests: [],
+        createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
+        subscriptionStatus: 'none',
+        remainingVisits: 0,
+        points: 0,
+        referralCode: null,
       );
 
-      await _localDataSource.saveAuthResponse(response);
-      return Right(response.user.toEntity());
+      // Save access token for AuthGuard (use Firebase ID token)
+      await _localDataSource.saveAccessToken(idToken);
+      
+      // Cache user locally
+      await _localDataSource.cacheUser(userModel);
+      
+      return Right(userModel.toEntity());
+
+      // TODO: Uncomment when backend is available
+      // final response = await _remoteDataSource.signInWithSocial(
+      //   SocialLoginModel(
+      //     idToken: idToken,
+      //     provider: 'google',
+      //   ),
+      // );
+      // await _localDataSource.saveAuthResponse(response);
+      // return Right(response.user.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

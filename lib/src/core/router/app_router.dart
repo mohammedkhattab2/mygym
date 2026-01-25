@@ -579,124 +579,101 @@ class AppRouter {
   }
 
   /// Handle global redirects
+  ///
+  /// Natural flow for new users: splash → onboarding → login → home
+  /// Returning users (authenticated): splash → home (skip onboarding/login)
   Future<String?> _handleRedirect(
     BuildContext context,
     GoRouterState state,
   ) async {
-    // Get location from multiple sources
-    final uriPath = state.uri.path;
-    final matchedLocation = state.matchedLocation;
+    final location = state.uri.path;
     
     // Debug logging
-    debugPrint('🔀 GoRouter redirect called:');
-    debugPrint('   - uriPath: $uriPath');
-    debugPrint('   - matchedLocation: $matchedLocation');
-    debugPrint('   - fullUri: ${state.uri}');
+    debugPrint('🔀 GoRouter redirect called: $location');
+
+    // Check authentication state once
+    await authGuard.checkAuthState();
+    final isAuthenticated = authGuard.isAuthenticated;
+    debugPrint('   - isAuthenticated: $isAuthenticated');
 
     // ═══════════════════════════════════════════════════════════════════════
-    // ABSOLUTE FIRST CHECK: If target contains 'otp', allow immediately
-    // This must happen before ANY other logic to prevent redirect loops
+    // 1. OTP routes - ALWAYS allow (prevent redirect loops)
     // ═══════════════════════════════════════════════════════════════════════
-    if (uriPath.contains('otp') || matchedLocation.contains('otp')) {
-      debugPrint('✅ OTP route detected - allowing access unconditionally');
-      return null; // Allow access, no redirect
+    if (location.contains('/otp')) {
+      debugPrint('✅ OTP route - allowing');
+      return null;
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // SECOND CHECK: Any other /auth/* route (login, etc.)
+    // 2. Splash - ALWAYS show (let splash screen decide next destination)
     // ═══════════════════════════════════════════════════════════════════════
-    final bool isAuthRoute = uriPath == '/auth' ||
-        uriPath.startsWith('/auth/') ||
-        uriPath == '/auth/login' ||
-        matchedLocation == '/auth' ||
-        matchedLocation.startsWith('/auth/');
-    
-    if (isAuthRoute) {
-      debugPrint('🔐 Auth route detected: $uriPath');
-      
-      // Check authentication status
-      await authGuard.checkAuthState();
-      final isAuthenticated = authGuard.isAuthenticated;
-      
-      debugPrint('   - isAuthenticated: $isAuthenticated');
-      
+    if (location == RoutePaths.splash) {
+      debugPrint('✅ Splash route - allowing');
+      return null;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // 3. Onboarding routes - allow unauthenticated, redirect authenticated to home
+    // ═══════════════════════════════════════════════════════════════════════
+    if (location.startsWith(RoutePaths.onboarding)) {
       if (isAuthenticated) {
-        // User is already logged in, redirect to their home
         await roleGuard.refreshRole();
         final homeRoute = _defaultRouteForRole(roleGuard.currentRole);
-        debugPrint('   - Redirecting to: $homeRoute');
+        debugPrint('🔄 Authenticated user on onboarding - redirecting to: $homeRoute');
         return homeRoute;
       }
-      
-      // Not authenticated - allow access to auth pages
-      debugPrint('✅ Allowing unauthenticated access to: $uriPath');
+      debugPrint('✅ Onboarding route - allowing unauthenticated user');
       return null;
     }
 
-    // Use uriPath as the primary location
-    final location = uriPath;
-
-    // 1) فحص الـ token (Authentication)
-    final authRedirect = await authGuard.canActivate(context, location);
-    final isAuthenticated = authRedirect == null;
-
-    // 2) Splash
-    if (location == RoutePaths.splash) {
-      // لو مش لوجّن → خليك في السبلش (هتودّي للّوجن/أونبوردنج بطريقتك)
-      if (!isAuthenticated) return null;
-
-      // لو لوجّن → وجّه حسب الـ role
-      await roleGuard.refreshRole();
-      return _defaultRouteForRole(roleGuard.currentRole);
-    }
-
-    // 3) Auth routes (/auth, /auth/login) - NOT OTP, it's handled above
-    if (location == RoutePaths.auth ||
-        location == RoutePaths.login ||
-        location == '/auth' ||
-        location == '/auth/login') {
-      // لو مش لوجّن → دخله عادي على شاشة اللوجن
-      if (!isAuthenticated) return null;
-
-      // لو لوجّن بالفعل → رجّعه للـ default route حسب الـ role
-      await roleGuard.refreshRole();
-      return _defaultRouteForRole(roleGuard.currentRole);
-    }
-
-    // 4) Onboarding routes: سيبها دلوقتي زي ما هي
-    if (location.startsWith(RoutePaths.onboarding)) {
+    // ═══════════════════════════════════════════════════════════════════════
+    // 4. Auth routes - allow unauthenticated, redirect authenticated to home
+    // ═══════════════════════════════════════════════════════════════════════
+    if (location.startsWith(RoutePaths.auth)) {
+      if (isAuthenticated) {
+        await roleGuard.refreshRole();
+        final homeRoute = _defaultRouteForRole(roleGuard.currentRole);
+        debugPrint('🔄 Authenticated user on auth - redirecting to: $homeRoute');
+        return homeRoute;
+      }
+      debugPrint('✅ Auth route - allowing unauthenticated user');
       return null;
     }
 
-    // 5) باقي المسارات:
-    // لو مش لوجّن (والمسار مش auth/onboarding/splash) → رجّعه لنتيجة الـ AuthGuard
+    // ═══════════════════════════════════════════════════════════════════════
+    // 5. Protected routes - require authentication
+    // ═══════════════════════════════════════════════════════════════════════
     if (!isAuthenticated) {
-      return authRedirect; // غالباً '/auth/login'
+      debugPrint('🔒 Protected route - redirecting to login');
+      return RoutePaths.login;
     }
 
-    // 6) فحص role-based access للمناطق الحساسة
-
-    // Admin area
+    // ═══════════════════════════════════════════════════════════════════════
+    // 6. Role-based access for admin/partner areas
+    // ═══════════════════════════════════════════════════════════════════════
     if (location.startsWith(RoutePaths.admin)) {
       final roleRedirect = await roleGuard.canActivate(context, location, [
         UserRole.admin,
       ]);
       if (roleRedirect != null) {
+        debugPrint('🚫 Admin area - role redirect to: $roleRedirect');
         return roleRedirect;
       }
-    }
-    // Partner area
-    else if (location.startsWith(RoutePaths.partner)) {
+    } else if (location.startsWith(RoutePaths.partner)) {
       final roleRedirect = await roleGuard.canActivate(context, location, [
         UserRole.admin,
         UserRole.partner,
       ]);
       if (roleRedirect != null) {
+        debugPrint('🚫 Partner area - role redirect to: $roleRedirect');
         return roleRedirect;
       }
     }
 
-    // 7) أي مسار تاني (member مثلاً) → مسموح لو عدّى AuthGuard + RoleGuard أعلاه
+    // ═══════════════════════════════════════════════════════════════════════
+    // 7. All checks passed - allow navigation
+    // ═══════════════════════════════════════════════════════════════════════
+    debugPrint('✅ All checks passed - allowing');
     return null;
   }
 }

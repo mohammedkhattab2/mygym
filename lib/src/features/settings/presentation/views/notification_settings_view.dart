@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
-import 'package:mygym/src/core/theme/app_text_styles.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/profile/domain/entities/user_profile.dart';
 import 'package:mygym/src/features/settings/presentation/cubit/settings_cubit.dart';
 
@@ -11,17 +10,20 @@ class NotificationSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    
     return Scaffold(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          "Notification",
-          style: AppTextStyles.titleLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+          "Notifications",
+          style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: colorScheme.surface,
       ),
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
@@ -31,64 +33,61 @@ class NotificationSettingsView extends StatelessWidget {
             children: [
               Text(
                 "Channels",
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textPrimaryDark,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: 8.h),
-              _buildSwitchTile(
-                tile: "Push notifications",
+              _NotificationSwitchTile(
+                title: "Push notifications",
                 value: prefs.pushEnabled,
-                onChanged: (v) =>
-                    _updatPrefs(context, prefs.copyWith(pushEnabled: v)),
+                onChanged: (v) => _updatePrefs(context, prefs.copyWith(pushEnabled: v)),
               ),
-              _buildSwitchTile(
-                tile: 'Email notifications', 
-                value: prefs.emailEnabled, 
-                onChanged: (v)=> _updatPrefs(context, prefs.copyWith(emailEnabled: v))
+              _NotificationSwitchTile(
+                title: 'Email notifications',
+                value: prefs.emailEnabled,
+                onChanged: (v) => _updatePrefs(context, prefs.copyWith(emailEnabled: v)),
+              ),
+              _NotificationSwitchTile(
+                title: 'SMS notifications',
+                value: prefs.smsEnabled,
+                onChanged: (v) => _updatePrefs(context, prefs.copyWith(smsEnabled: v)),
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                "Types",
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
                 ),
-              _buildSwitchTile(
-                tile: 'SMS notifications', 
-                value: prefs.smsEnabled, 
-                onChanged: (v)=> _updatPrefs(context, prefs.copyWith(smsEnabled: v))
-                ),
-                SizedBox(height: 8.h,),
-                Text(
-                  "Types",
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textPrimaryDark,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 8.h,),
-                _buildSwitchTile(
-                  tile: "Class Reminders", 
-                  value: prefs.classReminders, 
-                  onChanged: (v)=> _updatPrefs(context, prefs.copyWith(classReminders: v))
-                  ),
-                  _buildSwitchTile(
-                    tile: 'Promotional offers', 
-                    value: prefs.promotionalOffers, 
-                    onChanged: (v)=> _updatPrefs(context, prefs.copyWith(promotionalOffers: v))
-                  ),
-                  _buildSwitchTile(
-                    tile: 'Subscription alerts', 
-                    value: prefs.subscriptionAlerts, 
-                    onChanged: (v)=> _updatPrefs(context, prefs.copyWith(subscriptionAlerts: v))
-                  ),
-                  _buildSwitchTile(
-                    tile: 'Visit reminders', 
-                    value: prefs.visitReminders, 
-                    onChanged: (v)=> _updatPrefs(context, prefs.copyWith(visitReminders: v))
-                    ),
-                  _buildSwitchTile(
-                    tile: 'Weekly digest', 
-                    value: prefs.weeklyDigest, 
-                    onChanged: (v)=> _updatPrefs(context, prefs.copyWith(weeklyDigest: v))
-                    )
-                  
-
+              ),
+              SizedBox(height: 8.h),
+              _NotificationSwitchTile(
+                title: "Class Reminders",
+                value: prefs.classReminders,
+                onChanged: (v) => _updatePrefs(context, prefs.copyWith(classReminders: v)),
+              ),
+              _NotificationSwitchTile(
+                title: 'Promotional offers',
+                value: prefs.promotionalOffers,
+                onChanged: (v) => _updatePrefs(context, prefs.copyWith(promotionalOffers: v)),
+              ),
+              _NotificationSwitchTile(
+                title: 'Subscription alerts',
+                value: prefs.subscriptionAlerts,
+                onChanged: (v) => _updatePrefs(context, prefs.copyWith(subscriptionAlerts: v)),
+              ),
+              _NotificationSwitchTile(
+                title: 'Visit reminders',
+                value: prefs.visitReminders,
+                onChanged: (v) => _updatePrefs(context, prefs.copyWith(visitReminders: v)),
+              ),
+              _NotificationSwitchTile(
+                title: 'Weekly digest',
+                value: prefs.weeklyDigest,
+                onChanged: (v) => _updatePrefs(context, prefs.copyWith(weeklyDigest: v)),
+              ),
             ],
           );
         },
@@ -96,40 +95,54 @@ class NotificationSettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildSwitchTile({
-    required String tile,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 8.h),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceElevatedDark,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.borderDark),
-      ),
-      child: SwitchListTile(
-        title: Text(
-          tile,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textPrimaryDark,
-          ),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: AppColors.primary,
-      ),
-    );
-  }
-
-  Future<void> _updatPrefs(
+  Future<void> _updatePrefs(
     BuildContext context,
     NotificationPreferences prefs,
   ) async {
     await context.read<SettingsCubit>().updateNotificationPreferences(prefs);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Preferences updated")),
+      );
+    }
+  }
+}
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("preferences updated")));
+class _NotificationSwitchTile extends StatelessWidget {
+  final String title;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _NotificationSwitchTile({
+    required this.title,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final textTheme = Theme.of(context).textTheme;
+    
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      decoration: BoxDecoration(
+        color: luxury.surfaceElevated,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+      ),
+      child: SwitchListTile(
+        title: Text(
+          title,
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurface,
+          ),
+        ),
+        value: value,
+        onChanged: onChanged,
+        activeColor: colorScheme.primary,
+      ),
+    );
   }
 }

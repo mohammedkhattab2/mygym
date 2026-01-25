@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import '../theme/app_theme.dart';
+import '../utils/responsive/responsive_utils.dart';
 
 /// ============================================
 /// MAIN TEXT FIELD
@@ -104,7 +105,7 @@ class _AppTextFieldState extends State<AppTextField> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveBorderRadius = widget.borderRadius ?? AppTheme.borderRadiusLarge;
+    final effectiveBorderRadius = widget.borderRadius ?? ResponsiveSizes.radiusLg;
     final effectiveFillColor = widget.fillColor ??
         (isDark ? AppColors.surfaceElevatedDark : AppColors.grey100);
 
@@ -117,6 +118,7 @@ class _AppTextFieldState extends State<AppTextField> {
           AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 200),
             style: AppTextStyles.inputLabel.copyWith(
+              fontSize: ResponsiveFontSizes.labelMedium,
               color: _isFocused
                   ? AppColors.primary
                   : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
@@ -124,7 +126,7 @@ class _AppTextFieldState extends State<AppTextField> {
             ),
             child: Text(widget.label!),
           ),
-          const SizedBox(height: 8),
+          RGap.h8,
         ],
         
         // Text Field
@@ -147,12 +149,14 @@ class _AppTextFieldState extends State<AppTextField> {
           onFieldSubmitted: widget.onSubmitted,
           onTap: widget.onTap,
           style: AppTextStyles.input.copyWith(
+            fontSize: ResponsiveFontSizes.bodyLarge,
             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
           ),
           cursorColor: AppColors.primary,
           decoration: InputDecoration(
             hintText: widget.hint,
             hintStyle: AppTextStyles.inputHint.copyWith(
+              fontSize: ResponsiveFontSizes.bodyLarge,
               color: isDark ? AppColors.textTertiaryDark : AppColors.textDisabled,
             ),
             errorText: widget.errorText,
@@ -166,7 +170,7 @@ class _AppTextFieldState extends State<AppTextField> {
                       color: _isFocused
                           ? AppColors.primary
                           : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
-                      size: 22,
+                      size: 22.sp,
                     ),
                     child: widget.prefixIcon!,
                   )
@@ -176,6 +180,7 @@ class _AppTextFieldState extends State<AppTextField> {
                     icon: Icon(
                       _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                      size: 22.sp,
                     ),
                     onPressed: () {
                       setState(() {
@@ -184,10 +189,7 @@ class _AppTextFieldState extends State<AppTextField> {
                     },
                   )
                 : widget.suffixIcon,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 18,
-            ),
+            contentPadding: ResponsivePadding.input,
             border: _buildBorder(effectiveBorderRadius, isDark, false, false),
             enabledBorder: _buildBorder(effectiveBorderRadius, isDark, false, false),
             focusedBorder: _buildBorder(effectiveBorderRadius, isDark, true, false),
@@ -209,16 +211,17 @@ class _AppTextFieldState extends State<AppTextField> {
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: AppTextStyles.inputLabel.copyWith(
+                fontSize: ResponsiveFontSizes.labelMedium,
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),
               child: Text(widget.label!),
             ),
-            const SizedBox(height: 8),
+            RGap.h8,
           ],
           _GradientBorderWrapper(
             borderRadius: effectiveBorderRadius,
-            borderWidth: 2,
+            borderWidth: 2.w,
             gradient: AppColors.primaryGradient,
             child: TextFormField(
               controller: widget.controller,
@@ -238,12 +241,14 @@ class _AppTextFieldState extends State<AppTextField> {
               onFieldSubmitted: widget.onSubmitted,
               onTap: widget.onTap,
               style: AppTextStyles.input.copyWith(
+                fontSize: ResponsiveFontSizes.bodyLarge,
                 color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
               ),
               cursorColor: AppColors.primary,
               decoration: InputDecoration(
                 hintText: widget.hint,
                 hintStyle: AppTextStyles.inputHint.copyWith(
+                  fontSize: ResponsiveFontSizes.bodyLarge,
                   color: isDark ? AppColors.textTertiaryDark : AppColors.textDisabled,
                 ),
                 counterText: widget.showCounter ? null : '',
@@ -255,6 +260,7 @@ class _AppTextFieldState extends State<AppTextField> {
                         icon: Icon(
                           _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                           color: AppColors.primary,
+                          size: 22.sp,
                         ),
                         onPressed: () {
                           setState(() {
@@ -263,20 +269,17 @@ class _AppTextFieldState extends State<AppTextField> {
                         },
                       )
                     : widget.suffixIcon,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 18,
-                ),
+                contentPadding: ResponsivePadding.input,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(effectiveBorderRadius - 2),
+                  borderRadius: BorderRadius.circular(effectiveBorderRadius - 2.w),
                   borderSide: BorderSide.none,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(effectiveBorderRadius - 2),
+                  borderRadius: BorderRadius.circular(effectiveBorderRadius - 2.w),
                   borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(effectiveBorderRadius - 2),
+                  borderRadius: BorderRadius.circular(effectiveBorderRadius - 2.w),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -297,18 +300,18 @@ class _AppTextFieldState extends State<AppTextField> {
     bool disabled = false,
   }) {
     Color borderColor;
-    double borderWidth = 1;
+    double borderWidth = 1.w;
 
     if (isError) {
       borderColor = AppColors.error;
-      borderWidth = isFocused ? 2 : 1;
+      borderWidth = isFocused ? 2.w : 1.w;
     } else if (isFocused) {
       borderColor = AppColors.primary;
-      borderWidth = 2;
+      borderWidth = 2.w;
     } else if (disabled) {
       borderColor = isDark
-          ? AppColors.borderDark.withValues(alpha:  0.5)
-          : AppColors.border.withValues(alpha:  0.5);
+          ? AppColors.borderDark.withValues(alpha: 0.5)
+          : AppColors.border.withValues(alpha: 0.5);
     } else {
       borderColor = isDark ? AppColors.borderDark : Colors.transparent;
     }
@@ -387,9 +390,9 @@ class _AppSearchFieldState extends State<AppSearchField> {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusRound),
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
         border: isDark
-            ? Border.all(color: AppColors.borderDark, width: 1)
+            ? Border.all(color: AppColors.borderDark, width: 1.w)
             : null,
       ),
       child: Row(
@@ -401,24 +404,27 @@ class _AppSearchFieldState extends State<AppSearchField> {
               onChanged: widget.onChanged,
               onSubmitted: widget.onSubmitted,
               style: AppTextStyles.input.copyWith(
+                fontSize: ResponsiveFontSizes.bodyLarge,
                 color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
               ),
               cursorColor: AppColors.primary,
               decoration: InputDecoration(
                 hintText: widget.hint,
                 hintStyle: AppTextStyles.inputHint.copyWith(
+                  fontSize: ResponsiveFontSizes.bodyLarge,
                   color: isDark ? AppColors.textTertiaryDark : AppColors.textDisabled,
                 ),
                 prefixIcon: Icon(
                   Icons.search_rounded,
                   color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                  size: 24.sp,
                 ),
                 suffixIcon: _hasText
                     ? IconButton(
                         icon: Icon(
                           Icons.close_rounded,
                           color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
-                          size: 20,
+                          size: 20.sp,
                         ),
                         onPressed: () {
                           _controller.clear();
@@ -427,9 +433,9 @@ class _AppSearchFieldState extends State<AppSearchField> {
                         },
                       )
                     : null,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 14.h,
                 ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -439,14 +445,15 @@ class _AppSearchFieldState extends State<AppSearchField> {
           ),
           if (widget.showFilterButton) ...[
             Container(
-              width: 1,
-              height: 24,
+              width: 1.w,
+              height: 24.h,
               color: isDark ? AppColors.borderDark : AppColors.border,
             ),
             IconButton(
               icon: Icon(
                 Icons.tune_rounded,
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                size: 24.sp,
               ),
               onPressed: widget.onFilterPressed,
             ),
@@ -485,24 +492,24 @@ class OtpTextField extends StatelessWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: 52,
-      height: 60,
+      width: 52.w,
+      height: 60.h,
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
         border: Border.all(
           color: hasError
               ? AppColors.error
               : isFocused
                   ? AppColors.primary
                   : (isDark ? AppColors.borderDark : Colors.transparent),
-          width: isFocused || hasError ? 2 : 1,
+          width: isFocused || hasError ? 2.w : 1.w,
         ),
         boxShadow: isFocused && !hasError
             ? [
                 BoxShadow(
                   color: AppColors.primaryGlowLight,
-                  blurRadius: 8,
+                  blurRadius: 8.r,
                   spreadRadius: 0,
                 ),
               ]
@@ -516,6 +523,7 @@ class OtpTextField extends StatelessWidget {
         keyboardType: TextInputType.number,
         maxLength: 1,
         style: AppTextStyles.headlineSmall.copyWith(
+          fontSize: ResponsiveFontSizes.headlineSmall,
           color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
           fontWeight: FontWeight.w700,
         ),
@@ -609,8 +617,8 @@ class _OtpInputRowState extends State<OtpInputRow> {
       children: List.generate(widget.length, (index) {
         return Padding(
           padding: EdgeInsets.only(
-            left: index == 0 ? 0 : 8,
-            right: index == widget.length - 1 ? 0 : 8,
+            left: index == 0 ? 0 : 8.w,
+            right: index == widget.length - 1 ? 0 : 8.w,
           ),
           child: KeyboardListener(
             focusNode: FocusNode(),
@@ -642,6 +650,7 @@ class PhoneInputField extends StatelessWidget {
     this.hint = 'Phone number',
     this.errorText,
     this.countryCode = '+20',
+    this.countryFlag = '🇪🇬',
     this.onCountryCodeTap,
     this.onChanged,
     this.focusNode,
@@ -652,6 +661,7 @@ class PhoneInputField extends StatelessWidget {
   final String hint;
   final String? errorText;
   final String countryCode;
+  final String countryFlag;
   final VoidCallback? onCountryCodeTap;
   final ValueChanged<String>? onChanged;
   final FocusNode? focusNode;
@@ -668,19 +678,20 @@ class PhoneInputField extends StatelessWidget {
           Text(
             label!,
             style: AppTextStyles.inputLabel.copyWith(
+              fontSize: ResponsiveFontSizes.labelMedium,
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 8),
+          RGap.h8,
         ],
         Container(
           decoration: BoxDecoration(
             color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+            borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg),
             border: errorText != null
-                ? Border.all(color: AppColors.error, width: 1)
+                ? Border.all(color: AppColors.error, width: 1.w)
                 : (isDark
-                    ? Border.all(color: AppColors.borderDark, width: 1)
+                    ? Border.all(color: AppColors.borderDark, width: 1.w)
                     : null),
           ),
           child: Row(
@@ -688,31 +699,32 @@ class PhoneInputField extends StatelessWidget {
               // Country code button
               InkWell(
                 onTap: onCountryCodeTap,
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(AppTheme.borderRadiusLarge),
+                borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(ResponsiveSizes.radiusLg),
                 ),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '🇪🇬',
-                        style: const TextStyle(fontSize: 20),
+                        countryFlag,
+                        style: TextStyle(fontSize: 20.sp),
                       ),
-                      const SizedBox(width: 8),
+                      RGap.w8,
                       Text(
                         countryCode,
                         style: AppTextStyles.input.copyWith(
+                          fontSize: ResponsiveFontSizes.bodyLarge,
                           color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      RGap.w4,
                       Icon(
                         Icons.keyboard_arrow_down_rounded,
                         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
-                        size: 20,
+                        size: 20.sp,
                       ),
                     ],
                   ),
@@ -721,8 +733,8 @@ class PhoneInputField extends StatelessWidget {
               
               // Divider
               Container(
-                width: 1,
-                height: 30,
+                width: 1.w,
+                height: 30.h,
                 color: isDark ? AppColors.borderDark : AppColors.border,
               ),
               
@@ -734,6 +746,7 @@ class PhoneInputField extends StatelessWidget {
                   keyboardType: TextInputType.phone,
                   onChanged: onChanged,
                   style: AppTextStyles.input.copyWith(
+                    fontSize: ResponsiveFontSizes.bodyLarge,
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                   ),
                   cursorColor: AppColors.primary,
@@ -744,14 +757,15 @@ class PhoneInputField extends StatelessWidget {
                   decoration: InputDecoration(
                     hintText: hint,
                     hintStyle: AppTextStyles.inputHint.copyWith(
+                      fontSize: ResponsiveFontSizes.bodyLarge,
                       color: isDark ? AppColors.textTertiaryDark : AppColors.textDisabled,
                     ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 18,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 18.h,
                     ),
                   ),
                 ),
@@ -760,10 +774,12 @@ class PhoneInputField extends StatelessWidget {
           ),
         ),
         if (errorText != null) ...[
-          const SizedBox(height: 8),
+          RGap.h8,
           Text(
             errorText!,
-            style: AppTextStyles.inputError,
+            style: AppTextStyles.inputError.copyWith(
+              fontSize: ResponsiveFontSizes.bodySmall,
+            ),
           ),
         ],
       ],

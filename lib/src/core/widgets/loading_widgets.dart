@@ -526,8 +526,8 @@ class SkeletonCard extends StatelessWidget {
                 height: imageHeight,
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(AppTheme.borderRadiusLarge),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(AppTheme.kBorderRadiusLarge),
                   ),
                 ),
               ),
@@ -578,8 +578,8 @@ class SkeletonGymCard extends StatelessWidget {
               height: 160,
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(AppTheme.borderRadiusLarge),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(AppTheme.kBorderRadiusLarge),
                 ),
               ),
             ),

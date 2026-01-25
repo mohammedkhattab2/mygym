@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import '../theme/app_theme.dart';
+import '../utils/responsive/responsive_utils.dart';
 
 /// ============================================
 /// PRIMARY BUTTON - Gradient with Glow
@@ -91,9 +92,8 @@ class _AppButtonState extends State<AppButton>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEnabled = !widget.isDisabled && !widget.isLoading;
     final effectiveGradient = widget.gradient ?? AppColors.primaryGradient;
-    final effectiveBorderRadius =
-        widget.borderRadius ?? AppTheme.borderRadiusLarge;
-    final effectiveHeight = widget.height ?? AppTheme.buttonHeight;
+    final effectiveBorderRadius = widget.borderRadius ?? ResponsiveSizes.radiusLg;
+    final effectiveHeight = widget.height ?? ResponsiveSizes.buttonHeight;
 
     return AnimatedBuilder(
       animation: _scaleAnimation,
@@ -114,9 +114,9 @@ class _AppButtonState extends State<AppButton>
               ? [
                   BoxShadow(
                     color: AppColors.primaryGlow,
-                    blurRadius: _isPressed ? 20 : 16,
-                    spreadRadius: _isPressed ? 2 : 0,
-                    offset: const Offset(0, 4),
+                    blurRadius: _isPressed ? 20.r : 16.r,
+                    spreadRadius: _isPressed ? 2.r : 0,
+                    offset: Offset(0, 4.h),
                   ),
                 ]
               : null,
@@ -168,7 +168,7 @@ class AppOutlinedButton extends StatefulWidget {
     this.icon,
     this.iconPosition = IconPosition.left,
     this.borderRadius,
-    this.borderWidth = 2,
+    this.borderWidth,
     this.useGradientBorder = false,
   });
 
@@ -183,7 +183,7 @@ class AppOutlinedButton extends StatefulWidget {
   final Widget? icon;
   final IconPosition iconPosition;
   final double? borderRadius;
-  final double borderWidth;
+  final double? borderWidth;
   final bool useGradientBorder;
 
   @override
@@ -198,9 +198,9 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isEnabled = !widget.isDisabled && !widget.isLoading;
     final effectiveColor = widget.textColor ?? AppColors.primary;
-    final effectiveBorderRadius =
-        widget.borderRadius ?? AppTheme.borderRadiusLarge;
-    final effectiveHeight = widget.height ?? AppTheme.buttonHeight;
+    final effectiveBorderRadius = widget.borderRadius ?? ResponsiveSizes.radiusLg;
+    final effectiveHeight = widget.height ?? ResponsiveSizes.buttonHeight;
+    final effectiveBorderWidth = widget.borderWidth ?? 2.w;
 
     Widget button = Container(
       width: widget.width ?? double.infinity,
@@ -213,7 +213,7 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> {
                 color: isEnabled
                     ? (widget.borderColor ?? effectiveColor)
                     : (isDark ? AppColors.grey600 : AppColors.grey300),
-                width: widget.borderWidth,
+                width: effectiveBorderWidth,
               ),
         color: _isHovered ? effectiveColor.withValues(alpha: 0.1) : Colors.transparent,
       ),
@@ -246,7 +246,7 @@ class _AppOutlinedButtonState extends State<AppOutlinedButton> {
     if (widget.useGradientBorder && isEnabled) {
       button = _GradientBorderWrapper(
         borderRadius: effectiveBorderRadius,
-        borderWidth: widget.borderWidth,
+        borderWidth: effectiveBorderWidth,
         gradient: AppColors.primaryGradient,
         child: button,
       );
@@ -289,27 +289,28 @@ class AppTextButton extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       style: TextButton.styleFrom(
         foregroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       ),
       child: isLoading
-          ? _LoadingIndicator(color: color, size: 20)
+          ? _LoadingIndicator(color: color, size: 20.sp)
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null && iconPosition == IconPosition.left) ...[
                   icon!,
-                  const SizedBox(width: 8),
+                  RGap.w8,
                 ],
                 Text(
                   text,
                   style: AppTextStyles.buttonText.copyWith(
                     color: color,
+                    fontSize: ResponsiveFontSizes.buttonSmall,
                     decoration: underline ? TextDecoration.underline : null,
                     decorationColor: color,
                   ),
                 ),
                 if (icon != null && iconPosition == IconPosition.right) ...[
-                  const SizedBox(width: 8),
+                  RGap.w8,
                   icon!,
                 ],
               ],
@@ -328,8 +329,8 @@ class AppIconButton extends StatelessWidget {
     super.key,
     required this.icon,
     required this.onPressed,
-    this.size = 48,
-    this.iconSize = 24,
+    this.size,
+    this.iconSize,
     this.backgroundColor,
     this.iconColor,
     this.borderRadius,
@@ -339,8 +340,8 @@ class AppIconButton extends StatelessWidget {
 
   final IconData icon;
   final VoidCallback? onPressed;
-  final double size;
-  final double iconSize;
+  final double? size;
+  final double? iconSize;
   final Color? backgroundColor;
   final Color? iconColor;
   final double? borderRadius;
@@ -350,22 +351,23 @@ class AppIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveSize = size ?? 48.w;
+    final effectiveIconSize = iconSize ?? 24.sp;
     final effectiveBgColor = backgroundColor ??
         (isDark ? AppColors.surfaceElevatedDark : AppColors.grey100);
     final effectiveIconColor = iconColor ??
         (isDark ? AppColors.textPrimaryDark : AppColors.textPrimary);
-    final effectiveBorderRadius =
-        borderRadius ?? AppTheme.borderRadiusMedium;
+    final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusMd;
 
     Widget button = Container(
-      width: size,
-      height: size,
+      width: effectiveSize,
+      height: effectiveSize,
       decoration: BoxDecoration(
         color: effectiveBgColor,
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         border: border ??
             (isDark
-                ? Border.all(color: AppColors.borderDark, width: 1)
+                ? Border.all(color: AppColors.borderDark, width: 1.w)
                 : null),
       ),
       child: Material(
@@ -376,7 +378,7 @@ class AppIconButton extends StatelessWidget {
           child: Center(
             child: Icon(
               icon,
-              size: iconSize,
+              size: effectiveIconSize,
               color: effectiveIconColor,
             ),
           ),
@@ -432,17 +434,17 @@ class SocialButton extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      height: AppTheme.buttonHeight,
+      height: ResponsiveSizes.buttonHeight,
       child: OutlinedButton(
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: effectiveBgColor,
           foregroundColor: effectiveTextColor,
-          side: BorderSide(color: effectiveBorderColor, width: 1),
+          side: BorderSide(color: effectiveBorderColor, width: 1.w),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
+            borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
         ),
         child: isLoading
             ? _LoadingIndicator(color: effectiveTextColor)
@@ -450,11 +452,12 @@ class SocialButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   icon,
-                  const SizedBox(width: 12),
+                  RGap.w12,
                   Text(
                     text,
                     style: AppTextStyles.button.copyWith(
                       color: effectiveTextColor,
+                      fontSize: ResponsiveFontSizes.button,
                     ),
                   ),
                 ],
@@ -493,9 +496,8 @@ class GlassButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveBorderRadius =
-        borderRadius ?? AppTheme.borderRadiusLarge;
-    final effectiveHeight = height ?? AppTheme.buttonHeight;
+    final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
+    final effectiveHeight = height ?? ResponsiveSizes.buttonHeight;
 
     return Container(
       width: width ?? double.infinity,
@@ -505,7 +507,7 @@ class GlassButton extends StatelessWidget {
         color: AppColors.glassWhite,
         border: Border.all(
           color: AppColors.glassBorder,
-          width: 1,
+          width: 1.w,
         ),
       ),
       child: ClipRRect(
@@ -548,7 +550,7 @@ class GradientBorderButton extends StatelessWidget {
     this.width,
     this.height,
     this.gradient,
-    this.borderWidth = 2,
+    this.borderWidth,
     this.icon,
     this.iconPosition = IconPosition.left,
   });
@@ -559,32 +561,33 @@ class GradientBorderButton extends StatelessWidget {
   final double? width;
   final double? height;
   final Gradient? gradient;
-  final double borderWidth;
+  final double? borderWidth;
   final Widget? icon;
   final IconPosition iconPosition;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveHeight = height ?? AppTheme.buttonHeight;
+    final effectiveHeight = height ?? ResponsiveSizes.buttonHeight;
     final effectiveGradient = gradient ?? AppColors.primaryGradient;
+    final effectiveBorderWidth = borderWidth ?? 2.w;
 
     return _GradientBorderWrapper(
-      borderRadius: AppTheme.borderRadiusLarge,
-      borderWidth: borderWidth,
+      borderRadius: ResponsiveSizes.radiusLg,
+      borderWidth: effectiveBorderWidth,
       gradient: effectiveGradient,
       child: Container(
         width: width ?? double.infinity,
         height: effectiveHeight,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge - borderWidth),
+          borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg - effectiveBorderWidth),
           color: isDark ? AppColors.surfaceDark : AppColors.surface,
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: isLoading ? null : onPressed,
-            borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge - borderWidth),
+            borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg - effectiveBorderWidth),
             child: Center(
               child: isLoading
                   ? _LoadingIndicator(color: AppColors.primary)
@@ -632,19 +635,25 @@ class _ButtonContent extends StatelessWidget {
       children: [
         if (icon != null && iconPosition == IconPosition.left) ...[
           IconTheme(
-            data: IconThemeData(color: textColor, size: 20),
+            data: IconThemeData(color: textColor, size: 20.sp),
             child: icon!,
           ),
-          const SizedBox(width: 8),
+          RGap.w8,
         ],
-        Text(
-          text,
-          style: AppTextStyles.button.copyWith(color: textColor),
+        Flexible(
+          child: Text(
+            text,
+            style: AppTextStyles.button.copyWith(
+              color: textColor,
+              fontSize: ResponsiveFontSizes.button,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
         if (icon != null && iconPosition == IconPosition.right) ...[
-          const SizedBox(width: 8),
+          RGap.w8,
           IconTheme(
-            data: IconThemeData(color: textColor, size: 20),
+            data: IconThemeData(color: textColor, size: 20.sp),
             child: icon!,
           ),
         ],
@@ -656,19 +665,20 @@ class _ButtonContent extends StatelessWidget {
 class _LoadingIndicator extends StatelessWidget {
   const _LoadingIndicator({
     required this.color,
-    this.size = 24,
+    this.size,
   });
 
   final Color color;
-  final double size;
+  final double? size;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveSize = size ?? 24.sp;
     return SizedBox(
-      width: size,
-      height: size,
+      width: effectiveSize,
+      height: effectiveSize,
       child: CircularProgressIndicator(
-        strokeWidth: 2.5,
+        strokeWidth: 2.5.w,
         valueColor: AlwaysStoppedAnimation<Color>(color),
       ),
     );
@@ -739,8 +749,8 @@ class AppButtonSmall extends StatelessWidget {
       backgroundColor: backgroundColor,
       textColor: textColor,
       icon: icon,
-      height: AppTheme.buttonHeightSmall,
-      borderRadius: AppTheme.borderRadiusMedium,
+      height: ResponsiveSizes.buttonHeightSmall,
+      borderRadius: ResponsiveSizes.radiusMd,
     );
   }
 }
@@ -766,7 +776,7 @@ class AppChipButton extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTheme.borderRadiusRound),
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
         gradient: isSelected ? AppColors.primaryGradient : null,
         color: isSelected
             ? null
@@ -775,16 +785,16 @@ class AppChipButton extends StatelessWidget {
             ? null
             : Border.all(
                 color: isDark ? AppColors.borderDark : AppColors.border,
-                width: 1,
+                width: 1.w,
               ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(AppTheme.borderRadiusRound),
+          borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -796,15 +806,16 @@ class AppChipButton extends StatelessWidget {
                           : (isDark
                               ? AppColors.textPrimaryDark
                               : AppColors.textPrimary),
-                      size: 18,
+                      size: 18.sp,
                     ),
                     child: icon!,
                   ),
-                  const SizedBox(width: 8),
+                  RGap.w8,
                 ],
                 Text(
                   text,
                   style: AppTextStyles.labelMedium.copyWith(
+                    fontSize: ResponsiveFontSizes.labelMedium,
                     color: isSelected
                         ? AppColors.white
                         : (isDark

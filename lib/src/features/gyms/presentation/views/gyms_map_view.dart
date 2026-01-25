@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
-import 'package:mygym/src/core/theme/app_text_styles.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/gyms/domain/entities/gym.dart';
 import 'package:mygym/src/features/gyms/presentation/bloc/gyms_bloc.dart';
 
@@ -42,7 +41,7 @@ class _GymsMapViewState extends State<GymsMapView> {
               '${gym.rating.toStringAsFixed(1)} ★ • ${gym.formattedDistance ?? gym.city}',
         ),
         onTap: () {
-          // TODO: افتح GymDetails او BottomSheet لو حابب
+          // TODO: Open GymDetails or BottomSheet
         },
       );
     }).toSet();
@@ -50,17 +49,20 @@ class _GymsMapViewState extends State<GymsMapView> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
           "Gyms Map",
-          style: AppTextStyles.titleLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+          style: textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: AppColors.surfaceDark,
+        backgroundColor: colorScheme.surface,
       ),
       body: BlocConsumer<GymsBloc, GymsState>(
         listener: (context, state) {
@@ -75,14 +77,16 @@ class _GymsMapViewState extends State<GymsMapView> {
           final hasError = state.status == GymsStatus.failure && gyms.isEmpty;
 
           if (isInitialLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(color: colorScheme.primary),
+            );
           }
           if (hasError) {
             return Center(
               child: Text(
                 state.errorMessage ?? "Failed to load gyms",
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.error,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.error,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -106,7 +110,7 @@ class _GymsMapViewState extends State<GymsMapView> {
                 left: 16.w,
                 right: 16.w,
                 bottom: 16.w,
-                child: _buildBottomInfoBar(gyms.length),
+                child: _BottomInfoBar(gymsCount: gyms.length),
               ),
             ],
           );
@@ -128,40 +132,53 @@ class _GymsMapViewState extends State<GymsMapView> {
     );
   }
 
-  Widget _buildBottomInfoBar(int gymsCount) {
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
+  }
+}
+
+class _BottomInfoBar extends StatelessWidget {
+  final int gymsCount;
+
+  const _BottomInfoBar({required this.gymsCount});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final luxury = context.luxury;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: AppColors.surfaceElevatedDark.withValues(alpha: 0.95),
+        color: luxury.surfaceElevated.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: AppColors.borderDark),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
           Icon(
             Icons.location_on_rounded,
-            color: AppColors.primary,
+            color: colorScheme.primary,
             size: 20.sp,
           ),
-          SizedBox(width: 8.w,),
+          SizedBox(width: 8.w),
           Expanded(
             child: Text(
-              gymsCount ==0 
-                   ? "No gyms found"
-                   : '$gymsCount gyms loaded on the map',
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textPrimaryDark
+              gymsCount == 0
+                  ? "No gyms found"
+                  : '$gymsCount gyms loaded on the map',
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurface,
               ),
-            )
-            )
-          ],
+            ),
+          ),
+        ],
       ),
-      
     );
-  }
-  @override
-  void dispose() {
-    _mapController?.dispose();
-    super.dispose();
   }
 }

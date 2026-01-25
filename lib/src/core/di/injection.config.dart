@@ -26,6 +26,7 @@ import '../../features/auth/data/datasources/auth_local_data_source.dart'
     as _i852;
 import '../../features/auth/data/datasources/auth_remote_data_source.dart'
     as _i107;
+import '../../features/auth/data/datasources/firebase_auth_helper.dart' as _i92;
 import '../../features/auth/data/repositories/auth_repository_impl.dart'
     as _i153;
 import '../../features/auth/domain/repositories/auth_repository.dart' as _i787;
@@ -106,16 +107,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i667.DioClient>(() => _i667.DioClient());
     gh.lazySingleton<_i895.Connectivity>(() => connectivityModule.connectivity);
     gh.lazySingleton<_i204.SubscriptionGuard>(() => _i204.SubscriptionGuard());
-    gh.lazySingleton<_i107.FirebaseAuthHelper>(
-        () => _i107.FirebaseAuthHelper());
+    gh.lazySingleton<_i92.FirebaseAuthHelper>(() => _i92.FirebaseAuthHelper());
     gh.lazySingleton<_i312.ClassesLocalDataSource>(
         () => _i312.ClassesLocalDataSource());
+    gh.lazySingleton<_i824.PartnerLocalDataSource>(
+        () => _i824.PartnerLocalDataSource());
     gh.lazySingleton<_i599.SettingsLocalDataSource>(
         () => _i599.SettingsLocalDataSource());
     gh.lazySingleton<_i855.SupportLocalDataSource>(
         () => _i855.SupportLocalDataSource());
-    gh.lazySingleton<_i824.PartnerLocalDataSource>(
-        () => _i824.PartnerLocalDataSource());
     await gh.factoryAsync<_i986.Box<String>>(
       () => storageModule.userBox,
       instanceName: 'userBox',
@@ -180,13 +180,13 @@ extension GetItInjectableX on _i174.GetIt {
           roleGuard: gh<_i746.RoleGuard>(),
           subscriptionGuard: gh<_i204.SubscriptionGuard>(),
         ));
+    gh.factory<_i587.GymsBloc>(() => _i587.GymsBloc(gh<_i786.GymRepository>()));
     gh.lazySingleton<_i787.AuthRepository>(() => _i153.AuthRepositoryImpl(
           gh<_i107.AuthRemoteDataSource>(),
           gh<_i852.AuthLocalDataSource>(),
-          gh<_i107.FirebaseAuthHelper>(),
+          gh<_i92.FirebaseAuthHelper>(),
           gh<_i932.NetworkInfo>(),
         ));
-    gh.factory<_i587.GymsBloc>(() => _i587.GymsBloc(gh<_i786.GymRepository>()));
     gh.factory<_i846.QrCheckinCubit>(
         () => _i846.QrCheckinCubit(gh<_i631.QrRepository>()));
     gh.factory<_i846.QrScannerCubit>(
