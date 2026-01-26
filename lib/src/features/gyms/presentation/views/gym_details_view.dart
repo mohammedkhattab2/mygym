@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,12 +18,12 @@ import 'package:mygym/src/features/gyms/presentation/widget/build_working_hours.
 /// Premium Luxury Gym Details View
 ///
 /// Features:
-/// - Animated floating particles with gold accents
-/// - Multiple layered glowing orbs
+/// - Static decorative glowing orbs with gold accents
 /// - Premium hero header with gradient overlay
 /// - Elegant typography with Google Fonts
 /// - Gold gradient accents
-/// - Smooth parallax scrolling effect
+/// - Full Light/Dark mode compliance
+/// - No animations
 class GymDetailsView extends StatefulWidget {
   final String gymId;
   const GymDetailsView({super.key, required this.gymId});
@@ -34,84 +32,15 @@ class GymDetailsView extends StatefulWidget {
   State<GymDetailsView> createState() => _GymDetailsViewState();
 }
 
-class _GymDetailsViewState extends State<GymDetailsView>
-    with TickerProviderStateMixin {
-  final ScrollController _scrollController = ScrollController();
-  double _scrollOffset = 0;
-  
-  // Animation controllers
-  late AnimationController _glowPulseController;
-  late AnimationController _particlesController;
-  
-  // Particles data
-  late List<_Particle> _particles;
-
-  @override
-  void initState() {
-    super.initState();
-    _setSystemUI();
-    _initParticles();
-    _initAnimations();
-    
-    _scrollController.addListener(() {
-      setState(() {
-        _scrollOffset = _scrollController.offset;
-      });
-    });
-  }
-
-  void _setSystemUI() {
-    final isDark = context.isDarkMode;
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-      ),
-    );
-  }
-
-  void _initParticles() {
-    final random = math.Random();
-    _particles = List.generate(20, (index) {
-      final isGold = index % 3 == 0;
-      return _Particle(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        size: 2 + random.nextDouble() * 4,
-        speed: 0.1 + random.nextDouble() * 0.25,
-        opacity: 0.06 + random.nextDouble() * 0.18,
-        isGold: isGold,
-      );
-    });
-  }
-
-  void _initAnimations() {
-    _glowPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3000),
-    )..repeat(reverse: true);
-    
-    _particlesController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 25),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _glowPulseController.dispose();
-    _particlesController.dispose();
-    super.dispose();
-  }
+class _GymDetailsViewState extends State<GymDetailsView> {
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Set system UI overlay style based on theme
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -139,12 +68,6 @@ class _GymDetailsViewState extends State<GymDetailsView>
         ),
         child: Stack(
           children: [
-            // Animated floating particles
-            _buildParticles(colorScheme, luxury),
-            
-            // Glowing orbs with parallax
-            _buildGlowingOrbs(colorScheme, luxury),
-            
             // Main content
             BlocBuilder<GymsBloc, GymsState>(
               builder: (context, state) {
@@ -163,11 +86,10 @@ class _GymDetailsViewState extends State<GymDetailsView>
                   children: [
                     Expanded(
                       child: CustomScrollView(
-                        controller: _scrollController,
                         physics: const BouncingScrollPhysics(),
                         slivers: [
                           // Premium hero header
-                          _buildSliverHeader(context, gym, isFavorite, colorScheme, luxury),
+                          _buildSliverHeader(context, gym, isFavorite, colorScheme, luxury, isDark),
                           
                           // Content sections
                           SliverToBoxAdapter(
@@ -210,102 +132,7 @@ class _GymDetailsViewState extends State<GymDetailsView>
     );
   }
 
-  Widget _buildParticles(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
-    return AnimatedBuilder(
-      animation: _particlesController,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size(
-            MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.height,
-          ),
-          painter: _ParticlesPainter(
-            particles: _particles,
-            progress: _particlesController.value,
-            purpleColor: colorScheme.primary,
-            goldColor: luxury.gold,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGlowingOrbs(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
-    return AnimatedBuilder(
-      animation: _glowPulseController,
-      builder: (context, child) {
-        final pulseValue = 0.4 + (_glowPulseController.value * 0.3);
-        final parallaxOffset = _scrollOffset * 0.3;
-        
-        return Stack(
-          children: [
-            // Top right purple glow with parallax
-            Positioned(
-              top: -80.h - parallaxOffset,
-              right: -50.w,
-              child: Container(
-                width: 200.w,
-                height: 200.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      colorScheme.primary.withValues(alpha: 0.18 * pulseValue),
-                      colorScheme.primary.withValues(alpha: 0.05 * pulseValue),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-            // Gold accent glow
-            Positioned(
-              top: 100.h - parallaxOffset * 0.5,
-              left: -60.w,
-              child: Container(
-                width: 150.w,
-                height: 150.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      luxury.gold.withValues(alpha: 0.12 * pulseValue),
-                      luxury.gold.withValues(alpha: 0.03 * pulseValue),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-            // Secondary violet glow
-            Positioned(
-              top: 300.h - parallaxOffset * 0.2,
-              right: -30.w,
-              child: Container(
-                width: 120.w,
-                height: 120.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      colorScheme.secondary.withValues(alpha: 0.08 * pulseValue),
-                      colorScheme.secondary.withValues(alpha: 0.02 * pulseValue),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildSliverHeader(BuildContext context, Gym gym, bool isFavorite, ColorScheme colorScheme, LuxuryThemeExtension luxury) {
+  Widget _buildSliverHeader(BuildContext context, Gym gym, bool isFavorite, ColorScheme colorScheme, LuxuryThemeExtension luxury, bool isDark) {
     final heroLetter = gym.name.isNotEmpty ? gym.name[0].toUpperCase() : "G";
     
     return SliverAppBar(
@@ -337,7 +164,7 @@ class _GymDetailsViewState extends State<GymDetailsView>
             Positioned.fill(
               child: CustomPaint(
                 painter: _HeroPatternPainter(
-                  color: Colors.white.withValues(alpha: 0.03),
+                  color: (isDark ? colorScheme.onSurface : colorScheme.surface).withValues(alpha: 0.03),
                 ),
               ),
             ),
@@ -347,9 +174,9 @@ class _GymDetailsViewState extends State<GymDetailsView>
                 shaderCallback: (bounds) {
                   return LinearGradient(
                     colors: [
-                      Colors.white.withValues(alpha: 0.08),
+                      colorScheme.onPrimary.withValues(alpha: 0.08),
                       luxury.gold.withValues(alpha: 0.12),
-                      Colors.white.withValues(alpha: 0.05),
+                      colorScheme.onPrimary.withValues(alpha: 0.05),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                     begin: Alignment.topLeft,
@@ -361,7 +188,7 @@ class _GymDetailsViewState extends State<GymDetailsView>
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 120.sp,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: colorScheme.onPrimary,
                   ),
                 ),
               ),
@@ -390,20 +217,16 @@ class _GymDetailsViewState extends State<GymDetailsView>
           ],
         ),
       ),
-      // Custom app bar content
-      title: AnimatedOpacity(
-        opacity: _scrollOffset > 150 ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 200),
-        child: Text(
-          gym.name,
-          style: GoogleFonts.inter(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+      // Custom app bar content - always visible title
+      title: Text(
+        gym.name,
+        style: GoogleFonts.inter(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w600,
+          color: colorScheme.onSurface,
         ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
       leading: Padding(
         padding: EdgeInsets.only(left: 16.w),
@@ -419,7 +242,7 @@ class _GymDetailsViewState extends State<GymDetailsView>
             icon: isFavorite
                 ? Icons.favorite_rounded
                 : Icons.favorite_border_rounded,
-            iconColor: isFavorite ? Colors.red : Colors.white,
+            iconColor: isFavorite ? Colors.red : null,
             onTap: () {
               context.read<GymsBloc>().add(
                 GymsEvent.toggleFavorite(gym.id),
@@ -471,7 +294,7 @@ class _GymDetailsViewState extends State<GymDetailsView>
           SizedBox(height: 16.h),
           Text(
             message ?? "Failed to load gym details",
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
               color: colorScheme.error,
@@ -485,73 +308,59 @@ class _GymDetailsViewState extends State<GymDetailsView>
 }
 
 // ============================================================================
-// LUXURY CIRCLE BUTTON
+// LUXURY CIRCLE BUTTON - No animations
 // ============================================================================
 
-class _LuxuryCircleButton extends StatefulWidget {
+class _LuxuryCircleButton extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
+  final Color? iconColor;
   final VoidCallback onTap;
 
   const _LuxuryCircleButton({
     required this.icon,
-    this.iconColor = Colors.white,
+    this.iconColor,
     required this.onTap,
   });
-
-  @override
-  State<_LuxuryCircleButton> createState() => _LuxuryCircleButtonState();
-}
-
-class _LuxuryCircleButtonState extends State<_LuxuryCircleButton> {
-  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.9 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: Container(
-          width: 42.w,
-          height: 42.w,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                luxury.surfaceElevated.withValues(alpha: 0.9),
-                colorScheme.surface.withValues(alpha: 0.8),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            border: Border.all(
-              color: luxury.gold.withValues(alpha: 0.2),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 42.w,
+        height: 42.w,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [
+              luxury.surfaceElevated.withValues(alpha: 0.9),
+              colorScheme.surface.withValues(alpha: 0.8),
             ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          child: Center(
-            child: Icon(
-              widget.icon,
-              color: widget.iconColor,
-              size: 18.sp,
+          border: Border.all(
+            color: luxury.gold.withValues(alpha: 0.2),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withValues(alpha: isDark ? 0.4 : 0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        child: Center(
+          child: Icon(
+            icon,
+            color: iconColor ?? colorScheme.onSurface,
+            size: 18.sp,
           ),
         ),
       ),
@@ -589,71 +398,4 @@ class _HeroPatternPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// ============================================================================
-// PARTICLE DATA & PAINTER
-// ============================================================================
-
-class _Particle {
-  final double x;
-  final double y;
-  final double size;
-  final double speed;
-  final double opacity;
-  final bool isGold;
-
-  _Particle({
-    required this.x,
-    required this.y,
-    required this.size,
-    required this.speed,
-    required this.opacity,
-    this.isGold = false,
-  });
-}
-
-class _ParticlesPainter extends CustomPainter {
-  final List<_Particle> particles;
-  final double progress;
-  final Color purpleColor;
-  final Color goldColor;
-
-  _ParticlesPainter({
-    required this.particles,
-    required this.progress,
-    required this.purpleColor,
-    required this.goldColor,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-
-    for (final particle in particles) {
-      final animatedY = (particle.y - (progress * particle.speed)) % 1.0;
-      final x = particle.x * size.width;
-      final y = animatedY * size.height;
-
-      final fadeMultiplier = animatedY < 0.1
-          ? animatedY / 0.1
-          : animatedY > 0.9
-              ? (1.0 - animatedY) / 0.1
-              : 1.0;
-
-      final baseColor = particle.isGold ? goldColor : purpleColor;
-      paint.color = baseColor.withValues(alpha: particle.opacity * fadeMultiplier);
-
-      canvas.drawCircle(
-        Offset(x, y),
-        particle.size,
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ParticlesPainter oldDelegate) {
-    return oldDelegate.progress != progress;
-  }
 }

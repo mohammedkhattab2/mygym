@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,12 +10,11 @@ import 'package:mygym/src/features/qr_checkin/presentation/bloc/qr_checkin_cubit
 /// Premium Luxury Visit History View
 ///
 /// Features:
-/// - Animated floating particles with gold accents
-/// - Glowing orbs with parallax effect
+/// - Static glowing orbs with premium styling
 /// - Premium glassmorphism visit cards
 /// - Gold gradient accents and elegant typography
 /// - Timeline connector design
-/// - Smooth animations and press effects
+/// - Refined luxury styling without animations
 class VisitHistoryView extends StatefulWidget {
   const VisitHistoryView({super.key});
 
@@ -25,32 +22,14 @@ class VisitHistoryView extends StatefulWidget {
   State<VisitHistoryView> createState() => _VisitHistoryViewState();
 }
 
-class _VisitHistoryViewState extends State<VisitHistoryView>
-    with TickerProviderStateMixin {
-  final ScrollController _scrollController = ScrollController();
-  double _scrollOffset = 0;
+class _VisitHistoryViewState extends State<VisitHistoryView> {
   late Future<List<VisitEntry>> _futureVisits;
-  
-  // Animation controllers
-  late AnimationController _glowPulseController;
-  late AnimationController _particlesController;
-  
-  // Particles data
-  late List<_Particle> _particles;
 
   @override
   void initState() {
     super.initState();
     _setSystemUI();
-    _initParticles();
-    _initAnimations();
     _futureVisits = context.read<QrCheckinCubit>().getVisitHistory(limit: 50);
-    
-    _scrollController.addListener(() {
-      setState(() {
-        _scrollOffset = _scrollController.offset;
-      });
-    });
   }
 
   void _setSystemUI() {
@@ -64,45 +43,11 @@ class _VisitHistoryViewState extends State<VisitHistoryView>
     );
   }
 
-  void _initParticles() {
-    final random = math.Random();
-    _particles = List.generate(12, (index) {
-      final isGold = index % 4 == 0;
-      return _Particle(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        size: 2 + random.nextDouble() * 3,
-        speed: 0.07 + random.nextDouble() * 0.15,
-        opacity: 0.05 + random.nextDouble() * 0.12,
-        isGold: isGold,
-      );
-    });
-  }
-
-  void _initAnimations() {
-    _glowPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2600),
-    )..repeat(reverse: true);
-    
-    _particlesController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 20),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _glowPulseController.dispose();
-    _particlesController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
+    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -123,12 +68,6 @@ class _VisitHistoryViewState extends State<VisitHistoryView>
         ),
         child: Stack(
           children: [
-            // Animated floating particles
-            _buildParticles(colorScheme, luxury),
-            
-            // Glowing orbs with parallax
-            _buildGlowingOrbs(colorScheme, luxury),
-            
             // Main content
             SafeArea(
               child: Column(
@@ -161,81 +100,6 @@ class _VisitHistoryViewState extends State<VisitHistoryView>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildParticles(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
-    return AnimatedBuilder(
-      animation: _particlesController,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size(
-            MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.height,
-          ),
-          painter: _ParticlesPainter(
-            particles: _particles,
-            progress: _particlesController.value,
-            purpleColor: colorScheme.primary,
-            goldColor: luxury.gold,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGlowingOrbs(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
-    return AnimatedBuilder(
-      animation: _glowPulseController,
-      builder: (context, child) {
-        final pulseValue = 0.3 + (_glowPulseController.value * 0.2);
-        final parallaxOffset = _scrollOffset * 0.2;
-        
-        return Stack(
-          children: [
-            // Top right purple glow
-            Positioned(
-              top: -40.h - parallaxOffset,
-              right: -30.w,
-              child: Container(
-                width: 140.w,
-                height: 140.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      colorScheme.primary.withValues(alpha: 0.12 * pulseValue),
-                      colorScheme.primary.withValues(alpha: 0.03 * pulseValue),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-            // Gold accent glow
-            Positioned(
-              top: 200.h - parallaxOffset * 0.5,
-              left: -40.w,
-              child: Container(
-                width: 100.w,
-                height: 100.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      luxury.gold.withValues(alpha: 0.08 * pulseValue),
-                      luxury.gold.withValues(alpha: 0.02 * pulseValue),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -361,7 +225,7 @@ class _VisitHistoryViewState extends State<VisitHistoryView>
                 },
                 child: Icon(
                   Icons.history_rounded,
-                  color: Colors.white,
+                  color: colorScheme.onPrimary,
                   size: 48.sp,
                 ),
               ),
@@ -394,7 +258,6 @@ class _VisitHistoryViewState extends State<VisitHistoryView>
 
   Widget _buildVisitsList(List<VisitEntry> visits) {
     return ListView.builder(
-      controller: _scrollController,
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
       itemCount: visits.length,
@@ -413,10 +276,10 @@ class _VisitHistoryViewState extends State<VisitHistoryView>
 }
 
 // ============================================================================
-// LUXURY ICON BUTTON
+// LUXURY ICON BUTTON (Static - No Animation)
 // ============================================================================
 
-class _LuxuryIconButton extends StatefulWidget {
+class _LuxuryIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
@@ -426,27 +289,15 @@ class _LuxuryIconButton extends StatefulWidget {
   });
 
   @override
-  State<_LuxuryIconButton> createState() => _LuxuryIconButtonState();
-}
-
-class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 100),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12.r),
         child: Container(
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
@@ -465,7 +316,7 @@ class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: colorScheme.shadow.withValues(alpha: 0.2),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -475,7 +326,7 @@ class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
             shaderCallback: (bounds) {
               return LinearGradient(
                 colors: [
-                  Colors.white,
+                  colorScheme.onSurface,
                   luxury.gold.withValues(alpha: 0.7),
                 ],
                 begin: Alignment.topLeft,
@@ -483,8 +334,8 @@ class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
               ).createShader(bounds);
             },
             child: Icon(
-              widget.icon,
-              color: Colors.white,
+              icon,
+              color: colorScheme.onPrimary,
               size: 20.sp,
             ),
           ),
@@ -495,10 +346,10 @@ class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
 }
 
 // ============================================================================
-// LUXURY VISIT CARD
+// LUXURY VISIT CARD (Static - No Animation)
 // ============================================================================
 
-class _LuxuryVisitCard extends StatefulWidget {
+class _LuxuryVisitCard extends StatelessWidget {
   final VisitEntry visit;
   final bool isFirst;
   final bool isLast;
@@ -510,372 +361,289 @@ class _LuxuryVisitCard extends StatefulWidget {
   });
 
   @override
-  State<_LuxuryVisitCard> createState() => _LuxuryVisitCardState();
-}
-
-class _LuxuryVisitCardState extends State<_LuxuryVisitCard> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final checkIn = widget.visit.checkInTime;
-    final checkOut = widget.visit.checkOutTime;
+    final checkIn = visit.checkInTime;
+    final checkOut = visit.checkOutTime;
     final isActive = checkOut == null;
     final dateStr =
         '${checkIn.day.toString().padLeft(2, '0')}/${checkIn.month.toString().padLeft(2, '0')}/${checkIn.year}';
     final timeStr =
         '${checkIn.hour.toString().padLeft(2, '0')}:${checkIn.minute.toString().padLeft(2, '0')}';
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.98 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Timeline indicator
-            SizedBox(
-              width: 30.w,
-              child: Column(
-                children: [
-                  if (!widget.isFirst)
-                    Container(
-                      width: 2,
-                      height: 10.h,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            luxury.gold.withValues(alpha: 0.1),
-                            luxury.gold.withValues(alpha: 0.3),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  Container(
-                    width: 14.w,
-                    height: 14.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: isActive
-                            ? [luxury.success, luxury.success.withValues(alpha: 0.7)]
-                            : [luxury.gold, luxury.goldLight],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isActive ? luxury.success : luxury.gold)
-                              .withValues(alpha: 0.4),
-                          blurRadius: 8,
-                          spreadRadius: 1,
-                        ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Timeline indicator
+        SizedBox(
+          width: 30.w,
+          child: Column(
+            children: [
+              if (!isFirst)
+                Container(
+                  width: 2,
+                  height: 10.h,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        luxury.gold.withValues(alpha: 0.1),
+                        luxury.gold.withValues(alpha: 0.3),
                       ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
                   ),
-                  if (!widget.isLast)
-                    Container(
-                      width: 2,
-                      height: 80.h,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            luxury.gold.withValues(alpha: 0.3),
-                            luxury.gold.withValues(alpha: 0.1),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            SizedBox(width: 14.w),
-            
-            // Visit card
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.only(bottom: 14.h),
-                padding: EdgeInsets.all(16.w),
+                ),
+              Container(
+                width: 14.w,
+                height: 14.w,
                 decoration: BoxDecoration(
+                  shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [
-                      luxury.surfaceElevated,
-                      colorScheme.surface,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  borderRadius: BorderRadius.circular(18.r),
-                  border: Border.all(
-                    color: isActive
-                        ? luxury.success.withValues(alpha: 0.3)
-                        : luxury.gold.withValues(alpha: 0.1),
-                    width: 1,
+                    colors: isActive
+                        ? [luxury.success, luxury.success.withValues(alpha: 0.7)]
+                        : [luxury.gold, luxury.goldLight],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Gym avatar
-                    Container(
-                      width: 50.w,
-                      height: 50.w,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            colorScheme.primary.withValues(alpha: 0.2),
-                            luxury.gold.withValues(alpha: 0.1),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(14.r),
-                        border: Border.all(
-                          color: luxury.gold.withValues(alpha: 0.15),
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: ShaderMask(
-                          shaderCallback: (bounds) {
-                            return LinearGradient(
-                              colors: [colorScheme.primary, luxury.gold],
-                            ).createShader(bounds);
-                          },
-                          child: Text(
-                            widget.visit.gymName.isNotEmpty
-                                ? widget.visit.gymName[0].toUpperCase()
-                                : "G",
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 14.w),
-                    
-                    // Visit details
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  widget.visit.gymName,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: colorScheme.onSurface,
-                                  ),
-                                ),
-                              ),
-                              // Status badge
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 10.w,
-                                  vertical: 4.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: isActive
-                                        ? [
-                                            luxury.success.withValues(alpha: 0.2),
-                                            luxury.success.withValues(alpha: 0.1),
-                                          ]
-                                        : [
-                                            colorScheme.surface,
-                                            colorScheme.surface,
-                                          ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(12.r),
-                                  border: Border.all(
-                                    color: isActive
-                                        ? luxury.success.withValues(alpha: 0.3)
-                                        : colorScheme.outline.withValues(alpha: 0.3),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  isActive ? 'Active' : 'Done',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: isActive
-                                        ? luxury.success
-                                        : luxury.textTertiary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8.h),
-                          
-                          // Date and time
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today_rounded,
-                                size: 12.sp,
-                                color: luxury.textTertiary,
-                              ),
-                              SizedBox(width: 6.w),
-                              Text(
-                                '$dateStr • $timeStr',
-                                style: GoogleFonts.spaceGrotesk(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 6.h),
-                          
-                          // Duration
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.timer_outlined,
-                                size: 12.sp,
-                                color: luxury.textTertiary,
-                              ),
-                              SizedBox(width: 6.w),
-                              Text(
-                                'Duration: ${widget.visit.formattedDuration}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w400,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          // Remaining visits
-                          if (widget.visit.visitsAfter != null) ...[
-                            SizedBox(height: 6.h),
-                            Row(
-                              children: [
-                                ShaderMask(
-                                  shaderCallback: (bounds) {
-                                    return LinearGradient(
-                                      colors: [luxury.gold, luxury.goldLight],
-                                    ).createShader(bounds);
-                                  },
-                                  child: Icon(
-                                    Icons.confirmation_number_rounded,
-                                    size: 12.sp,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                SizedBox(width: 6.w),
-                                Text(
-                                  '${widget.visit.visitsAfter} visits remaining',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: luxury.gold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ],
-                      ),
+                      color: (isActive ? luxury.success : luxury.gold)
+                          .withValues(alpha: 0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              if (!isLast)
+                Container(
+                  width: 2,
+                  height: 80.h,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        luxury.gold.withValues(alpha: 0.3),
+                        luxury.gold.withValues(alpha: 0.1),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
-      ),
+        SizedBox(width: 14.w),
+        
+        // Visit card
+        Expanded(
+          child: Container(
+            margin: EdgeInsets.only(bottom: 14.h),
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  luxury.surfaceElevated,
+                  colorScheme.surface,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: BorderRadius.circular(18.r),
+              border: Border.all(
+                color: isActive
+                    ? luxury.success.withValues(alpha: 0.3)
+                    : luxury.gold.withValues(alpha: 0.1),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Gym avatar
+                Container(
+                  width: 50.w,
+                  height: 50.w,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        colorScheme.primary.withValues(alpha: 0.2),
+                        luxury.gold.withValues(alpha: 0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14.r),
+                    border: Border.all(
+                      color: luxury.gold.withValues(alpha: 0.15),
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: ShaderMask(
+                      shaderCallback: (bounds) {
+                        return LinearGradient(
+                          colors: [colorScheme.primary, luxury.gold],
+                        ).createShader(bounds);
+                      },
+                      child: Text(
+                        visit.gymName.isNotEmpty
+                            ? visit.gymName[0].toUpperCase()
+                            : "G",
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 14.w),
+                
+                // Visit details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              visit.gymName,
+                              style: GoogleFonts.inter(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          // Status badge
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10.w,
+                              vertical: 4.h,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: isActive
+                                    ? [
+                                        luxury.success.withValues(alpha: 0.2),
+                                        luxury.success.withValues(alpha: 0.1),
+                                      ]
+                                    : [
+                                        colorScheme.surface,
+                                        colorScheme.surface,
+                                      ],
+                              ),
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(
+                                color: isActive
+                                    ? luxury.success.withValues(alpha: 0.3)
+                                    : colorScheme.outline.withValues(alpha: 0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              isActive ? 'Active' : 'Done',
+                              style: GoogleFonts.inter(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600,
+                                color: isActive
+                                    ? luxury.success
+                                    : luxury.textTertiary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8.h),
+                      
+                      // Date and time
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today_rounded,
+                            size: 12.sp,
+                            color: luxury.textTertiary,
+                          ),
+                          SizedBox(width: 6.w),
+                          Text(
+                            '$dateStr • $timeStr',
+                            style: GoogleFonts.spaceGrotesk(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 6.h),
+                      
+                      // Duration
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.timer_outlined,
+                            size: 12.sp,
+                            color: luxury.textTertiary,
+                          ),
+                          SizedBox(width: 6.w),
+                          Text(
+                            'Duration: ${visit.formattedDuration}',
+                            style: GoogleFonts.inter(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      // Remaining visits
+                      if (visit.visitsAfter != null) ...[
+                        SizedBox(height: 6.h),
+                        Row(
+                          children: [
+                            ShaderMask(
+                              shaderCallback: (bounds) {
+                                return LinearGradient(
+                                  colors: [luxury.gold, luxury.goldLight],
+                                ).createShader(bounds);
+                              },
+                              child: Icon(
+                                Icons.confirmation_number_rounded,
+                                size: 12.sp,
+                                color: colorScheme.onPrimary,
+                              ),
+                            ),
+                            SizedBox(width: 6.w),
+                            Text(
+                              '${visit.visitsAfter} visits remaining',
+                              style: GoogleFonts.inter(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                                color: luxury.gold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
-  }
-}
-
-// ============================================================================
-// PARTICLE DATA & PAINTER
-// ============================================================================
-
-class _Particle {
-  final double x;
-  final double y;
-  final double size;
-  final double speed;
-  final double opacity;
-  final bool isGold;
-
-  _Particle({
-    required this.x,
-    required this.y,
-    required this.size,
-    required this.speed,
-    required this.opacity,
-    this.isGold = false,
-  });
-}
-
-class _ParticlesPainter extends CustomPainter {
-  final List<_Particle> particles;
-  final double progress;
-  final Color purpleColor;
-  final Color goldColor;
-
-  _ParticlesPainter({
-    required this.particles,
-    required this.progress,
-    required this.purpleColor,
-    required this.goldColor,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-
-    for (final particle in particles) {
-      final animatedY = (particle.y - (progress * particle.speed)) % 1.0;
-      final x = particle.x * size.width;
-      final y = animatedY * size.height;
-
-      final fadeMultiplier = animatedY < 0.1
-          ? animatedY / 0.1
-          : animatedY > 0.9
-              ? (1.0 - animatedY) / 0.1
-              : 1.0;
-
-      final baseColor = particle.isGold ? goldColor : purpleColor;
-      paint.color = baseColor.withValues(alpha: particle.opacity * fadeMultiplier);
-
-      canvas.drawCircle(
-        Offset(x, y),
-        particle.size,
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ParticlesPainter oldDelegate) {
-    return oldDelegate.progress != progress;
   }
 }

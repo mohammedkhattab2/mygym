@@ -12,7 +12,8 @@ import 'package:mygym/src/features/home/domain/entities/fitness_class_entity.dar
 /// - Premium glassmorphism class cards
 /// - Gradient time badges
 /// - Instructor info with avatar placeholder
-/// - Press animations
+/// - Full Light/Dark mode compliance
+/// - NO animations (static luxury design)
 class BuildPopularClasses extends StatelessWidget {
   const BuildPopularClasses({super.key});
 
@@ -20,6 +21,7 @@ class BuildPopularClasses extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
+    final isDark = context.isDarkMode;
 
     return Column(
       children: [
@@ -38,7 +40,7 @@ class BuildPopularClasses extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: [
                           colorScheme.secondary,
-                          luxury.gold,
+                          isDark ? luxury.gold : colorScheme.primary,
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -66,14 +68,14 @@ class BuildPopularClasses extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
-                        color: luxury.gold,
+                        color: isDark ? luxury.gold : colorScheme.primary,
                       ),
                     ),
                     SizedBox(width: 4.w),
                     Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 12.sp,
-                      color: luxury.gold.withValues(alpha: 0.7),
+                      color: (isDark ? luxury.gold : colorScheme.primary).withValues(alpha: 0.7),
                     ),
                   ],
                 ),
@@ -113,7 +115,8 @@ class BuildPopularClasses extends StatelessWidget {
   }
 }
 
-class _LuxuryClassCard extends StatefulWidget {
+/// Static Luxury Class Card (no animations)
+class _LuxuryClassCard extends StatelessWidget {
   final FitnessClassEntity fitnessClass;
   final int index;
   final VoidCallback onTap;
@@ -124,212 +127,198 @@ class _LuxuryClassCard extends StatefulWidget {
     required this.onTap,
   });
 
-  @override
-  State<_LuxuryClassCard> createState() => _LuxuryClassCardState();
-}
-
-class _LuxuryClassCardState extends State<_LuxuryClassCard> {
-  bool _isPressed = false;
-
-  // Different accent colors for variety
+  // Different accent colors for variety using theme colors
   Color _getAccentColor(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
     final colors = [
       colorScheme.primary,
       colorScheme.secondary,
-      const Color(0xFF14B8A6), // Teal
+      colorScheme.tertiary, // Uses theme tertiary instead of hardcoded teal
       luxury.gold,
     ];
-    return colors[widget.index % colors.length];
+    return colors[index % colors.length];
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
+    final isDark = context.isDarkMode;
     final accentColor = _getAccentColor(colorScheme, luxury);
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.98 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                luxury.surfaceElevated,
-                colorScheme.surface,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.circular(18.r),
-            border: Border.all(
-              color: luxury.gold.withValues(alpha: 0.1),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-              BoxShadow(
-                color: accentColor.withValues(alpha: 0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 2),
-              ),
-            ],
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [luxury.surfaceElevated, luxury.surfacePremium]
+                : [colorScheme.surface, colorScheme.surfaceContainerHighest ?? colorScheme.surface],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          child: Row(
-            children: [
-              // Emoji container with gradient background
-              Container(
-                width: 64.w,
-                height: 64.w,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      accentColor.withValues(alpha: 0.2),
-                      accentColor.withValues(alpha: 0.08),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16.r),
-                  border: Border.all(
-                    color: accentColor.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    widget.fitnessClass.emoji,
-                    style: TextStyle(fontSize: 32.sp),
-                  ),
-                ),
-              ),
-              SizedBox(width: 16.w),
-              // Class info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.fitnessClass.name,
-                      style: GoogleFonts.inter(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                    SizedBox(height: 6.h),
-                    Row(
-                      children: [
-                        // Instructor avatar placeholder
-                        Container(
-                          width: 20.w,
-                          height: 20.w,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                accentColor.withValues(alpha: 0.6),
-                                accentColor.withValues(alpha: 0.3),
-                              ],
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              widget.fitnessClass.instructor[0].toUpperCase(),
-                              style: GoogleFonts.inter(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          widget.fitnessClass.instructor,
-                          style: GoogleFonts.inter(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w400,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
+          borderRadius: BorderRadius.circular(18.r),
+          border: Border.all(
+            color: isDark
+                ? luxury.gold.withValues(alpha: 0.1)
+                : colorScheme.outline.withValues(alpha: 0.15),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: luxury.cardShadow.withValues(alpha: isDark ? 0.3 : 0.15),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: accentColor.withValues(alpha: isDark ? 0.05 : 0.03),
+              blurRadius: 20,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Emoji container with gradient background
+            Container(
+              width: 64.w,
+              height: 64.w,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    accentColor.withValues(alpha: isDark ? 0.2 : 0.15),
+                    accentColor.withValues(alpha: isDark ? 0.08 : 0.05),
                   ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(
+                  color: accentColor.withValues(alpha: isDark ? 0.2 : 0.15),
+                  width: 1,
                 ),
               ),
-              // Time and duration
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Center(
+                child: Text(
+                  fitnessClass.emoji,
+                  style: TextStyle(fontSize: 32.sp),
+                ),
+              ),
+            ),
+            SizedBox(width: 16.w),
+            // Class info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Time badge with gradient
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 5.h,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          accentColor,
-                          accentColor.withValues(alpha: 0.7),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(8.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: accentColor.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      widget.fitnessClass.time,
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
+                  Text(
+                    fitnessClass.name,
+                    style: GoogleFonts.inter(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface,
                     ),
                   ),
-                  SizedBox(height: 8.h),
-                  // Duration
+                  SizedBox(height: 6.h),
                   Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.timer_outlined,
-                        size: 12.sp,
-                        color: luxury.textTertiary,
+                      // Instructor avatar placeholder
+                      Container(
+                        width: 20.w,
+                        height: 20.w,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              accentColor.withValues(alpha: 0.6),
+                              accentColor.withValues(alpha: 0.3),
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            fitnessClass.instructor[0].toUpperCase(),
+                            style: GoogleFonts.inter(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w700,
+                              color: colorScheme.onPrimary,
+                            ),
+                          ),
+                        ),
                       ),
-                      SizedBox(width: 4.w),
+                      SizedBox(width: 8.w),
                       Text(
-                        widget.fitnessClass.duration,
+                        fitnessClass.instructor,
                         style: GoogleFonts.inter(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w500,
-                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w400,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            // Time and duration
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Time badge with gradient
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 5.h,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        accentColor,
+                        accentColor.withValues(alpha: 0.7),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(8.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: accentColor.withValues(alpha: isDark ? 0.3 : 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    fitnessClass.time,
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                // Duration
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.timer_outlined,
+                      size: 12.sp,
+                      color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                    SizedBox(width: 4.w),
+                    Text(
+                      fitnessClass.duration,
+                      style: GoogleFonts.inter(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/luxury_theme_extension.dart';
 import '../../domain/entities/admin_gym.dart';
 
 /// Admin gym data table widget
@@ -27,6 +27,9 @@ class AdminGymTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     if (gyms.isEmpty) {
       return Center(
         child: Column(
@@ -35,14 +38,14 @@ class AdminGymTable extends StatelessWidget {
             Icon(
               Icons.store_outlined,
               size: 64.sp,
-              color: AppColors.textTertiary,
+              color: luxury.textTertiary,
             ),
             SizedBox(height: 16.h),
             Text(
               'No gyms found',
               style: TextStyle(
                 fontSize: 16.sp,
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -54,19 +57,19 @@ class AdminGymTable extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: SingleChildScrollView(
         child: DataTable(
-          headingRowColor: WidgetStateProperty.all(AppColors.surface),
+          headingRowColor: WidgetStateProperty.all(colorScheme.surface),
           dataRowMinHeight: 60.h,
           dataRowMaxHeight: 80.h,
           columnSpacing: 24.w,
           horizontalMargin: 16.w,
-          columns: _buildColumns(),
+          columns: _buildColumns(context),
           rows: gyms.map((gym) => _buildRow(context, gym)).toList(),
         ),
       ),
     );
   }
 
-  List<DataColumn> _buildColumns() {
+  List<DataColumn> _buildColumns(BuildContext context) {
     final columns = <DataColumn>[
       DataColumn(
         label: _SortableHeader(
@@ -137,6 +140,9 @@ class AdminGymTable extends StatelessWidget {
   }
 
   DataRow _buildRow(BuildContext context, AdminGym gym) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     final cells = <DataCell>[
       DataCell(
         InkWell(
@@ -155,8 +161,8 @@ class AdminGymTable extends StatelessWidget {
                     errorBuilder: (_, e, st) => Container(
                       width: 40.w,
                       height: 40.w,
-                      color: AppColors.border,
-                      child: Icon(Icons.store, size: 20.sp),
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                      child: Icon(Icons.store, size: 20.sp, color: colorScheme.onSurfaceVariant),
                     ),
                   ),
                 )
@@ -165,13 +171,13 @@ class AdminGymTable extends StatelessWidget {
                   width: 40.w,
                   height: 40.w,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha:  0.1),
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
                     Icons.store,
                     size: 20.sp,
-                    color: AppColors.primary,
+                    color: colorScheme.primary,
                   ),
                 ),
               SizedBox(width: 12.w),
@@ -184,6 +190,7 @@ class AdminGymTable extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14.sp,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   if (gym.partnerEmail != null)
@@ -191,7 +198,7 @@ class AdminGymTable extends StatelessWidget {
                       gym.partnerEmail!,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                 ],
@@ -200,25 +207,25 @@ class AdminGymTable extends StatelessWidget {
           ),
         ),
       ),
-      DataCell(Text(gym.city)),
+      DataCell(Text(gym.city, style: TextStyle(color: colorScheme.onSurface))),
       DataCell(_StatusBadge(status: gym.status)),
-      DataCell(Text(_formatDate(gym.dateAdded))),
+      DataCell(Text(_formatDate(gym.dateAdded), style: TextStyle(color: colorScheme.onSurface))),
     ];
 
     if (!isCompact) {
       cells.addAll([
-        DataCell(Text(gym.stats.totalVisits.toString())),
+        DataCell(Text(gym.stats.totalVisits.toString(), style: TextStyle(color: colorScheme.onSurface))),
         DataCell(
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.star, size: 16.sp, color: AppColors.warning),
+              Icon(Icons.star, size: 16.sp, color: luxury.gold),
               SizedBox(width: 4.w),
-              Text('${gym.stats.averageRating.toStringAsFixed(1)} (${gym.stats.totalReviews})'),
+              Text('${gym.stats.averageRating.toStringAsFixed(1)} (${gym.stats.totalReviews})', style: TextStyle(color: colorScheme.onSurface)),
             ],
           ),
         ),
-        DataCell(Text('\$${gym.stats.totalRevenue.toStringAsFixed(2)}')),
+        DataCell(Text('\$${gym.stats.totalRevenue.toStringAsFixed(2)}', style: TextStyle(color: colorScheme.onSurface))),
       ]);
     }
 
@@ -320,6 +327,8 @@ class _SortableHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return InkWell(
       onTap: () => onSort?.call(sortBy, true),
       child: Row(
@@ -330,10 +339,11 @@ class _SortableHeader extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14.sp,
+              color: colorScheme.onSurface,
             ),
           ),
           SizedBox(width: 4.w),
-          Icon(Icons.unfold_more, size: 16.sp),
+          Icon(Icons.unfold_more, size: 16.sp, color: colorScheme.onSurfaceVariant),
         ],
       ),
     );
@@ -348,12 +358,14 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = _getStatusColor(context);
+    
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: _getStatusColor().withValues(alpha: 0.1),
+        color: statusColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: _getStatusColor().withValues(alpha: 0.3)),
+        border: Border.all(color: statusColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -362,7 +374,7 @@ class _StatusBadge extends StatelessWidget {
             width: 8.w,
             height: 8.w,
             decoration: BoxDecoration(
-              color: _getStatusColor(),
+              color: statusColor,
               shape: BoxShape.circle,
             ),
           ),
@@ -370,7 +382,7 @@ class _StatusBadge extends StatelessWidget {
           Text(
             status.displayName,
             style: TextStyle(
-              color: _getStatusColor(),
+              color: statusColor,
               fontSize: 12.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -380,16 +392,19 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor() {
+  Color _getStatusColor(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     switch (status) {
       case GymStatus.pending:
-        return Colors.orange;
+        return luxury.gold;
       case GymStatus.active:
-        return Colors.green;
+        return luxury.success;
       case GymStatus.blocked:
-        return Colors.red;
+        return colorScheme.error;
       case GymStatus.suspended:
-        return Colors.grey;
+        return colorScheme.onSurfaceVariant;
     }
   }
 }

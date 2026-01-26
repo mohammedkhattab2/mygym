@@ -746,7 +746,11 @@ class _MemberShellScaffoldState extends State<_MemberShellScaffold> {
       return 2;
     } else if (location.startsWith(RoutePaths.classes)) {
       return 3;
-    } else if (location.startsWith(RoutePaths.profile)) {
+    } else if (location.startsWith(RoutePaths.profile) ||
+               location.startsWith(RoutePaths.settings) ||
+               location.startsWith(RoutePaths.history) ||
+               location.startsWith(RoutePaths.rewards)) {
+      // Settings, History, and Rewards are accessed from Profile tab
       return 4;
     }
     return 0;

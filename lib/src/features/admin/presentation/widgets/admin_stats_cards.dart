@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/luxury_theme_extension.dart';
 import '../../domain/entities/admin_gym.dart';
 
 /// Admin dashboard statistics cards widget
@@ -18,94 +18,108 @@ class AdminStatsCards extends StatelessWidget {
     return Column(
       children: [
         // Primary stats row
-        Row(
-          children: [
-            Expanded(
-              child: _StatCard(
-                title: 'Total Gyms',
-                value: stats.totalGyms.toString(),
-                icon: Icons.store,
-                color: AppColors.primary,
-                subtitle: '+${stats.pendingGyms} pending',
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: _StatCard(
-                title: 'Active Gyms',
-                value: stats.activeGyms.toString(),
-                icon: Icons.check_circle,
-                color: AppColors.success,
-                subtitle: '${_percentOf(stats.activeGyms, stats.totalGyms)}% of total',
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: _StatCard(
-                title: 'Total Users',
-                value: _formatNumber(stats.totalUsers),
-                icon: Icons.people,
-                color: AppColors.info,
-                subtitle: '${stats.activeSubscriptions} active subscriptions',
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: _StatCard(
-                title: 'Total Revenue',
-                value: '\$${_formatCurrency(stats.totalRevenue)}',
-                icon: Icons.attach_money,
-                color: AppColors.warning,
-                subtitle: '\$${_formatCurrency(stats.revenueThisMonth)} this month',
-              ),
-            ),
-          ],
+        Builder(
+          builder: (context) {
+            final colorScheme = Theme.of(context).colorScheme;
+            final luxury = context.luxury;
+            
+            return Row(
+              children: [
+                Expanded(
+                  child: _StatCard(
+                    title: 'Total Gyms',
+                    value: stats.totalGyms.toString(),
+                    icon: Icons.store,
+                    color: colorScheme.primary,
+                    subtitle: '+${stats.pendingGyms} pending',
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Active Gyms',
+                    value: stats.activeGyms.toString(),
+                    icon: Icons.check_circle,
+                    color: luxury.success,
+                    subtitle: '${_percentOf(stats.activeGyms, stats.totalGyms)}% of total',
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Total Users',
+                    value: _formatNumber(stats.totalUsers),
+                    icon: Icons.people,
+                    color: colorScheme.tertiary,
+                    subtitle: '${stats.activeSubscriptions} active subscriptions',
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Total Revenue',
+                    value: '\$${_formatCurrency(stats.totalRevenue)}',
+                    icon: Icons.attach_money,
+                    color: luxury.gold,
+                    subtitle: '\$${_formatCurrency(stats.revenueThisMonth)} this month',
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         SizedBox(height: 16.h),
         
         // Secondary stats row
-        Row(
-          children: [
-            Expanded(
-              child: _StatCard(
-                title: 'Visits Today',
-                value: _formatNumber(stats.totalVisitsToday),
-                icon: Icons.qr_code_scanner,
-                color: AppColors.secondary,
-                subtitle: '${_formatNumber(stats.totalVisitsThisWeek)} this week',
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: _StatCard(
-                title: 'Monthly Visits',
-                value: _formatNumber(stats.totalVisitsThisMonth),
-                icon: Icons.calendar_month,
-                color: AppColors.tertiary,
-                subtitle: 'Across all gyms',
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: _StatCard(
-                title: 'Pending Approvals',
-                value: stats.pendingGyms.toString(),
-                icon: Icons.pending_actions,
-                color: stats.pendingGyms > 0 ? AppColors.error : AppColors.success,
-                subtitle: stats.pendingGyms > 0 ? 'Needs attention' : 'All clear',
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: _StatCard(
-                title: 'Blocked Gyms',
-                value: stats.blockedGyms.toString(),
-                icon: Icons.block,
-                color: AppColors.textSecondary,
-                subtitle: 'Currently inactive',
-              ),
-            ),
-          ],
+        Builder(
+          builder: (context) {
+            final colorScheme = Theme.of(context).colorScheme;
+            final luxury = context.luxury;
+            
+            return Row(
+              children: [
+                Expanded(
+                  child: _StatCard(
+                    title: 'Visits Today',
+                    value: _formatNumber(stats.totalVisitsToday),
+                    icon: Icons.qr_code_scanner,
+                    color: colorScheme.secondary,
+                    subtitle: '${_formatNumber(stats.totalVisitsThisWeek)} this week',
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Monthly Visits',
+                    value: _formatNumber(stats.totalVisitsThisMonth),
+                    icon: Icons.calendar_month,
+                    color: colorScheme.tertiary,
+                    subtitle: 'Across all gyms',
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Pending Approvals',
+                    value: stats.pendingGyms.toString(),
+                    icon: Icons.pending_actions,
+                    color: stats.pendingGyms > 0 ? colorScheme.error : luxury.success,
+                    subtitle: stats.pendingGyms > 0 ? 'Needs attention' : 'All clear',
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: _StatCard(
+                    title: 'Blocked Gyms',
+                    value: stats.blockedGyms.toString(),
+                    icon: Icons.block,
+                    color: colorScheme.onSurfaceVariant,
+                    subtitle: 'Currently inactive',
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         
         // City breakdown section
@@ -159,15 +173,18 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: luxury.surfaceElevated,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:  0.04),
+            color: colorScheme.shadow.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -182,14 +199,14 @@ class _StatCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(10.w),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha:  0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(icon, color: color, size: 24.sp),
               ),
               Icon(
                 Icons.trending_up,
-                color: AppColors.success,
+                color: luxury.success,
                 size: 20.sp,
               ),
             ],
@@ -200,7 +217,7 @@ class _StatCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 28.sp,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: colorScheme.onSurface,
             ),
           ),
           SizedBox(height: 4.h),
@@ -208,7 +225,7 @@ class _StatCard extends StatelessWidget {
             title,
             style: TextStyle(
               fontSize: 14.sp,
-              color: AppColors.textSecondary,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           if (subtitle != null) ...[
@@ -217,7 +234,7 @@ class _StatCard extends StatelessWidget {
               subtitle!,
               style: TextStyle(
                 fontSize: 12.sp,
-                color: AppColors.textTertiary,
+                color: luxury.textTertiary,
               ),
             ),
           ],
@@ -235,14 +252,16 @@ class _CityBreakdownCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
     final maxGymCount = cities.map((c) => c.gymCount).reduce((a, b) => a > b ? a : b);
 
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: luxury.surfaceElevated,
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,6 +274,7 @@ class _CityBreakdownCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
                 ),
               ),
               TextButton(
@@ -288,6 +308,7 @@ class _CityRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final progress = maxCount > 0 ? city.gymCount / maxCount : 0.0;
 
     return Padding(
@@ -303,13 +324,14 @@ class _CityRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurface,
                 ),
               ),
               Text(
                 '${city.gymCount} gyms • ${city.userCount} users',
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -317,8 +339,8 @@ class _CityRow extends StatelessWidget {
           SizedBox(height: 6.h),
           LinearProgressIndicator(
             value: progress,
-            backgroundColor: AppColors.border,
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+            backgroundColor: colorScheme.outline.withValues(alpha: 0.3),
+            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
             minHeight: 6.h,
             borderRadius: BorderRadius.circular(3.r),
           ),

@@ -140,7 +140,7 @@ class _LuxuryFacilityChip extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: colorScheme.shadow.withValues(alpha: 0.15),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -162,7 +162,7 @@ class _LuxuryFacilityChip extends StatelessWidget {
             },
             child: Icon(
               icon,
-              color: Colors.white,
+              color: colorScheme.onSurface,
               size: 16.sp,
             ),
           ),

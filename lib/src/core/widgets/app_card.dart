@@ -11,7 +11,7 @@ import '../utils/responsive/responsive_utils.dart';
 /// BASE APP CARD
 /// ============================================
 
-/// Standard app card with consistent styling
+/// Standard app card with clean, consistent styling
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
@@ -24,7 +24,6 @@ class AppCard extends StatelessWidget {
     this.borderWidth,
     this.onTap,
     this.enableShadow = false,
-    this.shadowColor,
   });
 
   final Widget child;
@@ -36,7 +35,6 @@ class AppCard extends StatelessWidget {
   final double? borderWidth;
   final VoidCallback? onTap;
   final bool enableShadow;
-  final Color? shadowColor;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +44,7 @@ class AppCard extends StatelessWidget {
         (isDark ? AppColors.surfaceDark : AppColors.surface);
     final effectiveBorderColor = borderColor ??
         (isDark ? AppColors.borderDark : AppColors.border);
-    final effectiveBorderWidth = borderWidth ?? 1.w;
+    final effectiveBorderWidth = borderWidth ?? 1;
 
     Widget card = Container(
       margin: margin,
@@ -60,8 +58,8 @@ class AppCard extends StatelessWidget {
         boxShadow: enableShadow
             ? [
                 BoxShadow(
-                  color: shadowColor ?? AppColors.cardShadowDark,
-                  blurRadius: 16.r,
+                  color: AppColors.cardShadowDark.withValues(alpha: isDark ? 0.2 : 0.08),
+                  blurRadius: 12.r,
                   offset: Offset(0, 4.h),
                 ),
               ]
@@ -93,10 +91,10 @@ class AppCard extends StatelessWidget {
 }
 
 /// ============================================
-/// GLASS CARD (Glassmorphism)
+/// GLASS CARD
 /// ============================================
 
-/// Card with glassmorphism effect for dark theme
+/// Card with subtle glass effect for dark theme
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
@@ -105,8 +103,8 @@ class GlassCard extends StatelessWidget {
     this.margin,
     this.borderRadius,
     this.onTap,
-    this.blur = 10,
-    this.opacity = 0.1,
+    this.blur = 8,
+    this.opacity = 0.08,
   });
 
   final Widget child;
@@ -127,7 +125,7 @@ class GlassCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         border: Border.all(
           color: AppColors.glassBorder,
-          width: 1.w,
+          width: 1,
         ),
       ),
       child: ClipRRect(
@@ -176,7 +174,6 @@ class GradientCard extends StatelessWidget {
     this.margin,
     this.borderRadius,
     this.onTap,
-    this.enableGlow = true,
   });
 
   final Widget child;
@@ -185,7 +182,6 @@ class GradientCard extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final double? borderRadius;
   final VoidCallback? onTap;
-  final bool enableGlow;
 
   @override
   Widget build(BuildContext context) {
@@ -197,15 +193,6 @@ class GradientCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: effectiveGradient,
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
-        boxShadow: enableGlow
-            ? [
-                BoxShadow(
-                  color: AppColors.primaryGlow,
-                  blurRadius: 20.r,
-                  offset: Offset(0, 8.h),
-                ),
-              ]
-            : null,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
@@ -215,8 +202,8 @@ class GradientCard extends StatelessWidget {
               ? InkWell(
                   onTap: onTap,
                   borderRadius: BorderRadius.circular(effectiveBorderRadius),
-                  splashColor: Colors.white.withValues(alpha: 0.2),
-                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.15),
+                  highlightColor: Colors.white.withValues(alpha: 0.08),
                   child: Padding(
                     padding: padding ?? ResponsivePadding.card,
                     child: child,
@@ -304,7 +291,7 @@ class GymCard extends StatelessWidget {
                 top: 12.h,
                 left: 12.w,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                   decoration: BoxDecoration(
                     color: isOpen ? AppColors.gymOpen : AppColors.gymClosed,
                     borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
@@ -320,7 +307,7 @@ class GymCard extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                       ),
-                      RGap.w4,
+                      SizedBox(width: 6.w),
                       Text(
                         isOpen ? 'Open' : 'Closed',
                         style: AppTextStyles.badge.copyWith(
@@ -338,11 +325,11 @@ class GymCard extends StatelessWidget {
                   top: 12.h,
                   right: onFavorite != null ? 52.w : 12.w,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? AppColors.surfaceDark.withValues(alpha: 0.9)
-                          : Colors.white.withValues(alpha: 0.9),
+                          ? AppColors.surfaceDark.withValues(alpha: 0.95)
+                          : Colors.white.withValues(alpha: 0.95),
                       borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                     ),
                     child: Row(
@@ -350,10 +337,10 @@ class GymCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.star_rounded,
-                          size: 16.sp,
+                          size: 14.sp,
                           color: AppColors.accent,
                         ),
-                        RGap.w4,
+                        SizedBox(width: 4.w),
                         Text(
                           rating!.toStringAsFixed(1),
                           style: AppTextStyles.labelMedium.copyWith(
@@ -391,14 +378,14 @@ class GymCard extends StatelessWidget {
                         height: 40.w,
                         decoration: BoxDecoration(
                           color: isDark
-                              ? AppColors.surfaceDark.withValues(alpha: 0.9)
-                              : Colors.white.withValues(alpha: 0.9),
+                              ? AppColors.surfaceDark.withValues(alpha: 0.95)
+                              : Colors.white.withValues(alpha: 0.95),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                           color: isFavorite ? AppColors.error : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimary),
-                          size: 22.sp,
+                          size: 20.sp,
                         ),
                       ),
                     ),
@@ -424,17 +411,17 @@ class GymCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 
-                RGap.h8,
+                SizedBox(height: 6.h),
                 
                 // Address and distance
                 Row(
                   children: [
                     Icon(
                       Icons.location_on_outlined,
-                      size: 16.sp,
+                      size: 14.sp,
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                     ),
-                    RGap.w4,
+                    SizedBox(width: 4.w),
                     Expanded(
                       child: Text(
                         address,
@@ -447,9 +434,9 @@ class GymCard extends StatelessWidget {
                       ),
                     ),
                     if (distance != null) ...[
-                      RGap.w8,
+                      SizedBox(width: 8.w),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
@@ -469,13 +456,13 @@ class GymCard extends StatelessWidget {
                 
                 // Crowd level
                 if (crowdLevel != null) ...[
-                  RGap.h12,
+                  SizedBox(height: 10.h),
                   _CrowdLevelIndicator(level: crowdLevel!),
                 ],
                 
                 // Facilities
                 if (facilities.isNotEmpty) ...[
-                  RGap.h12,
+                  SizedBox(height: 10.h),
                   _FacilitiesRow(facilities: facilities, isDark: isDark),
                 ],
               ],
@@ -490,7 +477,7 @@ class GymCard extends StatelessWidget {
     return Center(
       child: Icon(
         Icons.fitness_center_rounded,
-        size: 48.sp,
+        size: 40.sp,
         color: isDark ? AppColors.grey600 : AppColors.grey400,
       ),
     );
@@ -542,22 +529,21 @@ class _CrowdLevelIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Bars indicator
         Row(
           children: List.generate(3, (index) {
             final isFilled = index < _filledBars;
             return Container(
               width: 4.w,
-              height: (12 + (index * 4)).h,
+              height: (10 + (index * 4)).h,
               margin: EdgeInsets.only(right: 3.w),
               decoration: BoxDecoration(
-                color: isFilled ? _color : _color.withValues(alpha: 0.2),
+                color: isFilled ? _color : _color.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(2.r),
               ),
             );
           }),
         ),
-        RGap.w8,
+        SizedBox(width: 8.w),
         Text(
           _label,
           style: AppTextStyles.caption.copyWith(
@@ -618,7 +604,7 @@ class _FacilitiesRow extends StatelessWidget {
     return Row(
       children: [
         ...displayFacilities.map((facility) => Container(
-              margin: EdgeInsets.only(right: 8.w),
+              margin: EdgeInsets.only(right: 6.w),
               padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
@@ -626,7 +612,7 @@ class _FacilitiesRow extends StatelessWidget {
               ),
               child: Icon(
                 _getIcon(facility),
-                size: 18.sp,
+                size: 16.sp,
                 color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
               ),
             )),
@@ -687,30 +673,23 @@ class SubscriptionCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (isPopular || isSelected) {
-      return _buildGradientCard(context, isDark);
+      return _buildHighlightedCard(context, isDark);
     }
 
     return _buildNormalCard(context, isDark);
   }
 
-  Widget _buildGradientCard(BuildContext context, bool isDark) {
+  Widget _buildHighlightedCard(BuildContext context, bool isDark) {
     return Container(
       decoration: BoxDecoration(
         gradient: _tierGradient,
         borderRadius: BorderRadius.circular(ResponsiveSizes.radiusXl),
-        boxShadow: [
-          BoxShadow(
-            color: _tierColor.withValues(alpha: 0.3),
-            blurRadius: 20.r,
-            offset: Offset(0, 8.h),
-          ),
-        ],
       ),
-      padding: EdgeInsets.all(2.w),
+      padding: EdgeInsets.all(1.5.w),
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : AppColors.surface,
-          borderRadius: BorderRadius.circular(ResponsiveSizes.radiusXl - 2.r),
+          borderRadius: BorderRadius.circular(ResponsiveSizes.radiusXl - 1.5.r),
         ),
         child: _buildCardContent(context, isDark),
       ),
@@ -729,7 +708,7 @@ class SubscriptionCard extends StatelessWidget {
   Widget _buildCardContent(BuildContext context, bool isDark) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(ResponsiveSizes.radiusXl - 2.r),
+      borderRadius: BorderRadius.circular(ResponsiveSizes.radiusXl - 1.5.r),
       child: Padding(
         padding: ResponsivePadding.cardLarge,
         child: Column(
@@ -738,10 +717,9 @@ class SubscriptionCard extends StatelessWidget {
             // Header
             Row(
               children: [
-                // Tier icon
                 Container(
-                  width: 48.w,
-                  height: 48.w,
+                  width: 44.w,
+                  height: 44.w,
                   decoration: BoxDecoration(
                     gradient: _tierGradient,
                     borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
@@ -749,10 +727,10 @@ class SubscriptionCard extends StatelessWidget {
                   child: Icon(
                     _tierIcon,
                     color: Colors.white,
-                    size: 24.sp,
+                    size: 22.sp,
                   ),
                 ),
-                RGap.w16,
+                SizedBox(width: 14.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -783,7 +761,7 @@ class SubscriptionCard extends StatelessWidget {
               ],
             ),
             
-            RGap.h24,
+            SizedBox(height: 20.h),
             
             // Price
             Row(
@@ -797,7 +775,7 @@ class SubscriptionCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                RGap.w4,
+                SizedBox(width: 2.w),
                 Text(
                   price.toStringAsFixed(0),
                   style: AppTextStyles.priceLarge.copyWith(
@@ -805,9 +783,9 @@ class SubscriptionCard extends StatelessWidget {
                     color: _tierColor,
                   ),
                 ),
-                RGap.w4,
+                SizedBox(width: 4.w),
                 Padding(
-                  padding: EdgeInsets.only(bottom: 8.h),
+                  padding: EdgeInsets.only(bottom: 6.h),
                   child: Text(
                     '/$period',
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -817,9 +795,9 @@ class SubscriptionCard extends StatelessWidget {
                   ),
                 ),
                 if (originalPrice != null) ...[
-                  RGap.w8,
+                  SizedBox(width: 8.w),
                   Padding(
-                    padding: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.only(bottom: 6.h),
                     child: Text(
                       '$currency${originalPrice!.toStringAsFixed(0)}',
                       style: AppTextStyles.priceOriginal.copyWith(
@@ -831,7 +809,7 @@ class SubscriptionCard extends StatelessWidget {
               ],
             ),
             
-            RGap.h24,
+            SizedBox(height: 20.h),
             
             // Divider
             Container(
@@ -839,27 +817,27 @@ class SubscriptionCard extends StatelessWidget {
               color: isDark ? AppColors.borderDark : AppColors.border,
             ),
             
-            RGap.h24,
+            SizedBox(height: 20.h),
             
             // Features
             ...features.map((feature) => Padding(
-                  padding: EdgeInsets.only(bottom: 12.h),
+                  padding: EdgeInsets.only(bottom: 10.h),
                   child: Row(
                     children: [
                       Container(
                         width: 20.w,
                         height: 20.w,
                         decoration: BoxDecoration(
-                          color: AppColors.success.withValues(alpha: 0.1),
+                          color: AppColors.success.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.check_rounded,
-                          size: 14.sp,
+                          size: 12.sp,
                           color: AppColors.success,
                         ),
                       ),
-                      RGap.w12,
+                      SizedBox(width: 12.w),
                       Expanded(
                         child: Text(
                           feature,
@@ -959,24 +937,24 @@ class StatsCard extends StatelessWidget {
             children: [
               if (icon != null) ...[
                 Container(
-                  width: 44.w,
-                  height: 44.w,
+                  width: 40.w,
+                  height: 40.w,
                   decoration: BoxDecoration(
                     gradient: iconGradient,
                     color: iconGradient == null
-                        ? (iconColor ?? AppColors.primary).withValues(alpha: 0.1)
+                        ? (iconColor ?? AppColors.primary).withValues(alpha: 0.12)
                         : null,
                     borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
                   ),
                   child: Icon(
                     icon,
-                    size: 22.sp,
+                    size: 20.sp,
                     color: iconGradient != null
                         ? Colors.white
                         : (iconColor ?? AppColors.primary),
                   ),
                 ),
-                RGap.w12,
+                SizedBox(width: 12.w),
               ],
               Expanded(
                 child: Text(
@@ -989,10 +967,10 @@ class StatsCard extends StatelessWidget {
               ),
               if (trend != null)
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
                   decoration: BoxDecoration(
                     color: (trendUp == true ? AppColors.success : AppColors.error)
-                        .withValues(alpha: 0.1),
+                        .withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                   ),
                   child: Row(
@@ -1002,10 +980,10 @@ class StatsCard extends StatelessWidget {
                         trendUp == true
                             ? Icons.trending_up_rounded
                             : Icons.trending_down_rounded,
-                        size: 14.sp,
+                        size: 12.sp,
                         color: trendUp == true ? AppColors.success : AppColors.error,
                       ),
-                      RGap.w4,
+                      SizedBox(width: 4.w),
                       Text(
                         trend!,
                         style: AppTextStyles.caption.copyWith(
@@ -1020,7 +998,7 @@ class StatsCard extends StatelessWidget {
             ],
           ),
           
-          RGap.h16,
+          SizedBox(height: 14.h),
           
           // Value
           Text(
@@ -1033,7 +1011,7 @@ class StatsCard extends StatelessWidget {
           
           // Subtitle
           if (subtitle != null) ...[
-            RGap.h4,
+            SizedBox(height: 4.h),
             Text(
               subtitle!,
               style: AppTextStyles.caption.copyWith(
@@ -1071,7 +1049,7 @@ class QrCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GlassCard(
+    return AppCard(
       padding: ResponsivePadding.cardLarge,
       child: Column(
         children: [
@@ -1081,18 +1059,11 @@ class QrCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryGlow,
-                  blurRadius: 20.r,
-                  spreadRadius: 0,
-                ),
-              ],
             ),
             child: qrWidget,
           ),
           
-          RGap.h24,
+          SizedBox(height: 20.h),
           
           // Gym name
           Text(
@@ -1103,7 +1074,7 @@ class QrCard extends StatelessWidget {
             ),
           ),
           
-          RGap.h16,
+          SizedBox(height: 14.h),
           
           // Countdown
           Row(
@@ -1111,10 +1082,10 @@ class QrCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.timer_outlined,
-                size: 20.sp,
+                size: 18.sp,
                 color: AppColors.primary,
               ),
-              RGap.w8,
+              SizedBox(width: 8.w),
               Text(
                 'Refreshes in ',
                 style: AppTextStyles.bodyMedium.copyWith(
@@ -1134,10 +1105,10 @@ class QrCard extends StatelessWidget {
           ),
           
           if (onRefresh != null) ...[
-            RGap.h16,
+            SizedBox(height: 14.h),
             TextButton.icon(
               onPressed: onRefresh,
-              icon: Icon(Icons.refresh_rounded, size: 20.sp),
+              icon: Icon(Icons.refresh_rounded, size: 18.sp),
               label: const Text('Refresh Now'),
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.primary,
@@ -1194,20 +1165,20 @@ class ClassCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
             child: Container(
-              width: 80.w,
-              height: 80.w,
+              width: 72.w,
+              height: 72.w,
               color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
               child: imageUrl != null
                   ? Image.network(imageUrl!, fit: BoxFit.cover)
                   : Icon(
                       Icons.fitness_center_rounded,
                       color: isDark ? AppColors.grey600 : AppColors.grey400,
-                      size: 32.sp,
+                      size: 28.sp,
                     ),
             ),
           ),
           
-          RGap.w16,
+          SizedBox(width: 14.w),
           
           // Info
           Expanded(
@@ -1221,7 +1192,7 @@ class ClassCard extends StatelessWidget {
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                   ),
                 ),
-                RGap.h4,
+                SizedBox(height: 3.h),
                 Text(
                   'with $instructor',
                   style: AppTextStyles.bodySmall.copyWith(
@@ -1229,15 +1200,15 @@ class ClassCard extends StatelessWidget {
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                   ),
                 ),
-                RGap.h8,
+                SizedBox(height: 6.h),
                 Row(
                   children: [
                     Icon(
                       Icons.access_time_rounded,
-                      size: 14.sp,
+                      size: 12.sp,
                       color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
                     ),
-                    RGap.w4,
+                    SizedBox(width: 4.w),
                     Flexible(
                       child: Text(
                         '$time • $duration',
@@ -1266,7 +1237,7 @@ class ClassCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-              RGap.h8,
+              SizedBox(height: 6.h),
               if (onBook != null)
                 Container(
                   decoration: BoxDecoration(
@@ -1280,7 +1251,7 @@ class ClassCard extends StatelessWidget {
                       onTap: isBooked ? null : onBook,
                       borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
                         child: Text(
                           isBooked ? 'Booked' : 'Book',
                           style: AppTextStyles.buttonSmall.copyWith(

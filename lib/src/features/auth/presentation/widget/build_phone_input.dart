@@ -55,9 +55,7 @@ class _BuildPhoneInputState extends State<BuildPhoneInput> {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutCubic,
+    return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [

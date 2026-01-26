@@ -453,14 +453,9 @@ class _MagicalGlowState extends State<MagicalGlow>
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: glowColor.withValues(alpha: animatedIntensity),
+                color: glowColor.withValues(alpha: animatedIntensity * 0.3),
                 blurRadius: widget.blurRadius.r,
-                spreadRadius: 5.r,
-              ),
-              BoxShadow(
-                color: glowColor.withValues(alpha: animatedIntensity * 0.5),
-                blurRadius: (widget.blurRadius * 2).r,
-                spreadRadius: 10.r,
+                offset: const Offset(0, 4),
               ),
             ],
           ),

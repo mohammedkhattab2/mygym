@@ -204,7 +204,7 @@ class _LuxuryReviewCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: colorScheme.shadow.withValues(alpha: 0.12),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -351,18 +351,11 @@ class _LuxuryReviewCard extends StatelessWidget {
   }
 }
 
-/// Premium add review button with gradient
-class _LuxuryAddReviewButton extends StatefulWidget {
+/// Premium add review button with gradient - no animations
+class _LuxuryAddReviewButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const _LuxuryAddReviewButton({required this.onTap});
-
-  @override
-  State<_LuxuryAddReviewButton> createState() => _LuxuryAddReviewButtonState();
-}
-
-class _LuxuryAddReviewButtonState extends State<_LuxuryAddReviewButton> {
-  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -370,72 +363,64 @@ class _LuxuryAddReviewButtonState extends State<_LuxuryAddReviewButton> {
     final luxury = context.luxury;
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.98 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 14.h),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                colorScheme.primary.withValues(alpha: 0.15),
-                luxury.gold.withValues(alpha: 0.08),
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            borderRadius: BorderRadius.circular(14.r),
-            border: Border.all(
-              color: colorScheme.primary.withValues(alpha: 0.25),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    colors: [
-                      colorScheme.primary,
-                      luxury.gold,
-                    ],
-                  ).createShader(bounds);
-                },
-                child: Icon(
-                  Icons.edit_rounded,
-                  color: Colors.white,
-                  size: 18.sp,
-                ),
-              ),
-              SizedBox(width: 10.w),
-              ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    colors: [
-                      colorScheme.primary,
-                      luxury.gold,
-                    ],
-                  ).createShader(bounds);
-                },
-                child: Text(
-                  'Write a Review',
-                  style: GoogleFonts.inter(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 14.h),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primary.withValues(alpha: 0.15),
+              luxury.gold.withValues(alpha: 0.08),
             ],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
           ),
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(
+            color: colorScheme.primary.withValues(alpha: 0.25),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ShaderMask(
+              shaderCallback: (bounds) {
+                return LinearGradient(
+                  colors: [
+                    colorScheme.primary,
+                    luxury.gold,
+                  ],
+                ).createShader(bounds);
+              },
+              child: Icon(
+                Icons.edit_rounded,
+                color: colorScheme.onSurface,
+                size: 18.sp,
+              ),
+            ),
+            SizedBox(width: 10.w),
+            ShaderMask(
+              shaderCallback: (bounds) {
+                return LinearGradient(
+                  colors: [
+                    colorScheme.primary,
+                    luxury.gold,
+                  ],
+                ).createShader(bounds);
+              },
+              child: Text(
+                'Write a Review',
+                style: GoogleFonts.inter(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

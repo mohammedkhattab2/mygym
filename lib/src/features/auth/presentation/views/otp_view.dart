@@ -4,12 +4,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/router/route_paths.dart';
 import 'package:mygym/src/core/storage/secure_storage.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
-import 'package:mygym/src/core/theme/app_text_styles.dart';
-import 'package:mygym/src/core/theme/app_theme.dart';
-import 'package:mygym/src/core/widgets/app_button.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
+/// Premium Luxury OTP Verification View
+///
+/// Features:
+/// - Elegant verification code input
+/// - Premium styling with gold accents
+/// - Full Light/Dark mode compliance
+/// - NO animations (static luxury design)
 class OtpView extends StatefulWidget {
   final String phoneNumber;
   const OtpView({super.key, required this.phoneNumber});
@@ -50,42 +56,42 @@ class _OtpViewState extends State<OtpView> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(AppTheme.darkSystemUiOverlayStyle);
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final isDark = context.isDarkMode;
+
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A0A14), Color(0xFF0F0F1A)],
-          ),
+        decoration: BoxDecoration(
+          gradient: luxury.backgroundGradient,
         ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Column(
-              children: [
-                SizedBox(height: 16.h),
-                _buildBackButton(),
-                SizedBox(height: 40.h),
-                _buildHeader(),
-                SizedBox(height: 48.h),
-                _buildOtpFields(),
-                SizedBox(height: 32.h),
-                _buildResendSection(),
-                SizedBox(height: 48.h),
-                // AppButton(
-                //   text: "Verify",
-                //   onPressed: _onVerify,
-                //   isLoading: _isloading,
-                //   gradient: AppColors.premiumGradient,
-                //   ),
-                SizedBox(height: 24.h),
-              ],
+        child: Stack(
+          children: [
+            // Main content
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Column(
+                  children: [
+                    SizedBox(height: 16.h),
+                    _buildBackButton(colorScheme, luxury, isDark),
+                    SizedBox(height: 40.h),
+                    _buildHeader(colorScheme, luxury, isDark),
+                    SizedBox(height: 48.h),
+                    _buildOtpFields(colorScheme, luxury, isDark),
+                    SizedBox(height: 32.h),
+                    _buildResendSection(colorScheme, luxury, isDark),
+                    SizedBox(height: 48.h),
+                    _buildVerifyButton(colorScheme, luxury, isDark),
+                    SizedBox(height: 24.h),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -113,14 +119,20 @@ class _OtpViewState extends State<OtpView> {
   }
 
   void _onResendCode() {
-    if (_secondsRemaining > 60) return;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    if (_secondsRemaining > 0) return;
     _startTimer();
 
-    // TODO: resend code from Api
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Code sent to ${widget.phoneNumber}'),
-        backgroundColor: AppColors.success,
+        content: Text(
+          'Code sent to ${widget.phoneNumber}',
+          style: GoogleFonts.inter(
+            color: colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -140,7 +152,6 @@ class _OtpViewState extends State<OtpView> {
         _focusNodes[index + 1].requestFocus();
       } else {
         _focusNodes[index].unfocus();
-        // Auto-verify when all 6 digits are entered
         _autoVerify();
       }
     }
@@ -153,11 +164,12 @@ class _OtpViewState extends State<OtpView> {
     }
   }
 
-  void _onKeyPresseed(int index, KeyEvent event) {
+  void _onKeyPressed(int index, KeyEvent event) {
     if (event is KeyDownEvent &&
         event.logicalKey == LogicalKeyboardKey.backspace) {
-      if (_controllers[index].text.isEmpty && index > 0)
+      if (_controllers[index].text.isEmpty && index > 0) {
         _focusNodes[index - 1].requestFocus();
+      }
     }
   }
 
@@ -168,26 +180,29 @@ class _OtpViewState extends State<OtpView> {
       return;
     }
     setState(() => _isloading = true);
-    
+
     // Simulate API call delay
     await Future.delayed(const Duration(seconds: 1));
-    
+
     if (mounted) {
-      // TODO: Replace with actual API verification
-      // For now, save a dummy token to pass auth guard
       final secureStorage = GetIt.instance<SecureStorageService>();
       await secureStorage.saveAccessToken('dummy_token_for_dev');
-      
+
       setState(() => _isloading = false);
       context.go('/member/home');
     }
   }
 
   void _showError(String message) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
+        content: Text(
+          message,
+          style: GoogleFonts.inter(color: colorScheme.onError),
+        ),
+        backgroundColor: colorScheme.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -198,10 +213,14 @@ class _OtpViewState extends State<OtpView> {
   }
 
   void _onBack() {
-    context.go("/login");
+    context.go(RoutePaths.login);
   }
 
-  Widget _buildBackButton() {
+  Widget _buildBackButton(
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+    bool isDark,
+  ) {
     return Align(
       alignment: Alignment.centerLeft,
       child: GestureDetector(
@@ -209,13 +228,24 @@ class _OtpViewState extends State<OtpView> {
         child: Container(
           padding: EdgeInsets.all(8.w),
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevatedDark,
+            color: isDark ? luxury.surfaceElevated : colorScheme.surface,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.borderDark),
+            border: Border.all(
+              color: isDark
+                  ? luxury.borderLight.withValues(alpha: 0.3)
+                  : colorScheme.outline.withValues(alpha: 0.2),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: luxury.cardShadow.withValues(alpha: isDark ? 0.2 : 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: AppColors.textPrimaryDark,
+            color: colorScheme.onSurface,
             size: 18.sp,
           ),
         ),
@@ -223,43 +253,68 @@ class _OtpViewState extends State<OtpView> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+    bool isDark,
+  ) {
     return Column(
       children: [
         Container(
           width: 80.w,
           height: 80.w,
           decoration: BoxDecoration(
-            color: AppColors.surfaceElevatedDark,
+            gradient: LinearGradient(
+              colors: [
+                colorScheme.primary.withValues(alpha: isDark ? 0.2 : 0.15),
+                colorScheme.secondary.withValues(alpha: isDark ? 0.15 : 0.1),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
             borderRadius: BorderRadius.circular(24.r),
-            border: Border.all(color: AppColors.borderDark),
+            border: Border.all(
+              color: isDark
+                  ? luxury.gold.withValues(alpha: 0.2)
+                  : colorScheme.primary.withValues(alpha: 0.2),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.primary.withValues(alpha: isDark ? 0.15 : 0.1),
+                blurRadius: 20,
+                spreadRadius: 0,
+              ),
+            ],
           ),
           child: Icon(
             Icons.lock_outline_rounded,
             size: 40.sp,
-            color: AppColors.primary,
+            color: colorScheme.primary,
           ),
         ),
         SizedBox(height: 24.h),
         Text(
           "Verification Code",
-          style: AppTextStyles.headlineLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 28.sp,
             fontWeight: FontWeight.w700,
+            color: colorScheme.onSurface,
           ),
         ),
         SizedBox(height: 8.h),
         Text(
           "We send a verification code to",
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondaryDark,
+          style: GoogleFonts.inter(
+            fontSize: 14.sp,
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         SizedBox(height: 4.h),
         Text(
           widget.phoneNumber,
-          style: AppTextStyles.bodyLarge.copyWith(
-            color: AppColors.textPrimaryDark,
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 16.sp,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -267,7 +322,11 @@ class _OtpViewState extends State<OtpView> {
     );
   }
 
-  Widget _buildOtpFields() {
+  Widget _buildOtpFields(
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+    bool isDark,
+  ) {
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: Row(
@@ -279,32 +338,45 @@ class _OtpViewState extends State<OtpView> {
             margin: EdgeInsets.symmetric(horizontal: 4.w),
             child: KeyboardListener(
               focusNode: FocusNode(),
-              onKeyEvent: (event) => _onKeyPresseed(index, event),
+              onKeyEvent: (event) => _onKeyPressed(index, event),
               child: TextField(
                 controller: _controllers[index],
                 focusNode: _focusNodes[index],
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 maxLength: 1,
-                style: AppTextStyles.headlineSmall.copyWith(
-                  color: AppColors.textPrimaryDark,
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 24.sp,
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w700,
                 ),
                 decoration: InputDecoration(
                   counterText: "",
                   filled: true,
-                  fillColor: AppColors.surfaceElevatedDark,
+                  fillColor:
+                      isDark ? luxury.surfaceElevated : colorScheme.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: AppColors.borderDark),
+                    borderSide: BorderSide(
+                      color: isDark
+                          ? luxury.borderLight.withValues(alpha: 0.3)
+                          : colorScheme.outline.withValues(alpha: 0.2),
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: AppColors.borderDark),
+                    borderSide: BorderSide(
+                      color: isDark
+                          ? luxury.borderLight.withValues(alpha: 0.3)
+                          : colorScheme.outline.withValues(alpha: 0.2),
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide(color: AppColors.primary, width: 2),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
+                    ),
                   ),
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -318,28 +390,108 @@ class _OtpViewState extends State<OtpView> {
     );
   }
 
-  Widget _buildResendSection() {
+  Widget _buildResendSection(
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+    bool isDark,
+  ) {
     final canResend = _secondsRemaining == 0;
     return Column(
       children: [
         Text(
           canResend ? "Didn't receive the code?" : "Resend code in",
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondaryDark,
+          style: GoogleFonts.inter(
+            fontSize: 14.sp,
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
-        SizedBox(height: 8.h,),
+        SizedBox(height: 8.h),
         GestureDetector(
-          onTap: canResend? _onResendCode : null,
+          onTap: canResend ? _onResendCode : null,
           child: Text(
             canResend ? "Resend Code" : _formattedTime,
-            style: AppTextStyles.titleMedium.copyWith(
-              color: canResend? AppColors.primary : AppColors.textPrimaryDark,
+            style: GoogleFonts.montserrat(
+              fontSize: 16.sp,
+              color: canResend
+                  ? (isDark ? luxury.gold : colorScheme.primary)
+                  : colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),
-        )
+        ),
       ],
+    );
+  }
+
+  Widget _buildVerifyButton(
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+    bool isDark,
+  ) {
+    return GestureDetector(
+      onTap: _isloading ? null : onVerify,
+      child: Container(
+        width: double.infinity,
+        height: 58.h,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primary,
+              colorScheme.primary.withValues(alpha: 0.85),
+              isDark
+                  ? luxury.gold.withValues(alpha: 0.6)
+                  : colorScheme.secondary,
+            ],
+            stops: const [0.0, 0.6, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: isDark
+                ? luxury.gold.withValues(alpha: 0.25)
+                : colorScheme.primary.withValues(alpha: 0.3),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.primary.withValues(alpha: isDark ? 0.4 : 0.3),
+              blurRadius: 25,
+              offset: const Offset(0, 8),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: (isDark ? luxury.gold : colorScheme.secondary)
+                  .withValues(alpha: isDark ? 0.15 : 0.1),
+              blurRadius: 30,
+              offset: const Offset(0, 6),
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Center(
+          child: _isloading
+              ? SizedBox(
+                  width: 24.w,
+                  height: 24.w,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      colorScheme.onPrimary.withValues(alpha: 0.9),
+                    ),
+                  ),
+                )
+              : Text(
+                  'Verify',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+        ),
+      ),
     );
   }
 }

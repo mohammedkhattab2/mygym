@@ -115,8 +115,8 @@ class _AppTextFieldState extends State<AppTextField> {
       children: [
         // Label
         if (widget.label != null) ...[
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
+          Text(
+            widget.label!,
             style: AppTextStyles.inputLabel.copyWith(
               fontSize: ResponsiveFontSizes.labelMedium,
               color: _isFocused
@@ -124,9 +124,8 @@ class _AppTextFieldState extends State<AppTextField> {
                   : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
               fontWeight: _isFocused ? FontWeight.w600 : FontWeight.w500,
             ),
-            child: Text(widget.label!),
           ),
-          RGap.h8,
+          SizedBox(height: 8.h),
         ],
         
         // Text Field
@@ -208,16 +207,15 @@ class _AppTextFieldState extends State<AppTextField> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.label != null) ...[
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
+            Text(
+              widget.label!,
               style: AppTextStyles.inputLabel.copyWith(
                 fontSize: ResponsiveFontSizes.labelMedium,
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
               ),
-              child: Text(widget.label!),
             ),
-            RGap.h8,
+            SizedBox(height: 8.h),
           ],
           _GradientBorderWrapper(
             borderRadius: effectiveBorderRadius,
@@ -490,10 +488,9 @@ class OtpTextField extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isFocused = focusNode.hasFocus;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      width: 52.w,
-      height: 60.h,
+    return Container(
+      width: 56.w,
+      height: 64.h,
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
         borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
@@ -502,18 +499,9 @@ class OtpTextField extends StatelessWidget {
               ? AppColors.error
               : isFocused
                   ? AppColors.primary
-                  : (isDark ? AppColors.borderDark : Colors.transparent),
+                  : (isDark ? AppColors.borderDark : AppColors.border),
           width: isFocused || hasError ? 2.w : 1.w,
         ),
-        boxShadow: isFocused && !hasError
-            ? [
-                BoxShadow(
-                  color: AppColors.primaryGlowLight,
-                  blurRadius: 8.r,
-                  spreadRadius: 0,
-                ),
-              ]
-            : null,
       ),
       child: TextField(
         controller: controller,
@@ -682,7 +670,7 @@ class PhoneInputField extends StatelessWidget {
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
             ),
           ),
-          RGap.h8,
+          SizedBox(height: 8.h),
         ],
         Container(
           decoration: BoxDecoration(
@@ -711,7 +699,7 @@ class PhoneInputField extends StatelessWidget {
                         countryFlag,
                         style: TextStyle(fontSize: 20.sp),
                       ),
-                      RGap.w8,
+                      SizedBox(width: 8.w),
                       Text(
                         countryCode,
                         style: AppTextStyles.input.copyWith(
@@ -720,7 +708,7 @@ class PhoneInputField extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      RGap.w4,
+                      SizedBox(width: 4.w),
                       Icon(
                         Icons.keyboard_arrow_down_rounded,
                         color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
@@ -774,7 +762,7 @@ class PhoneInputField extends StatelessWidget {
           ),
         ),
         if (errorText != null) ...[
-          RGap.h8,
+          SizedBox(height: 8.h),
           Text(
             errorText!,
             style: AppTextStyles.inputError.copyWith(

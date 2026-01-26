@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mygym/src/core/router/route_paths.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/classes/domain/entities/fitness_class.dart';
 import 'package:mygym/src/features/classes/presentation/cubit/classes_cubit.dart';
@@ -17,6 +19,10 @@ class ClassesCalendarView extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.go(RoutePaths.memberHome),
+        ),
         title: Text(
           "Classes",
           style: textTheme.titleLarge?.copyWith(

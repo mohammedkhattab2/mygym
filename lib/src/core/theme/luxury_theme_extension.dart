@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Luxury Theme Extension for Fitness Luxury brand colors
+/// Luxury Theme Extension for Premium Brand Colors
 /// 
-/// This extension provides access to premium colors, gradients, and effects
-/// that are not part of the standard Material ColorScheme.
+/// Provides access to premium colors, gradients, and effects
+/// not part of the standard Material ColorScheme.
 /// 
 /// Usage:
 /// ```dart
@@ -137,15 +137,15 @@ class LuxuryThemeExtension extends ThemeExtension<LuxuryThemeExtension> {
         surfaceElevated: AppColors.surfaceElevated,
         // Border variants
         borderLight: AppColors.grey200,
-        borderGold: AppColors.gold.withValues(alpha: 0.3),
+        borderGold: AppColors.gold.withValues(alpha: 0.25),
         // Text variants
         textTertiary: AppColors.textTertiary,
         textMuted: AppColors.textDisabled,
         textGold: AppColors.goldDark,
         // Glow colors
-        primaryGlow: AppColors.primary.withValues(alpha: 0.2),
-        goldGlow: AppColors.gold.withValues(alpha: 0.2),
-        successGlow: AppColors.success.withValues(alpha: 0.2),
+        primaryGlow: AppColors.primary.withValues(alpha: 0.15),
+        goldGlow: AppColors.gold.withValues(alpha: 0.15),
+        successGlow: AppColors.success.withValues(alpha: 0.15),
         // Glass colors
         glassWhite: Colors.white.withValues(alpha: 0.8),
         glassBorder: AppColors.grey200,
@@ -173,12 +173,13 @@ class LuxuryThemeExtension extends ThemeExtension<LuxuryThemeExtension> {
         gymClosed: AppColors.gymClosed,
         gymBusy: AppColors.gymBusy,
         // Shadow
-        cardShadow: Colors.black.withValues(alpha: 0.08),
+        cardShadow: Colors.black.withValues(alpha: 0.06),
       );
 
-  /// Dark theme luxury extension - Premium Fitness Luxury style
+  /// Dark theme luxury extension - Premium Elegant style
+  /// High contrast with refined, calm aesthetic
   static LuxuryThemeExtension get dark => LuxuryThemeExtension(
-        // Gold colors - more vibrant in dark mode
+        // Gold colors - subtle warmth
         gold: AppColors.gold,
         goldLight: AppColors.goldLight,
         goldDark: AppColors.goldDark,
@@ -188,22 +189,22 @@ class LuxuryThemeExtension extends ThemeExtension<LuxuryThemeExtension> {
         roseGoldLight: AppColors.roseGoldLight,
         // Platinum
         platinum: AppColors.platinum,
-        // Background variants - deep obsidian
+        // Background variants - deep charcoal with clear layering
         backgroundSecondary: AppColors.backgroundDarkSecondary,
         surfacePremium: AppColors.surfacePremiumDark,
         surfaceElevated: AppColors.surfaceElevatedDark,
-        // Border variants
+        // Border variants - visible but subtle
         borderLight: AppColors.borderLightDark,
         borderGold: AppColors.borderGold,
-        // Text variants
+        // Text variants - HIGH CONTRAST
         textTertiary: AppColors.textTertiaryDark,
         textMuted: AppColors.textMutedDark,
         textGold: AppColors.textGold,
-        // Glow colors - stronger in dark mode for magical effect
+        // Glow colors - refined, not aggressive
         primaryGlow: AppColors.primaryGlow,
         goldGlow: AppColors.goldGlow,
         successGlow: AppColors.successGlow,
-        // Glass colors - darker glassmorphism
+        // Glass colors - subtle elegance
         glassWhite: AppColors.glassWhite,
         glassBorder: AppColors.glassBorder,
         glassOverlay: AppColors.glassOverlay,
@@ -213,15 +214,15 @@ class LuxuryThemeExtension extends ThemeExtension<LuxuryThemeExtension> {
         premiumGradient: AppColors.premiumGradient,
         backgroundGradient: AppColors.backgroundGradientDark,
         cardGradient: AppColors.cardGradientDark,
-        // Semantic colors
+        // Semantic colors - clear visibility
         success: AppColors.success,
         warning: AppColors.warning,
         info: AppColors.info,
-        // Gym status
+        // Gym status - clear indicators
         gymOpen: AppColors.gymOpen,
         gymClosed: AppColors.gymClosed,
         gymBusy: AppColors.gymBusy,
-        // Shadow - deeper in dark mode
+        // Shadow - deep for contrast
         cardShadow: AppColors.cardShadowDark,
       );
 
@@ -311,8 +312,7 @@ class LuxuryThemeExtension extends ThemeExtension<LuxuryThemeExtension> {
       roseGold: Color.lerp(roseGold, other.roseGold, t)!,
       roseGoldLight: Color.lerp(roseGoldLight, other.roseGoldLight, t)!,
       platinum: Color.lerp(platinum, other.platinum, t)!,
-      backgroundSecondary:
-          Color.lerp(backgroundSecondary, other.backgroundSecondary, t)!,
+      backgroundSecondary: Color.lerp(backgroundSecondary, other.backgroundSecondary, t)!,
       surfacePremium: Color.lerp(surfacePremium, other.surfacePremium, t)!,
       surfaceElevated: Color.lerp(surfaceElevated, other.surfaceElevated, t)!,
       borderLight: Color.lerp(borderLight, other.borderLight, t)!,

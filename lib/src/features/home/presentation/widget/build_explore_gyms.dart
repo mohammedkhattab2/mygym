@@ -7,17 +7,16 @@ import 'package:mygym/src/core/theme/widgets/luxury_section_header.dart';
 import 'package:mygym/src/features/home/data/datasources/home_dummy_data_source.dart';
 import 'package:mygym/src/features/home/domain/entities/gym_entity.dart';
 
-/// Premium Luxury Nearby Gyms Section
+/// Premium Luxury Explore Gyms Section
 ///
 /// Features:
-/// - Clean luxury section header
-/// - Unified luxury gym cards
-/// - Horizontal scrollable list
+/// - Large luxury gym cards for exploration
+/// - Cinematic presentation
 /// - Premium spacing and layout
 /// - Full Light/Dark mode compliance
 /// - NO animations
-class BuildNearbyGyms extends StatelessWidget {
-  const BuildNearbyGyms({super.key});
+class BuildExploreGyms extends StatelessWidget {
+  const BuildExploreGyms({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +24,14 @@ class BuildNearbyGyms extends StatelessWidget {
       children: [
         // Section header
         LuxurySectionHeader(
-          title: 'Nearby Gyms',
-          subtitle: 'Discover fitness centers around you',
+          title: 'Explore Gyms & Facilities',
+          subtitle: 'Premium fitness destinations',
           onSeeAllTap: () => _onSeeAllGyms(context),
         ),
         SizedBox(height: 16.h),
-        // Gym cards list
+        // Large gym cards list - horizontal scroll
         SizedBox(
-          height: 290.h,
+          height: 350.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -41,7 +40,7 @@ class BuildNearbyGyms extends StatelessWidget {
             itemBuilder: (itemContext, index) {
               final gym = HomeDummyDataSource.gyms[index];
               return Padding(
-                padding: EdgeInsets.only(right: 14.w),
+                padding: EdgeInsets.only(right: 16.w),
                 child: LuxuryGymCard(
                   id: gym.id,
                   name: gym.name,
@@ -49,8 +48,8 @@ class BuildNearbyGyms extends StatelessWidget {
                   location: gym.location,
                   rating: gym.rating,
                   distance: gym.distance,
-                  isPremium: index == 0,
-                  size: LuxuryGymCardSize.medium,
+                  isPremium: true,
+                  size: LuxuryGymCardSize.large,
                   onTap: () => _onGymTap(itemContext, gym),
                 ),
               );

@@ -240,24 +240,6 @@ class _PulsingLoaderState extends State<_PulsingLoader>
         return Stack(
           alignment: Alignment.center,
           children: [
-            // Glow effect
-            Transform.scale(
-              scale: _scaleAnimation.value,
-              child: Container(
-                width: widget.size * 1.5,
-                height: widget.size * 1.5,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha:  _opacityAnimation.value * 0.5),
-                      blurRadius: 30,
-                      spreadRadius: 10,
-                    ),
-                  ],
-                ),
-              ),
-            ),
             // Main loader
             SizedBox(
               width: widget.size,

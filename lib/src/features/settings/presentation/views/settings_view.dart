@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/router/route_paths.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/cubit/theme_cubit.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/settings/domain/entities/app_settings.dart';
@@ -15,11 +12,10 @@ import 'package:mygym/src/features/settings/domain/entities/app_settings.dart';
 /// Premium Luxury Settings View
 ///
 /// Features:
-/// - Animated floating particles with gold accents
-/// - Glowing orbs with parallax effect
+/// - Static layered glowing orbs background
 /// - Premium glassmorphism settings cards
 /// - Gold gradient accents and elegant typography
-/// - Smooth animations and press effects
+/// - Full Light/Dark mode compliance
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
 
@@ -27,79 +23,22 @@ class SettingsView extends StatefulWidget {
   State<SettingsView> createState() => _SettingsViewState();
 }
 
-class _SettingsViewState extends State<SettingsView>
-    with TickerProviderStateMixin {
-  final ScrollController _scrollController = ScrollController();
-  double _scrollOffset = 0;
-  
-  // Animation controllers
-  late AnimationController _glowPulseController;
-  late AnimationController _particlesController;
-  
-  // Particles data
-  late List<_Particle> _particles;
+class _SettingsViewState extends State<SettingsView> {
 
-  @override
-  void initState() {
-    super.initState();
-    _setSystemUI();
-    _initParticles();
-    _initAnimations();
-    
-    _scrollController.addListener(() {
-      setState(() {
-        _scrollOffset = _scrollController.offset;
-      });
-    });
-  }
-
-  void _setSystemUI() {
+  void _setSystemUI(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
     );
   }
 
-  void _initParticles() {
-    final random = math.Random();
-    _particles = List.generate(10, (index) {
-      final isGold = index % 4 == 0;
-      return _Particle(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        size: 2 + random.nextDouble() * 3,
-        speed: 0.07 + random.nextDouble() * 0.15,
-        opacity: 0.05 + random.nextDouble() * 0.12,
-        isGold: isGold,
-      );
-    });
-  }
-
-  void _initAnimations() {
-    _glowPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2600),
-    )..repeat(reverse: true);
-    
-    _particlesController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 20),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _glowPulseController.dispose();
-    _particlesController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
+    _setSystemUI(context);
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     
@@ -113,12 +52,6 @@ class _SettingsViewState extends State<SettingsView>
         ),
         child: Stack(
           children: [
-            // Animated floating particles
-            _buildParticles(),
-            
-            // Glowing orbs with parallax
-            _buildGlowingOrbs(),
-            
             // Main content
             SafeArea(
               child: Column(
@@ -129,7 +62,6 @@ class _SettingsViewState extends State<SettingsView>
                   // Settings content
                   Expanded(
                     child: ListView(
-                      controller: _scrollController,
                       physics: const BouncingScrollPhysics(),
                       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                       children: [
@@ -153,87 +85,6 @@ class _SettingsViewState extends State<SettingsView>
     );
   }
 
-  Widget _buildParticles() {
-    final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
-    
-    return AnimatedBuilder(
-      animation: _particlesController,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size(
-            MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.height,
-          ),
-          painter: _ParticlesPainter(
-            particles: _particles,
-            progress: _particlesController.value,
-            purpleColor: colorScheme.primary,
-            goldColor: luxury.gold,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGlowingOrbs() {
-    final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
-    
-    return AnimatedBuilder(
-      animation: _glowPulseController,
-      builder: (context, child) {
-        final pulseValue = 0.3 + (_glowPulseController.value * 0.2);
-        final parallaxOffset = _scrollOffset * 0.2;
-        
-        return Stack(
-          children: [
-            // Top right purple glow
-            Positioned(
-              top: -40.h - parallaxOffset,
-              right: -30.w,
-              child: Container(
-                width: 140.w,
-                height: 140.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      colorScheme.primary.withValues(alpha: 0.12 * pulseValue),
-                      colorScheme.primary.withValues(alpha: 0.03 * pulseValue),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-            // Gold accent glow
-            Positioned(
-              top: 200.h - parallaxOffset * 0.5,
-              left: -40.w,
-              child: Container(
-                width: 100.w,
-                height: 100.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      luxury.gold.withValues(alpha: 0.08 * pulseValue),
-                      luxury.gold.withValues(alpha: 0.02 * pulseValue),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildLuxuryAppBar() {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
@@ -242,12 +93,14 @@ class _SettingsViewState extends State<SettingsView>
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
         children: [
-          // Back button
-          _LuxuryIconButton(
-            icon: Icons.arrow_back_ios_new_rounded,
-            onTap: () => Navigator.of(context).pop(),
-          ),
-          SizedBox(width: 16.w),
+          // Back button - only show if we can navigate back
+          if (context.canPop()) ...[
+            _LuxuryIconButton(
+              icon: Icons.arrow_back_ios_new_rounded,
+              onTap: () => context.pop(),
+            ),
+            SizedBox(width: 16.w),
+          ],
           // Title
           Expanded(
             child: Column(
@@ -296,7 +149,7 @@ class _SettingsViewState extends State<SettingsView>
               },
               child: Icon(
                 Icons.palette_rounded,
-                color: Colors.white,
+                color: colorScheme.onPrimary,
                 size: 18.sp,
               ),
             ),
@@ -376,7 +229,7 @@ class _SettingsViewState extends State<SettingsView>
                           },
                           child: Icon(
                             Icons.palette_rounded,
-                            color: Colors.white,
+                            color: colorScheme.onPrimary,
                             size: 22.sp,
                           ),
                         ),
@@ -479,7 +332,7 @@ class _SettingsViewState extends State<SettingsView>
               },
               child: Icon(
                 Icons.tune_rounded,
-                color: Colors.white,
+                color: colorScheme.onPrimary,
                 size: 18.sp,
               ),
             ),
@@ -503,14 +356,14 @@ class _SettingsViewState extends State<SettingsView>
               title: "Language",
               subtitle: "Change app language",
               gradientColors: [colorScheme.primary, colorScheme.secondary],
-              onTap: () => context.go(RoutePaths.languageSettings),
+              onTap: () => context.push(RoutePaths.languageSettings),
             ),
             _SettingsItem(
               icon: Icons.notifications_rounded,
               title: "Notifications",
               subtitle: "Manage notification preferences",
               gradientColors: [luxury.gold, luxury.goldLight],
-              onTap: () => context.go(RoutePaths.notificationSettings),
+              onTap: () => context.push(RoutePaths.notificationSettings),
             ),
           ],
         ),
@@ -535,7 +388,7 @@ class _SettingsViewState extends State<SettingsView>
               },
               child: Icon(
                 Icons.support_agent_rounded,
-                color: Colors.white,
+                color: colorScheme.onPrimary,
                 size: 18.sp,
               ),
             ),
@@ -559,7 +412,7 @@ class _SettingsViewState extends State<SettingsView>
               title: "Help & Support",
               subtitle: "FAQ, contact support, about app",
               gradientColors: [luxury.success, luxury.success.withValues(alpha: 0.7)],
-              onTap: () => context.go('${RoutePaths.settings}/support'),
+              onTap: () => context.push('${RoutePaths.settings}/support'),
             ),
           ],
         ),
@@ -596,7 +449,7 @@ class _SettingsViewState extends State<SettingsView>
             },
             child: Icon(
               Icons.fitness_center_rounded,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
               size: 32.sp,
             ),
           ),
@@ -686,7 +539,7 @@ class _AppearanceSettingsCard extends StatelessWidget {
   }
 }
 
-class _AppearanceButton extends StatefulWidget {
+class _AppearanceButton extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
@@ -702,27 +555,17 @@ class _AppearanceButton extends StatefulWidget {
   });
 
   @override
-  State<_AppearanceButton> createState() => _AppearanceButtonState();
-}
-
-class _AppearanceButtonState extends State<_AppearanceButton> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.98 : 1.0,
-        duration: const Duration(milliseconds: 100),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18.r),
+        splashColor: luxury.gold.withValues(alpha: 0.08),
+        highlightColor: luxury.gold.withValues(alpha: 0.04),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -740,7 +583,7 @@ class _AppearanceButtonState extends State<_AppearanceButton> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: colorScheme.shadow.withValues(alpha: 0.15),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -755,25 +598,25 @@ class _AppearanceButtonState extends State<_AppearanceButton> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      widget.gradientColors[0].withValues(alpha: 0.2),
-                      widget.gradientColors[1].withValues(alpha: 0.1),
+                      gradientColors[0].withValues(alpha: 0.2),
+                      gradientColors[1].withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
-                    color: widget.gradientColors[0].withValues(alpha: 0.2),
+                    color: gradientColors[0].withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
                 child: ShaderMask(
                   shaderCallback: (bounds) {
                     return LinearGradient(
-                      colors: widget.gradientColors,
+                      colors: gradientColors,
                     ).createShader(bounds);
                   },
                   child: Icon(
-                    widget.icon,
-                    color: Colors.white,
+                    icon,
+                    color: colorScheme.onPrimary,
                     size: 20.sp,
                   ),
                 ),
@@ -786,7 +629,7 @@ class _AppearanceButtonState extends State<_AppearanceButton> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.title,
+                      title,
                       style: GoogleFonts.inter(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
@@ -795,7 +638,7 @@ class _AppearanceButtonState extends State<_AppearanceButton> {
                     ),
                     SizedBox(height: 2.h),
                     Text(
-                      widget.subtitle,
+                      subtitle,
                       style: GoogleFonts.inter(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w500,
@@ -818,7 +661,7 @@ class _AppearanceButtonState extends State<_AppearanceButton> {
                 },
                 child: Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: Colors.white,
+                  color: colorScheme.onPrimary,
                   size: 14.sp,
                 ),
               ),
@@ -834,7 +677,7 @@ class _AppearanceButtonState extends State<_AppearanceButton> {
 // THEME BOTTOM SHEET OPTION
 // ============================================================================
 
-class _ThemeBottomSheetOption extends StatefulWidget {
+class _ThemeBottomSheetOption extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
@@ -852,158 +695,150 @@ class _ThemeBottomSheetOption extends StatefulWidget {
   });
 
   @override
-  State<_ThemeBottomSheetOption> createState() => _ThemeBottomSheetOptionState();
-}
-
-class _ThemeBottomSheetOptionState extends State<_ThemeBottomSheetOption> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: widget.isSelected
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        splashColor: gradientColors[0].withValues(alpha: 0.1),
+        highlightColor: gradientColors[0].withValues(alpha: 0.05),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isSelected
+                  ? [
+                      gradientColors[0].withValues(alpha: 0.15),
+                      gradientColors[1].withValues(alpha: 0.08),
+                    ]
+                  : [
+                      luxury.surfaceElevated.withValues(alpha: 0.5),
+                      colorScheme.surface.withValues(alpha: 0.3),
+                    ],
+            ),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isSelected
+                  ? gradientColors[0].withValues(alpha: 0.4)
+                  : colorScheme.outline.withValues(alpha: 0.15),
+              width: 1.5,
+            ),
+            boxShadow: isSelected
                 ? [
-                    widget.gradientColors[0].withValues(alpha: 0.15),
-                    widget.gradientColors[1].withValues(alpha: 0.08),
+                    BoxShadow(
+                      color: gradientColors[0].withValues(alpha: 0.2),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                    ),
                   ]
-                : [
-                    luxury.surfaceElevated.withValues(alpha: 0.5),
-                    colorScheme.surface.withValues(alpha: 0.3),
-                  ],
+                : null,
           ),
-          borderRadius: BorderRadius.circular(16.r),
-          border: Border.all(
-            color: widget.isSelected
-                ? widget.gradientColors[0].withValues(alpha: 0.4)
-                : colorScheme.outline.withValues(alpha: 0.15),
-            width: 1.5,
-          ),
-          boxShadow: widget.isSelected
-              ? [
-                  BoxShadow(
-                    color: widget.gradientColors[0].withValues(alpha: 0.2),
-                    blurRadius: 12,
-                    spreadRadius: 0,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          child: Row(
+            children: [
+              // Icon container
+              Container(
+                padding: EdgeInsets.all(10.w),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isSelected
+                        ? [
+                            gradientColors[0].withValues(alpha: 0.3),
+                            gradientColors[1].withValues(alpha: 0.2),
+                          ]
+                        : [
+                            gradientColors[0].withValues(alpha: 0.15),
+                            gradientColors[1].withValues(alpha: 0.1),
+                          ],
                   ),
-                ]
-              : null,
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        child: Row(
-          children: [
-            // Icon container
-            Container(
-              padding: EdgeInsets.all(10.w),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: widget.isSelected
-                      ? [
-                          widget.gradientColors[0].withValues(alpha: 0.3),
-                          widget.gradientColors[1].withValues(alpha: 0.2),
-                        ]
-                      : [
-                          widget.gradientColors[0].withValues(alpha: 0.15),
-                          widget.gradientColors[1].withValues(alpha: 0.1),
-                        ],
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: isSelected
+                        ? gradientColors[0].withValues(alpha: 0.4)
+                        : gradientColors[0].withValues(alpha: 0.15),
+                    width: 1,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(
-                  color: widget.isSelected
-                      ? widget.gradientColors[0].withValues(alpha: 0.4)
-                      : widget.gradientColors[0].withValues(alpha: 0.15),
-                  width: 1,
+                child: ShaderMask(
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      colors: gradientColors,
+                    ).createShader(bounds);
+                  },
+                  child: Icon(
+                    icon,
+                    color: colorScheme.onPrimary,
+                    size: 20.sp,
+                  ),
                 ),
               ),
-              child: ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    colors: widget.gradientColors,
-                  ).createShader(bounds);
-                },
-                child: Icon(
-                  widget.icon,
-                  color: Colors.white,
-                  size: 20.sp,
-                ),
-              ),
-            ),
-            SizedBox(width: 14.w),
+              SizedBox(width: 14.w),
 
-            // Text content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14.sp,
-                      fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w600,
-                      color: widget.isSelected
-                          ? colorScheme.onSurface
-                          : colorScheme.onSurface.withValues(alpha: 0.9),
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    widget.subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w400,
-                      color: luxury.textTertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Selection indicator
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 24.w,
-              height: 24.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: widget.isSelected
-                    ? LinearGradient(colors: widget.gradientColors)
-                    : null,
-                border: widget.isSelected
-                    ? null
-                    : Border.all(
-                        color: colorScheme.outline,
-                        width: 2,
+              // Text content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: 14.sp,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                        color: isSelected
+                            ? colorScheme.onSurface
+                            : colorScheme.onSurface.withValues(alpha: 0.9),
                       ),
-                boxShadow: widget.isSelected
-                    ? [
-                        BoxShadow(
-                          color: widget.gradientColors[0].withValues(alpha: 0.4),
-                          blurRadius: 8,
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                        color: luxury.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Selection indicator
+              Container(
+                width: 24.w,
+                height: 24.w,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: isSelected
+                      ? LinearGradient(colors: gradientColors)
+                      : null,
+                  border: isSelected
+                      ? null
+                      : Border.all(
+                          color: colorScheme.outline,
+                          width: 2,
                         ),
-                      ]
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: gradientColors[0].withValues(alpha: 0.4),
+                            blurRadius: 8,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: isSelected
+                    ? Icon(
+                        Icons.check_rounded,
+                        color: colorScheme.onPrimary,
+                        size: 16.sp,
+                      )
                     : null,
               ),
-              child: widget.isSelected
-                  ? Icon(
-                      Icons.check_rounded,
-                      color: Colors.white,
-                      size: 16.sp,
-                    )
-                  : null,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1014,7 +849,7 @@ class _ThemeBottomSheetOptionState extends State<_ThemeBottomSheetOption> {
 // LUXURY ICON BUTTON
 // ============================================================================
 
-class _LuxuryIconButton extends StatefulWidget {
+class _LuxuryIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
@@ -1024,67 +859,51 @@ class _LuxuryIconButton extends StatefulWidget {
   });
 
   @override
-  State<_LuxuryIconButton> createState() => _LuxuryIconButtonState();
-}
-
-class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        child: Container(
-          padding: EdgeInsets.all(10.w),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                luxury.surfaceElevated,
-                colorScheme.surface,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(
-              color: luxury.gold.withValues(alpha: 0.15),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(10.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              luxury.surfaceElevated,
+              colorScheme.surface,
             ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          child: ShaderMask(
-            shaderCallback: (bounds) {
-              return LinearGradient(
-                colors: [
-                  Colors.white,
-                  luxury.gold.withValues(alpha: 0.7),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ).createShader(bounds);
-            },
-            child: Icon(
-              widget.icon,
-              color: Colors.white,
-              size: 20.sp,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: luxury.gold.withValues(alpha: 0.15),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        child: ShaderMask(
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              colors: [
+                colorScheme.onSurface,
+                luxury.gold.withValues(alpha: 0.7),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ).createShader(bounds);
+          },
+          child: Icon(
+            icon,
+            color: colorScheme.onPrimary,
+            size: 20.sp,
           ),
         ),
       ),
@@ -1123,7 +942,7 @@ class _LuxurySettingsCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: colorScheme.shadow.withValues(alpha: 0.15),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -1166,181 +985,103 @@ class _SettingsItem {
   });
 }
 
-class _SettingsItemTile extends StatefulWidget {
+class _SettingsItemTile extends StatelessWidget {
   final _SettingsItem item;
 
   const _SettingsItemTile({required this.item});
-
-  @override
-  State<_SettingsItemTile> createState() => _SettingsItemTileState();
-}
-
-class _SettingsItemTileState extends State<_SettingsItemTile> {
-  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.item.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        color: _isPressed
-            ? luxury.gold.withValues(alpha: 0.05)
-            : Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        child: Row(
-          children: [
-            // Icon container
-            Container(
-              padding: EdgeInsets.all(10.w),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    widget.item.gradientColors[0].withValues(alpha: 0.2),
-                    widget.item.gradientColors[1].withValues(alpha: 0.1),
-                  ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: item.onTap,
+        splashColor: luxury.gold.withValues(alpha: 0.08),
+        highlightColor: luxury.gold.withValues(alpha: 0.04),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          child: Row(
+            children: [
+              // Icon container
+              Container(
+                padding: EdgeInsets.all(10.w),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      item.gradientColors[0].withValues(alpha: 0.2),
+                      item.gradientColors[1].withValues(alpha: 0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: item.gradientColors[0].withValues(alpha: 0.2),
+                    width: 1,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(
-                  color: widget.item.gradientColors[0].withValues(alpha: 0.2),
-                  width: 1,
+                child: ShaderMask(
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      colors: item.gradientColors,
+                    ).createShader(bounds);
+                  },
+                  child: Icon(
+                    item.icon,
+                    color: colorScheme.onPrimary,
+                    size: 20.sp,
+                  ),
                 ),
               ),
-              child: ShaderMask(
+              SizedBox(width: 14.w),
+              
+              // Text content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: GoogleFonts.inter(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    SizedBox(height: 2.h),
+                    Text(
+                      item.subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                        color: luxury.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Arrow
+              ShaderMask(
                 shaderCallback: (bounds) {
                   return LinearGradient(
-                    colors: widget.item.gradientColors,
+                    colors: [
+                      luxury.textTertiary,
+                      luxury.gold.withValues(alpha: 0.5),
+                    ],
                   ).createShader(bounds);
                 },
                 child: Icon(
-                  widget.item.icon,
-                  color: Colors.white,
-                  size: 20.sp,
+                  Icons.arrow_forward_ios_rounded,
+                  color: colorScheme.onPrimary,
+                  size: 14.sp,
                 ),
               ),
-            ),
-            SizedBox(width: 14.w),
-            
-            // Text content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.item.title,
-                    style: GoogleFonts.inter(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    widget.item.subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w400,
-                      color: luxury.textTertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Arrow
-            ShaderMask(
-              shaderCallback: (bounds) {
-                return LinearGradient(
-                  colors: [
-                    luxury.textTertiary,
-                    luxury.gold.withValues(alpha: 0.5),
-                  ],
-                ).createShader(bounds);
-              },
-              child: Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: Colors.white,
-                size: 14.sp,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
-  }
-}
-
-// ============================================================================
-// PARTICLE DATA & PAINTER
-// ============================================================================
-
-class _Particle {
-  final double x;
-  final double y;
-  final double size;
-  final double speed;
-  final double opacity;
-  final bool isGold;
-
-  _Particle({
-    required this.x,
-    required this.y,
-    required this.size,
-    required this.speed,
-    required this.opacity,
-    this.isGold = false,
-  });
-}
-
-class _ParticlesPainter extends CustomPainter {
-  final List<_Particle> particles;
-  final double progress;
-  final Color purpleColor;
-  final Color goldColor;
-
-  _ParticlesPainter({
-    required this.particles,
-    required this.progress,
-    required this.purpleColor,
-    required this.goldColor,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-
-    for (final particle in particles) {
-      final animatedY = (particle.y - (progress * particle.speed)) % 1.0;
-      final x = particle.x * size.width;
-      final y = animatedY * size.height;
-
-      final fadeMultiplier = animatedY < 0.1
-          ? animatedY / 0.1
-          : animatedY > 0.9
-              ? (1.0 - animatedY) / 0.1
-              : 1.0;
-
-      final baseColor = particle.isGold ? goldColor : purpleColor;
-      paint.color = baseColor.withValues(alpha: particle.opacity * fadeMultiplier);
-
-      canvas.drawCircle(
-        Offset(x, y),
-        particle.size,
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ParticlesPainter oldDelegate) {
-    return oldDelegate.progress != progress;
   }
 }

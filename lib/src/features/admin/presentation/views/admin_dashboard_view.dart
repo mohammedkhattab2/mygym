@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/luxury_theme_extension.dart';
 import '../../domain/entities/admin_gym.dart';
 import '../bloc/admin_dashboard_cubit.dart';
 import '../widgets/admin_gym_table.dart';
@@ -29,14 +29,17 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       body: Row(
         children: [
           // Navigation Rail for web
-          _buildNavigationRail(),
+          _buildNavigationRail(context),
           
           // Vertical divider
-          const VerticalDivider(thickness: 1, width: 1),
+          VerticalDivider(thickness: 1, width: 1, color: colorScheme.outline.withValues(alpha: 0.3)),
           
           // Main content area
           Expanded(
@@ -47,7 +50,9 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     );
   }
 
-  Widget _buildNavigationRail() {
+  Widget _buildNavigationRail(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return NavigationRail(
       selectedIndex: _selectedIndex,
       onDestinationSelected: (index) {
@@ -55,7 +60,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       },
       extended: MediaQuery.of(context).size.width > 1200,
       minExtendedWidth: 200,
-      backgroundColor: AppColors.surface,
+      backgroundColor: colorScheme.surface,
       leading: Padding(
         padding: EdgeInsets.symmetric(vertical: 16.h),
         child: Column(
@@ -63,7 +68,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             Icon(
               Icons.fitness_center,
               size: 32.sp,
-              color: AppColors.primary,
+              color: colorScheme.primary,
             ),
             SizedBox(height: 8.h),
             if (MediaQuery.of(context).size.width > 1200)
@@ -72,7 +77,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  color: colorScheme.primary,
                 ),
               ),
           ],
@@ -127,13 +132,16 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   Widget _buildContent() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     return BlocConsumer<AdminDashboardCubit, AdminDashboardState>(
       listener: (context, state) {
         if (state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error!),
-              backgroundColor: AppColors.error,
+              backgroundColor: colorScheme.error,
             ),
           );
           context.read<AdminDashboardCubit>().clearMessages();
@@ -142,7 +150,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.successMessage!),
-              backgroundColor: AppColors.success,
+              backgroundColor: luxury.success,
             ),
           );
           context.read<AdminDashboardCubit>().clearMessages();
@@ -173,6 +181,8 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   Widget _buildDashboardContent(AdminDashboardState state) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return SingleChildScrollView(
       padding: EdgeInsets.all(24.w),
       child: Column(
@@ -187,6 +197,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
               ),
               Row(
@@ -218,6 +229,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
             ),
           ),
           SizedBox(height: 16.h),
@@ -255,6 +267,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
             ),
           ),
           SizedBox(height: 16.h),
@@ -273,15 +286,17 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   Widget _buildGymsContent(AdminDashboardState state) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Column(
       children: [
         // Header with filters
         Container(
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: colorScheme.surface,
             border: Border(
-              bottom: BorderSide(color: AppColors.border),
+              bottom: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
             ),
           ),
           child: Column(
@@ -293,6 +308,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     style: TextStyle(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const Spacer(),
@@ -417,13 +433,15 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   Widget _buildPagination(AdminDashboardState state) {
+    final colorScheme = Theme.of(context).colorScheme;
     final gyms = state.gyms!;
+    
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         border: Border(
-          top: BorderSide(color: AppColors.border),
+          top: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
         ),
       ),
       child: Row(
@@ -465,37 +483,45 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   Widget _buildUsersContent() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Center(
       child: Text(
         'Users Management - Coming Soon',
-        style: TextStyle(fontSize: 18.sp),
+        style: TextStyle(fontSize: 18.sp, color: colorScheme.onSurfaceVariant),
       ),
     );
   }
 
   Widget _buildSubscriptionsContent() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Center(
       child: Text(
         'Subscriptions Management - Coming Soon',
-        style: TextStyle(fontSize: 18.sp),
+        style: TextStyle(fontSize: 18.sp, color: colorScheme.onSurfaceVariant),
       ),
     );
   }
 
   Widget _buildReportsContent() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Center(
       child: Text(
         'Reports & Analytics - Coming Soon',
-        style: TextStyle(fontSize: 18.sp),
+        style: TextStyle(fontSize: 18.sp, color: colorScheme.onSurfaceVariant),
       ),
     );
   }
 
   Widget _buildSettingsContent() {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Center(
       child: Text(
         'Admin Settings - Coming Soon',
-        style: TextStyle(fontSize: 18.sp),
+        style: TextStyle(fontSize: 18.sp, color: colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -506,6 +532,9 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     String? badge,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12.r),
@@ -513,9 +542,9 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         width: 180.w,
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: luxury.surfaceElevated,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -524,10 +553,10 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 Container(
                   padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
-                  child: Icon(icon, color: AppColors.primary),
+                  child: Icon(icon, color: colorScheme.primary),
                 ),
                 if (badge != null)
                   Positioned(
@@ -536,13 +565,13 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                       decoration: BoxDecoration(
-                        color: AppColors.error,
+                        color: colorScheme.error,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Text(
                         badge,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colorScheme.onError,
                           fontSize: 10.sp,
                           fontWeight: FontWeight.bold,
                         ),
@@ -558,6 +587,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
@@ -635,6 +665,8 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   }
 
   Widget _detailRow(String label, String value) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
@@ -646,34 +678,42 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
               '$label:',
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ),
-          Expanded(child: Text(value)),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(color: colorScheme.onSurface),
+            ),
+          ),
         ],
       ),
     );
   }
 
   void _confirmDeleteGym(AdminGym gym) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Delete Gym'),
         content: Text('Are you sure you want to delete "${gym.name}"? This action cannot be undone.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               context.read<AdminDashboardCubit>().deleteGym(gym.id);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
+              backgroundColor: colorScheme.error,
+              foregroundColor: colorScheme.onError,
             ),
             child: const Text('Delete'),
           ),

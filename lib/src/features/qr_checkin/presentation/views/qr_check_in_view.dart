@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,12 +11,11 @@ import 'package:qr_flutter/qr_flutter.dart';
 /// Premium Luxury QR Check-in View
 ///
 /// Features:
-/// - Animated floating particles with gold accents
-/// - Glowing orbs with pulse animation
+/// - Static glowing orbs with premium styling
 /// - Premium glassmorphism QR card
 /// - Gold gradient accents and elegant typography
-/// - Animated timer with gradient progress
-/// - Smooth animations and press effects
+/// - Timer with gradient progress
+/// - Refined luxury styling without animations
 class QrCheckInView extends StatefulWidget {
   final String? gymId;
   const QrCheckInView({super.key, this.gymId});
@@ -27,25 +24,25 @@ class QrCheckInView extends StatefulWidget {
   State<QrCheckInView> createState() => _QrCheckInViewState();
 }
 
-class _QrCheckInViewState extends State<QrCheckInView>
-    with TickerProviderStateMixin {
-  // Animation controllers
-  late AnimationController _glowPulseController;
-  late AnimationController _particlesController;
-  late AnimationController _qrPulseController;
-  
-  // Particles data
-  late List<_Particle> _particles;
+class _QrCheckInViewState extends State<QrCheckInView> {
+  bool _systemUISet = false;
 
   @override
   void initState() {
     super.initState();
-    _setSystemUI();
-    _initParticles();
-    _initAnimations();
-    
-    // Generate token
-    context.read<QrCheckinCubit>().generateToken(gymId: widget.gymId);
+    // Generate token after frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<QrCheckinCubit>().generateToken(gymId: widget.gymId);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_systemUISet) {
+      _systemUISet = true;
+      _setSystemUI();
+    }
   }
 
   void _setSystemUI() {
@@ -59,50 +56,11 @@ class _QrCheckInViewState extends State<QrCheckInView>
     );
   }
 
-  void _initParticles() {
-    final random = math.Random();
-    _particles = List.generate(15, (index) {
-      final isGold = index % 3 == 0;
-      return _Particle(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        size: 2 + random.nextDouble() * 4,
-        speed: 0.08 + random.nextDouble() * 0.2,
-        opacity: 0.06 + random.nextDouble() * 0.18,
-        isGold: isGold,
-      );
-    });
-  }
-
-  void _initAnimations() {
-    _glowPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2500),
-    )..repeat(reverse: true);
-    
-    _particlesController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 20),
-    )..repeat();
-    
-    _qrPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _glowPulseController.dispose();
-    _particlesController.dispose();
-    _qrPulseController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
+    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -123,12 +81,6 @@ class _QrCheckInViewState extends State<QrCheckInView>
         ),
         child: Stack(
           children: [
-            // Animated floating particles
-            _buildParticles(colorScheme, luxury),
-            
-            // Glowing orbs
-            _buildGlowingOrbs(colorScheme, luxury),
-            
             // Main content
             SafeArea(
               child: Column(
@@ -156,7 +108,6 @@ class _QrCheckInViewState extends State<QrCheckInView>
                           state: state,
                           token: token,
                           isExpired: isExpired,
-                          qrPulseController: _qrPulseController,
                         );
                       },
                     ),
@@ -167,83 +118,6 @@ class _QrCheckInViewState extends State<QrCheckInView>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildParticles(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
-    return AnimatedBuilder(
-      animation: _particlesController,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size(
-            MediaQuery.of(context).size.width,
-            MediaQuery.of(context).size.height,
-          ),
-          painter: _ParticlesPainter(
-            particles: _particles,
-            progress: _particlesController.value,
-            purpleColor: colorScheme.primary,
-            goldColor: luxury.gold,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildGlowingOrbs(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
-    return AnimatedBuilder(
-      animation: _glowPulseController,
-      builder: (context, child) {
-        final pulseValue = 0.4 + (_glowPulseController.value * 0.3);
-        
-        return Stack(
-          children: [
-            // Center purple glow (behind QR)
-            Positioned(
-              top: 180.h,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  width: 280.w,
-                  height: 280.w,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        colorScheme.primary.withValues(alpha: 0.15 * pulseValue),
-                        colorScheme.primary.withValues(alpha: 0.05 * pulseValue),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.5, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Top right gold glow
-            Positioned(
-              top: -40.h,
-              right: -30.w,
-              child: Container(
-                width: 140.w,
-                height: 140.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      luxury.gold.withValues(alpha: 0.1 * pulseValue),
-                      luxury.gold.withValues(alpha: 0.03 * pulseValue),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -317,6 +191,8 @@ class _QrCheckInViewState extends State<QrCheckInView>
   }
 
   Widget _buildError(BuildContext context, ColorScheme colorScheme, String message) {
+    final luxury = context.luxury;
+    
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 40.w),
@@ -371,13 +247,11 @@ class _QrContent extends StatelessWidget {
   final QrCheckinState state;
   final QrToken token;
   final bool isExpired;
-  final AnimationController qrPulseController;
 
   const _QrContent({
     required this.state,
     required this.token,
     required this.isExpired,
-    required this.qrPulseController,
   });
 
   @override
@@ -409,7 +283,6 @@ class _QrContent extends StatelessWidget {
           _QrCard(
             token: token,
             isExpired: isExpired,
-            qrPulseController: qrPulseController,
           ),
           SizedBox(height: 24.h),
           
@@ -438,174 +311,161 @@ class _QrContent extends StatelessWidget {
 class _QrCard extends StatelessWidget {
   final QrToken token;
   final bool isExpired;
-  final AnimationController qrPulseController;
 
   const _QrCard({
     required this.token,
     required this.isExpired,
-    required this.qrPulseController,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
+    final isDark = context.isDarkMode;
+    final glowIntensity = isExpired ? 0.0 : (isDark ? 0.4 : 0.25);
 
-    return AnimatedBuilder(
-      animation: qrPulseController,
-      builder: (context, child) {
-        final glowIntensity = isExpired ? 0.0 : (0.3 + (qrPulseController.value * 0.2));
-        
-        return Container(
-          padding: EdgeInsets.all(20.w),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                luxury.surfaceElevated,
-                colorScheme.surface,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.circular(28.r),
-            border: Border.all(
-              color: isExpired
-                  ? colorScheme.error.withValues(alpha: 0.3)
-                  : luxury.gold.withValues(alpha: 0.2),
-              width: 2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.25),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-              if (!isExpired)
-                BoxShadow(
-                  color: colorScheme.primary.withValues(alpha: glowIntensity * 0.3),
-                  blurRadius: 40,
-                  spreadRadius: 5,
-                ),
-            ],
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            luxury.surfaceElevated,
+            colorScheme.surface,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.circular(28.r),
+        border: Border.all(
+          color: isExpired
+              ? colorScheme.error.withValues(alpha: 0.3)
+              : luxury.gold.withValues(alpha: 0.2),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.25),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
-          child: Column(
-            children: [
-              // QR code container
-              Container(
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+        ],
+      ),
+      child: Column(
+        children: [
+          // QR code container - QR codes need white background for scanning
+          Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: colorScheme.onPrimary,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    QrImageView(
-                      data: token.toQrData(),
-                      version: QrVersions.auto,
-                      size: 200.w,
-                      gapless: true,
-                      eyeStyle: QrEyeStyle(
-                        eyeShape: QrEyeShape.square,
-                        color: isExpired ? Colors.grey : Colors.black,
-                      ),
-                      dataModuleStyle: QrDataModuleStyle(
-                        dataModuleShape: QrDataModuleShape.square,
-                        color: isExpired ? Colors.grey : Colors.black,
-                      ),
-                      backgroundColor: Colors.white,
-                    ),
-                    // Expired overlay
-                    if (isExpired)
-                      Container(
-                        width: 200.w,
-                        height: 200.w,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.timer_off_rounded,
-                              size: 48.sp,
-                              color: colorScheme.error,
-                            ),
-                            SizedBox(height: 8.h),
-                            Text(
-                              'EXPIRED',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                                color: colorScheme.error,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                QrImageView(
+                  data: token.toQrData(),
+                  version: QrVersions.auto,
+                  size: 200.w,
+                  gapless: true,
+                  eyeStyle: QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: isExpired ? colorScheme.outline : colorScheme.scrim,
+                  ),
+                  dataModuleStyle: QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: isExpired ? colorScheme.outline : colorScheme.scrim,
+                  ),
+                  backgroundColor: colorScheme.onPrimary,
                 ),
-              ),
-              SizedBox(height: 16.h),
-              
-              // Premium badge
-              if (!isExpired)
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        luxury.gold.withValues(alpha: 0.2),
-                        luxury.gold.withValues(alpha: 0.1),
+                // Expired overlay
+                if (isExpired)
+                  Container(
+                    width: 200.w,
+                    height: 200.w,
+                    decoration: BoxDecoration(
+                      color: colorScheme.onPrimary.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.timer_off_rounded,
+                          size: 48.sp,
+                          color: colorScheme.error,
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          'EXPIRED',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.error,
+                            letterSpacing: 2,
+                          ),
+                        ),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: luxury.gold.withValues(alpha: 0.3),
-                      width: 1,
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(height: 16.h),
+          
+          // Premium badge
+          if (!isExpired)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    luxury.gold.withValues(alpha: 0.2),
+                    luxury.gold.withValues(alpha: 0.1),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(
+                  color: luxury.gold.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShaderMask(
+                    shaderCallback: (bounds) {
+                      return LinearGradient(
+                        colors: [luxury.gold, luxury.goldLight],
+                      ).createShader(bounds);
+                    },
+                    child: Icon(
+                      Icons.verified_rounded,
+                      color: colorScheme.onPrimary,
+                      size: 16.sp,
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) {
-                          return LinearGradient(
-                            colors: [luxury.gold, luxury.goldLight],
-                          ).createShader(bounds);
-                        },
-                        child: Icon(
-                          Icons.verified_rounded,
-                          color: Colors.white,
-                          size: 16.sp,
-                        ),
-                      ),
-                      SizedBox(width: 6.w),
-                      Text(
-                        'VERIFIED MEMBER',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700,
-                          color: luxury.gold,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ],
+                  SizedBox(width: 6.w),
+                  Text(
+                    'VERIFIED MEMBER',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w700,
+                      color: luxury.gold,
+                      letterSpacing: 1.5,
+                    ),
                   ),
-                ),
-            ],
-          ),
-        );
-      },
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -745,7 +605,7 @@ class _InfoCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: colorScheme.shadow.withValues(alpha: 0.15),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -764,7 +624,7 @@ class _InfoCard extends StatelessWidget {
                 },
                 child: Icon(
                   Icons.person_rounded,
-                  color: Colors.white,
+                  color: colorScheme.onPrimary,
                   size: 18.sp,
                 ),
               ),
@@ -876,10 +736,10 @@ class _InfoRow extends StatelessWidget {
 }
 
 // ============================================================================
-// LUXURY ICON BUTTON
+// LUXURY ICON BUTTON (Static - No Animation)
 // ============================================================================
 
-class _LuxuryIconButton extends StatefulWidget {
+class _LuxuryIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
@@ -889,27 +749,15 @@ class _LuxuryIconButton extends StatefulWidget {
   });
 
   @override
-  State<_LuxuryIconButton> createState() => _LuxuryIconButtonState();
-}
-
-class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 100),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12.r),
         child: Container(
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
@@ -928,7 +776,7 @@ class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: colorScheme.shadow.withValues(alpha: 0.2),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -938,7 +786,7 @@ class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
             shaderCallback: (bounds) {
               return LinearGradient(
                 colors: [
-                  Colors.white,
+                  colorScheme.onSurface,
                   luxury.gold.withValues(alpha: 0.7),
                 ],
                 begin: Alignment.topLeft,
@@ -946,8 +794,8 @@ class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
               ).createShader(bounds);
             },
             child: Icon(
-              widget.icon,
-              color: Colors.white,
+              icon,
+              color: colorScheme.onPrimary,
               size: 20.sp,
             ),
           ),
@@ -958,10 +806,10 @@ class _LuxuryIconButtonState extends State<_LuxuryIconButton> {
 }
 
 // ============================================================================
-// LUXURY BUTTON
+// LUXURY BUTTON (Static - No Animation)
 // ============================================================================
 
-class _LuxuryButton extends StatefulWidget {
+class _LuxuryButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final bool isLoading;
@@ -975,29 +823,15 @@ class _LuxuryButton extends StatefulWidget {
   });
 
   @override
-  State<_LuxuryButton> createState() => _LuxuryButtonState();
-}
-
-class _LuxuryButtonState extends State<_LuxuryButton> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
 
-    return GestureDetector(
-      onTapDown: widget.isLoading ? null : (_) => setState(() => _isPressed = true),
-      onTapUp: widget.isLoading
-          ? null
-          : (_) {
-              setState(() => _isPressed = false);
-              widget.onTap();
-            },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 100),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isLoading ? null : onTap,
+        borderRadius: BorderRadius.circular(16.r),
         child: Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -1026,28 +860,28 @@ class _LuxuryButtonState extends State<_LuxuryButton> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (widget.isLoading)
+              if (isLoading)
                 SizedBox(
                   width: 20.w,
                   height: 20.w,
-                  child: const CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: colorScheme.onPrimary,
                   ),
                 )
               else
                 Icon(
-                  widget.icon,
-                  color: Colors.white,
+                  icon,
+                  color: colorScheme.onPrimary,
                   size: 20.sp,
                 ),
               SizedBox(width: 10.w),
               Text(
-                widget.label,
+                label,
                 style: GoogleFonts.inter(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: colorScheme.onPrimary,
                 ),
               ),
             ],
@@ -1055,72 +889,5 @@ class _LuxuryButtonState extends State<_LuxuryButton> {
         ),
       ),
     );
-  }
-}
-
-// ============================================================================
-// PARTICLE DATA & PAINTER
-// ============================================================================
-
-class _Particle {
-  final double x;
-  final double y;
-  final double size;
-  final double speed;
-  final double opacity;
-  final bool isGold;
-
-  _Particle({
-    required this.x,
-    required this.y,
-    required this.size,
-    required this.speed,
-    required this.opacity,
-    this.isGold = false,
-  });
-}
-
-class _ParticlesPainter extends CustomPainter {
-  final List<_Particle> particles;
-  final double progress;
-  final Color purpleColor;
-  final Color goldColor;
-
-  _ParticlesPainter({
-    required this.particles,
-    required this.progress,
-    required this.purpleColor,
-    required this.goldColor,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-
-    for (final particle in particles) {
-      final animatedY = (particle.y - (progress * particle.speed)) % 1.0;
-      final x = particle.x * size.width;
-      final y = animatedY * size.height;
-
-      final fadeMultiplier = animatedY < 0.1
-          ? animatedY / 0.1
-          : animatedY > 0.9
-              ? (1.0 - animatedY) / 0.1
-              : 1.0;
-
-      final baseColor = particle.isGold ? goldColor : purpleColor;
-      paint.color = baseColor.withValues(alpha: particle.opacity * fadeMultiplier);
-
-      canvas.drawCircle(
-        Offset(x, y),
-        particle.size,
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ParticlesPainter oldDelegate) {
-    return oldDelegate.progress != progress;
   }
 }

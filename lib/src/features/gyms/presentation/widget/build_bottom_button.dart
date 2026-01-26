@@ -9,8 +9,8 @@ import 'package:go_router/go_router.dart';
 /// Luxury Bottom Action Button
 ///
 /// Premium check-in button with gradient background,
-/// gold shimmer effect, and elegant animations.
-class BuildBottomButton extends StatefulWidget {
+/// gold accents, and elegant styling - no animations.
+class BuildBottomButton extends StatelessWidget {
   final BuildContext context;
   final Gym gym;
   const BuildBottomButton({
@@ -20,33 +20,10 @@ class BuildBottomButton extends StatefulWidget {
   });
 
   @override
-  State<BuildBottomButton> createState() => _BuildBottomButtonState();
-}
-
-class _BuildBottomButtonState extends State<BuildBottomButton>
-    with SingleTickerProviderStateMixin {
-  bool _isPressed = false;
-  late AnimationController _shimmerController;
-
-  @override
-  void initState() {
-    super.initState();
-    _shimmerController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2500),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _shimmerController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 20.h),
@@ -65,118 +42,74 @@ class _BuildBottomButtonState extends State<BuildBottomButton>
       child: SafeArea(
         top: false,
         child: GestureDetector(
-          onTapDown: (_) => setState(() => _isPressed = true),
-          onTapUp: (_) {
-            setState(() => _isPressed = false);
-            context.go(RoutePaths.qr);
-          },
-          onTapCancel: () => setState(() => _isPressed = false),
-          child: AnimatedScale(
-            scale: _isPressed ? 0.97 : 1.0,
-            duration: const Duration(milliseconds: 100),
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 18.h),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    colorScheme.secondary,
-                    colorScheme.primary.withValues(alpha: 0.9),
-                  ],
-                  stops: const [0.0, 0.5, 1.0],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                borderRadius: BorderRadius.circular(18.r),
-                border: Border.all(
-                  color: luxury.gold.withValues(alpha: 0.25),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.primary.withValues(alpha: 0.4),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                    spreadRadius: -4,
-                  ),
-                  BoxShadow(
-                    color: luxury.gold.withValues(alpha: 0.15),
-                    blurRadius: 30,
-                    offset: const Offset(0, 12),
-                    spreadRadius: -6,
-                  ),
+          onTap: () => context.go(RoutePaths.qr),
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 18.h),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  colorScheme.primary,
+                  colorScheme.secondary,
+                  colorScheme.primary.withValues(alpha: 0.9),
                 ],
+                stops: const [0.0, 0.5, 1.0],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
               ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Shimmer overlay
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(18.r),
-                    child: AnimatedBuilder(
-                      animation: _shimmerController,
-                      builder: (context, child) {
-                        return ShaderMask(
-                          shaderCallback: (bounds) {
-                            return LinearGradient(
-                              colors: [
-                                Colors.transparent,
-                                luxury.gold.withValues(alpha: 0.15),
-                                Colors.transparent,
-                              ],
-                              stops: const [0.0, 0.5, 1.0],
-                              begin: Alignment(-2 + (4 * _shimmerController.value), 0),
-                              end: Alignment(-1 + (4 * _shimmerController.value), 0),
-                            ).createShader(bounds);
-                          },
-                          blendMode: BlendMode.srcATop,
-                          child: Container(
-                            width: double.infinity,
-                            height: 56.h,
-                            color: Colors.white.withValues(alpha: 0.1),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  
-                  // Button content
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(8.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        child: Icon(
-                          Icons.qr_code_scanner_rounded,
-                          color: Colors.white,
-                          size: 20.sp,
-                        ),
-                      ),
-                      SizedBox(width: 14.w),
-                      Text(
-                        "Check In Now",
-                        style: GoogleFonts.inter(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Colors.white.withValues(alpha: 0.8),
-                        size: 18.sp,
-                      ),
-                    ],
-                  ),
-                ],
+              borderRadius: BorderRadius.circular(18.r),
+              border: Border.all(
+                color: luxury.gold.withValues(alpha: 0.25),
+                width: 1.5,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.primary.withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                  spreadRadius: -4,
+                ),
+                BoxShadow(
+                  color: luxury.gold.withValues(alpha: isDark ? 0.15 : 0.1),
+                  blurRadius: 30,
+                  offset: const Offset(0, 12),
+                  spreadRadius: -6,
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: colorScheme.onPrimary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Icon(
+                    Icons.qr_code_scanner_rounded,
+                    color: colorScheme.onPrimary,
+                    size: 20.sp,
+                  ),
+                ),
+                SizedBox(width: 14.w),
+                Text(
+                  "Check In Now",
+                  style: GoogleFonts.inter(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: colorScheme.onPrimary.withValues(alpha: 0.8),
+                  size: 18.sp,
+                ),
+              ],
             ),
           ),
         ),

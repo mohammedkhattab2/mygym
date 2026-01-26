@@ -6,11 +6,11 @@ import '../theme/app_text_styles.dart';
 import '../utils/responsive/responsive_utils.dart';
 
 /// ============================================
-/// PRIMARY BUTTON - Gradient with Glow
+/// PRIMARY BUTTON - Clean Gradient
 /// ============================================
 
-/// Primary elevated button with gradient background and glow effect
-class AppButton extends StatefulWidget {
+/// Primary elevated button with gradient background
+class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
     required this.text,
@@ -25,7 +25,6 @@ class AppButton extends StatefulWidget {
     this.icon,
     this.iconPosition = IconPosition.left,
     this.borderRadius,
-    this.enableGlow = true,
   });
 
   final String text;
@@ -40,108 +39,40 @@ class AppButton extends StatefulWidget {
   final Widget? icon;
   final IconPosition iconPosition;
   final double? borderRadius;
-  final bool enableGlow;
-
-  @override
-  State<AppButton> createState() => _AppButtonState();
-}
-
-class _AppButtonState extends State<AppButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  bool _isPressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onTapDown(TapDownDetails details) {
-    if (!widget.isDisabled && !widget.isLoading) {
-      setState(() => _isPressed = true);
-      _controller.forward();
-    }
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    setState(() => _isPressed = false);
-    _controller.reverse();
-  }
-
-  void _onTapCancel() {
-    setState(() => _isPressed = false);
-    _controller.reverse();
-  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isEnabled = !widget.isDisabled && !widget.isLoading;
-    final effectiveGradient = widget.gradient ?? AppColors.primaryGradient;
-    final effectiveBorderRadius = widget.borderRadius ?? ResponsiveSizes.radiusLg;
-    final effectiveHeight = widget.height ?? ResponsiveSizes.buttonHeight;
+    final isEnabled = !isDisabled && !isLoading;
+    final effectiveGradient = gradient ?? AppColors.primaryGradient;
+    final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
+    final effectiveHeight = height ?? ResponsiveSizes.buttonHeight;
 
-    return AnimatedBuilder(
-      animation: _scaleAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        );
-      },
-      child: Container(
-        width: widget.width ?? double.infinity,
-        height: effectiveHeight,
-        decoration: BoxDecoration(
+    return Container(
+      width: width ?? double.infinity,
+      height: effectiveHeight,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(effectiveBorderRadius),
+        gradient: isEnabled ? effectiveGradient : null,
+        color: isEnabled ? null : (isDark ? AppColors.grey700 : AppColors.grey300),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isEnabled ? onPressed : null,
           borderRadius: BorderRadius.circular(effectiveBorderRadius),
-          gradient: isEnabled ? effectiveGradient : null,
-          color: isEnabled ? null : (isDark ? AppColors.grey700 : AppColors.grey300),
-          boxShadow: isEnabled && widget.enableGlow && isDark
-              ? [
-                  BoxShadow(
-                    color: AppColors.primaryGlow,
-                    blurRadius: _isPressed ? 20.r : 16.r,
-                    spreadRadius: _isPressed ? 2.r : 0,
-                    offset: Offset(0, 4.h),
+          splashColor: AppColors.white.withValues(alpha: 0.15),
+          highlightColor: AppColors.white.withValues(alpha: 0.08),
+          child: Center(
+            child: isLoading
+                ? _LoadingIndicator(color: textColor ?? AppColors.white)
+                : _ButtonContent(
+                    text: text,
+                    icon: icon,
+                    iconPosition: iconPosition,
+                    textColor: textColor ?? AppColors.white,
+                    isDisabled: isDisabled,
                   ),
-                ]
-              : null,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: isEnabled ? widget.onPressed : null,
-            onTapDown: _onTapDown,
-            onTapUp: _onTapUp,
-            onTapCancel: _onTapCancel,
-            borderRadius: BorderRadius.circular(effectiveBorderRadius),
-            splashColor: AppColors.white.withValues(alpha: 0.2),
-            highlightColor: AppColors.white.withValues(alpha: 0.1),
-            child: Center(
-              child: widget.isLoading
-                  ? _LoadingIndicator(color: widget.textColor ?? AppColors.white)
-                  : _ButtonContent(
-                      text: widget.text,
-                      icon: widget.icon,
-                      iconPosition: widget.iconPosition,
-                      textColor: widget.textColor ?? AppColors.white,
-                      isDisabled: widget.isDisabled,
-                    ),
-            ),
           ),
         ),
       ),
@@ -153,8 +84,8 @@ class _AppButtonState extends State<AppButton>
 /// OUTLINED BUTTON
 /// ============================================
 
-/// Outlined button with optional gradient border
-class AppOutlinedButton extends StatefulWidget {
+/// Outlined button with clean border
+class AppOutlinedButton extends StatelessWidget {
   const AppOutlinedButton({
     super.key,
     required this.text,
@@ -169,7 +100,6 @@ class AppOutlinedButton extends StatefulWidget {
     this.iconPosition = IconPosition.left,
     this.borderRadius,
     this.borderWidth,
-    this.useGradientBorder = false,
   });
 
   final String text;
@@ -184,75 +114,52 @@ class AppOutlinedButton extends StatefulWidget {
   final IconPosition iconPosition;
   final double? borderRadius;
   final double? borderWidth;
-  final bool useGradientBorder;
-
-  @override
-  State<AppOutlinedButton> createState() => _AppOutlinedButtonState();
-}
-
-class _AppOutlinedButtonState extends State<AppOutlinedButton> {
-  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isEnabled = !widget.isDisabled && !widget.isLoading;
-    final effectiveColor = widget.textColor ?? AppColors.primary;
-    final effectiveBorderRadius = widget.borderRadius ?? ResponsiveSizes.radiusLg;
-    final effectiveHeight = widget.height ?? ResponsiveSizes.buttonHeight;
-    final effectiveBorderWidth = widget.borderWidth ?? 2.w;
+    final isEnabled = !isDisabled && !isLoading;
+    final effectiveColor = textColor ?? AppColors.primary;
+    final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
+    final effectiveHeight = height ?? ResponsiveSizes.buttonHeight;
+    final effectiveBorderWidth = borderWidth ?? 1.5.w;
 
-    Widget button = Container(
-      width: widget.width ?? double.infinity,
+    return Container(
+      width: width ?? double.infinity,
       height: effectiveHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
-        border: widget.useGradientBorder
-            ? null
-            : Border.all(
-                color: isEnabled
-                    ? (widget.borderColor ?? effectiveColor)
-                    : (isDark ? AppColors.grey600 : AppColors.grey300),
-                width: effectiveBorderWidth,
-              ),
-        color: _isHovered ? effectiveColor.withValues(alpha: 0.1) : Colors.transparent,
+        border: Border.all(
+          color: isEnabled
+              ? (borderColor ?? effectiveColor)
+              : (isDark ? AppColors.grey600 : AppColors.grey300),
+          width: effectiveBorderWidth,
+        ),
+        color: Colors.transparent,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: isEnabled ? widget.onPressed : null,
-          onHover: (hovering) => setState(() => _isHovered = hovering),
+          onTap: isEnabled ? onPressed : null,
           borderRadius: BorderRadius.circular(effectiveBorderRadius),
-          splashColor: effectiveColor.withValues(alpha: 0.2),
-          highlightColor: effectiveColor.withValues(alpha: 0.1),
+          splashColor: effectiveColor.withValues(alpha: 0.12),
+          highlightColor: effectiveColor.withValues(alpha: 0.06),
           child: Center(
-            child: widget.isLoading
+            child: isLoading
                 ? _LoadingIndicator(color: effectiveColor)
                 : _ButtonContent(
-                    text: widget.text,
-                    icon: widget.icon,
-                    iconPosition: widget.iconPosition,
+                    text: text,
+                    icon: icon,
+                    iconPosition: iconPosition,
                     textColor: isEnabled
                         ? effectiveColor
                         : (isDark ? AppColors.grey500 : AppColors.grey400),
-                    isDisabled: widget.isDisabled,
+                    isDisabled: isDisabled,
                   ),
           ),
         ),
       ),
     );
-
-    // Wrap with gradient border if needed
-    if (widget.useGradientBorder && isEnabled) {
-      button = _GradientBorderWrapper(
-        borderRadius: effectiveBorderRadius,
-        borderWidth: effectiveBorderWidth,
-        gradient: AppColors.primaryGradient,
-        child: button,
-      );
-    }
-
-    return button;
   }
 }
 
@@ -292,7 +199,7 @@ class AppTextButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       ),
       child: isLoading
-          ? _LoadingIndicator(color: color, size: 20.sp)
+          ? _LoadingIndicator(color: color, size: 18.sp)
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -351,8 +258,8 @@ class AppIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveSize = size ?? 48.w;
-    final effectiveIconSize = iconSize ?? 24.sp;
+    final effectiveSize = size ?? 44.w;
+    final effectiveIconSize = iconSize ?? 22.sp;
     final effectiveBgColor = backgroundColor ??
         (isDark ? AppColors.surfaceElevatedDark : AppColors.grey100);
     final effectiveIconColor = iconColor ??
@@ -367,7 +274,7 @@ class AppIconButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         border: border ??
             (isDark
-                ? Border.all(color: AppColors.borderDark, width: 1.w)
+                ? Border.all(color: AppColors.borderDark, width: 1)
                 : null),
       ),
       child: Material(
@@ -440,11 +347,11 @@ class SocialButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           backgroundColor: effectiveBgColor,
           foregroundColor: effectiveTextColor,
-          side: BorderSide(color: effectiveBorderColor, width: 1.w),
+          side: BorderSide(color: effectiveBorderColor, width: 1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
         ),
         child: isLoading
             ? _LoadingIndicator(color: effectiveTextColor)
@@ -468,10 +375,10 @@ class SocialButton extends StatelessWidget {
 }
 
 /// ============================================
-/// GLASS BUTTON (Glassmorphism)
+/// GLASS BUTTON
 /// ============================================
 
-/// Button with glassmorphism effect for dark theme
+/// Button with subtle glass effect for dark theme
 class GlassButton extends StatelessWidget {
   const GlassButton({
     super.key,
@@ -507,206 +414,29 @@ class GlassButton extends StatelessWidget {
         color: AppColors.glassWhite,
         border: Border.all(
           color: AppColors.glassBorder,
-          width: 1.w,
+          width: 1,
         ),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(effectiveBorderRadius),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: isLoading ? null : onPressed,
-            splashColor: AppColors.glassWhiteStrong,
-            highlightColor: AppColors.glassWhiteLight,
-            child: Center(
-              child: isLoading
-                  ? _LoadingIndicator(color: AppColors.white)
-                  : _ButtonContent(
-                      text: text,
-                      icon: icon,
-                      iconPosition: iconPosition,
-                      textColor: AppColors.white,
-                      isDisabled: false,
-                    ),
-            ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isLoading ? null : onPressed,
+          borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          splashColor: AppColors.glassWhiteStrong,
+          highlightColor: AppColors.glassWhiteLight,
+          child: Center(
+            child: isLoading
+                ? _LoadingIndicator(color: AppColors.white)
+                : _ButtonContent(
+                    text: text,
+                    icon: icon,
+                    iconPosition: iconPosition,
+                    textColor: AppColors.white,
+                    isDisabled: false,
+                  ),
           ),
         ),
       ),
-    );
-  }
-}
-
-/// ============================================
-/// GRADIENT BORDER BUTTON
-/// ============================================
-
-/// Button with animated gradient border
-class GradientBorderButton extends StatelessWidget {
-  const GradientBorderButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    this.isLoading = false,
-    this.width,
-    this.height,
-    this.gradient,
-    this.borderWidth,
-    this.icon,
-    this.iconPosition = IconPosition.left,
-  });
-
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final double? width;
-  final double? height;
-  final Gradient? gradient;
-  final double? borderWidth;
-  final Widget? icon;
-  final IconPosition iconPosition;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveHeight = height ?? ResponsiveSizes.buttonHeight;
-    final effectiveGradient = gradient ?? AppColors.primaryGradient;
-    final effectiveBorderWidth = borderWidth ?? 2.w;
-
-    return _GradientBorderWrapper(
-      borderRadius: ResponsiveSizes.radiusLg,
-      borderWidth: effectiveBorderWidth,
-      gradient: effectiveGradient,
-      child: Container(
-        width: width ?? double.infinity,
-        height: effectiveHeight,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg - effectiveBorderWidth),
-          color: isDark ? AppColors.surfaceDark : AppColors.surface,
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: isLoading ? null : onPressed,
-            borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg - effectiveBorderWidth),
-            child: Center(
-              child: isLoading
-                  ? _LoadingIndicator(color: AppColors.primary)
-                  : _ButtonContent(
-                      text: text,
-                      icon: icon,
-                      iconPosition: iconPosition,
-                      textColor: AppColors.primary,
-                      isDisabled: false,
-                    ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// ============================================
-/// HELPER WIDGETS
-/// ============================================
-
-enum IconPosition { left, right }
-
-class _ButtonContent extends StatelessWidget {
-  const _ButtonContent({
-    required this.text,
-    required this.textColor,
-    required this.isDisabled,
-    this.icon,
-    this.iconPosition = IconPosition.left,
-  });
-
-  final String text;
-  final Widget? icon;
-  final IconPosition iconPosition;
-  final Color textColor;
-  final bool isDisabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (icon != null && iconPosition == IconPosition.left) ...[
-          IconTheme(
-            data: IconThemeData(color: textColor, size: 20.sp),
-            child: icon!,
-          ),
-          RGap.w8,
-        ],
-        Flexible(
-          child: Text(
-            text,
-            style: AppTextStyles.button.copyWith(
-              color: textColor,
-              fontSize: ResponsiveFontSizes.button,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        if (icon != null && iconPosition == IconPosition.right) ...[
-          RGap.w8,
-          IconTheme(
-            data: IconThemeData(color: textColor, size: 20.sp),
-            child: icon!,
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _LoadingIndicator extends StatelessWidget {
-  const _LoadingIndicator({
-    required this.color,
-    this.size,
-  });
-
-  final Color color;
-  final double? size;
-
-  @override
-  Widget build(BuildContext context) {
-    final effectiveSize = size ?? 24.sp;
-    return SizedBox(
-      width: effectiveSize,
-      height: effectiveSize,
-      child: CircularProgressIndicator(
-        strokeWidth: 2.5.w,
-        valueColor: AlwaysStoppedAnimation<Color>(color),
-      ),
-    );
-  }
-}
-
-class _GradientBorderWrapper extends StatelessWidget {
-  const _GradientBorderWrapper({
-    required this.child,
-    required this.borderRadius,
-    required this.borderWidth,
-    required this.gradient,
-  });
-
-  final Widget child;
-  final double borderRadius;
-  final double borderWidth;
-  final Gradient gradient;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        gradient: gradient,
-      ),
-      padding: EdgeInsets.all(borderWidth),
-      child: child,
     );
   }
 }
@@ -777,15 +507,14 @@ class AppChipButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
-        gradient: isSelected ? AppColors.primaryGradient : null,
         color: isSelected
-            ? null
+            ? AppColors.primary
             : (isDark ? AppColors.surfaceElevatedDark : AppColors.grey100),
         border: isSelected
             ? null
             : Border.all(
                 color: isDark ? AppColors.borderDark : AppColors.border,
-                width: 1.w,
+                width: 1,
               ),
       ),
       child: Material(
@@ -794,7 +523,7 @@ class AppChipButton extends StatelessWidget {
           onTap: onPressed,
           borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -806,11 +535,11 @@ class AppChipButton extends StatelessWidget {
                           : (isDark
                               ? AppColors.textPrimaryDark
                               : AppColors.textPrimary),
-                      size: 18.sp,
+                      size: 16.sp,
                     ),
                     child: icon!,
                   ),
-                  RGap.w8,
+                  SizedBox(width: 6.w),
                 ],
                 Text(
                   text,
@@ -827,6 +556,85 @@ class AppChipButton extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// ============================================
+/// HELPER WIDGETS
+/// ============================================
+
+enum IconPosition { left, right }
+
+class _ButtonContent extends StatelessWidget {
+  const _ButtonContent({
+    required this.text,
+    required this.textColor,
+    required this.isDisabled,
+    this.icon,
+    this.iconPosition = IconPosition.left,
+  });
+
+  final String text;
+  final Widget? icon;
+  final IconPosition iconPosition;
+  final Color textColor;
+  final bool isDisabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null && iconPosition == IconPosition.left) ...[
+          IconTheme(
+            data: IconThemeData(color: textColor, size: 18.sp),
+            child: icon!,
+          ),
+          RGap.w8,
+        ],
+        Flexible(
+          child: Text(
+            text,
+            style: AppTextStyles.button.copyWith(
+              color: textColor,
+              fontSize: ResponsiveFontSizes.button,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (icon != null && iconPosition == IconPosition.right) ...[
+          RGap.w8,
+          IconTheme(
+            data: IconThemeData(color: textColor, size: 18.sp),
+            child: icon!,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _LoadingIndicator extends StatelessWidget {
+  const _LoadingIndicator({
+    required this.color,
+    this.size,
+  });
+
+  final Color color;
+  final double? size;
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveSize = size ?? 22.sp;
+    return SizedBox(
+      width: effectiveSize,
+      height: effectiveSize,
+      child: CircularProgressIndicator(
+        strokeWidth: 2.w,
+        valueColor: AlwaysStoppedAnimation<Color>(color),
       ),
     );
   }
