@@ -50,11 +50,21 @@ class _OnboardingViewState extends State<OnboardingView> {
     ),
   ];
 
+  bool _systemUISet = false;
+
   @override
   void initState() {
     super.initState();
-    _setSystemUI();
     _pageController = PageController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_systemUISet) {
+      _systemUISet = true;
+      _setSystemUI();
+    }
   }
 
   void _setSystemUI() {

@@ -7,12 +7,15 @@ import 'package:mygym/src/features/auth/presentation/views/login_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/otp_view.dart';
 import 'package:mygym/src/features/classes/presentation/cubit/classes_cubit.dart';
 import 'package:mygym/src/features/classes/presentation/views/classes_calendar_view.dart';
+import 'package:mygym/src/features/gyms/presentation/bloc/gym_filter_cubit.dart';
+import 'package:mygym/src/features/gyms/presentation/views/gym_filter_view.dart';
 import 'package:mygym/src/features/home/presentation/views/home_view.dart';
+import 'package:mygym/src/features/search/presentation/views/search_view.dart';
 import 'package:mygym/src/features/onboarding/presentation/presentation/views/onboarding_view.dart';
 import 'package:mygym/src/features/partner/presentation/cubit/partner_dashboard_cubit.dart';
 import 'package:mygym/src/features/partner/presentation/views/partner_dashboard_view.dart';
 import 'package:mygym/src/features/partner/presentation/views/partner_reports_view.dart';
-import 'package:mygym/src/features/profile/presentation/edit_profile_view.dart';
+import 'package:mygym/src/features/profile/presentation/views/edit_profile_view.dart';
 import 'package:mygym/src/features/profile/presentation/views/profile_view.dart';
 import 'package:mygym/src/features/qr_checkin/presentation/bloc/qr_checkin_cubit.dart';
 import 'package:mygym/src/features/qr_checkin/presentation/views/qr_check_in_view.dart';
@@ -30,6 +33,11 @@ import 'package:mygym/src/core/di/injection.dart';
 import 'package:mygym/src/features/gyms/presentation/views/gyms_map_view.dart';
 
 import 'package:mygym/src/features/gyms/presentation/views/gyms_list_view.dart';
+import 'package:mygym/src/features/subscriptions/presentation/cubit/subscriptions_cubit.dart';
+import 'package:mygym/src/features/subscriptions/presentation/views/bundles_view.dart';
+import 'package:mygym/src/features/subscriptions/presentation/views/checkout_view.dart';
+import 'package:mygym/src/features/subscriptions/presentation/views/invoices_view.dart';
+import 'package:mygym/src/features/subscriptions/presentation/views/payment_webview.dart';
 import 'package:mygym/src/features/support/presentation/cubit/support_cubit.dart';
 import 'package:mygym/src/features/support/presentation/views/about_view.dart';
 import 'package:mygym/src/features/support/presentation/views/faq_view.dart';
@@ -144,7 +152,10 @@ class AppRouter {
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
-          return _MemberShellScaffold(child: child);
+          return BlocProvider(
+            create: (ctx) => getIt<GymsBloc>(),
+            child: _MemberShellScaffold(child: child),
+          );
         },
         routes: [
           // Home
@@ -152,6 +163,13 @@ class AppRouter {
             path: RoutePaths.memberHome,
             name: 'member-home',
             builder: (context, state) => const HomeView(),
+          ),
+
+          // Search
+          GoRoute(
+            path: RoutePaths.search,
+            name: 'search',
+            builder: (context, state) => const SearchView(),
           ),
 
           // Gyms
@@ -169,33 +187,46 @@ class AppRouter {
                 path: 'map',
                 name: 'gyms-map',
                 builder: (context, state) {
-                  return BlocProvider(
-                    create: (ctx) => getIt<GymsBloc>()
-                      // Presentation logic بس: بنبعت event للـ ViewModel
-                      // مؤقتاً Location ثابتة (القاهرة) لحد ما نوصل geolocator
-                      ..add(
-                        const GymsEvent.updateLocation(
-                          latitude: 30.0444,
-                          longitude: 31.2357,
-                        ),
+                  // Trigger location update if not already loaded
+                  final bloc = context.read<GymsBloc>();
+                  if (bloc.state.userLatitude == null) {
+                    bloc.add(
+                      const GymsEvent.updateLocation(
+                        latitude: 30.0444,
+                        longitude: 31.2357,
                       ),
-                    child: const GymsMapView(),
-                  );
+                    );
+                  }
+                  return const GymsMapView();
                 },
               ),
               GoRoute(
                 path: 'list',
                 name: 'gyms-list',
                 builder: (context, state) {
-                  return BlocProvider(
-                    create: (ctx) => getIt<GymsBloc>()
-                      ..add(
-                        const GymsEvent.updateLocation(
-                          latitude: 30.0444, // Cairo lat
-                          longitude: 31.2357, // Cairo lng
-                        ),
+                  // Trigger location update if not already loaded
+                  final bloc = context.read<GymsBloc>();
+                  if (bloc.state.userLatitude == null) {
+                    bloc.add(
+                      const GymsEvent.updateLocation(
+                        latitude: 30.0444, // Cairo lat
+                        longitude: 31.2357, // Cairo lng
                       ),
-                    child: const GymsListView(),
+                    );
+                  }
+                  return const GymsListView();
+                },
+              ),
+              // IMPORTANT: 'filter' must come BEFORE ':gymId' because :gymId is a wildcard
+              // that matches any string including "filter"
+              GoRoute(
+                path: 'filter',
+                name: 'gym-filter',
+                builder: (context, state) {
+                  final gymsBloc = context.read<GymsBloc>();
+                  return BlocProvider(
+                    create: (ctx) => GymFilterCubit(gymsBloc),
+                    child: const GymFilterView(),
                   );
                 },
               ),
@@ -204,24 +235,17 @@ class AppRouter {
                 name: 'gym-detail',
                 builder: (context, state) {
                   final gymId = state.pathParameters['gymId']!;
-                  return BlocProvider(
-                    create: (ctx) => getIt<GymsBloc>()
-                      ..add(GymsEvent.loadGymDetails(gymId))
-                      ..add(GymsEvent.loadReviews(gymId)),
-                    child: GymDetailsView(gymId: gymId),
-                  );
+                  final bloc = context.read<GymsBloc>();
+                  bloc.add(GymsEvent.loadGymDetails(gymId));
+                  bloc.add(GymsEvent.loadReviews(gymId));
+                  return GymDetailsView(gymId: gymId);
                 },
-              ),
-              GoRoute(
-                path: 'filter',
-                name: 'gym-filter',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Gym Filter'),
               ),
             ],
           ),
 
           // Subscriptions
+          // Subscriptions routes - Update placeholders
           GoRoute(
             path: RoutePaths.subscriptions,
             name: 'subscriptions',
@@ -235,28 +259,46 @@ class AppRouter {
               GoRoute(
                 path: 'bundles',
                 name: 'bundles',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Subscription Bundles'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<SubscriptionsCubit>()..loadInitial(),
+                    child: const BundlesView(),
+                  );
+                },
               ),
               GoRoute(
                 path: 'checkout/:bundleId',
                 name: 'checkout',
                 builder: (context, state) {
                   final bundleId = state.pathParameters['bundleId']!;
-                  return _PlaceholderPage(title: 'Checkout: $bundleId');
+                  // SubscriptionsCubit should already be in the tree from BundlesView
+                  // If not, we need to provide it
+                  return BlocProvider(
+                    create: (ctx) => getIt<SubscriptionsCubit>()..loadInitial(),
+                    child: CheckoutView(bundleId: bundleId),
+                  );
                 },
               ),
               GoRoute(
                 path: 'payment',
                 name: 'payment',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Payment'),
+                builder: (context, state) {
+                  return BlocProvider.value(
+                    value: context.read<SubscriptionsCubit>(),
+                    child: const PaymentWebview(),
+                  );
+                },
               ),
               GoRoute(
                 path: 'invoices',
                 name: 'invoices',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Invoices'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) =>
+                        getIt<SubscriptionsCubit>()..loadInvoices(),
+                    child: const InvoicesView(),
+                  );
+                },
               ),
             ],
           ),
@@ -587,7 +629,7 @@ class AppRouter {
     GoRouterState state,
   ) async {
     final location = state.uri.path;
-    
+
     // Debug logging
     debugPrint('🔀 GoRouter redirect called: $location');
 
@@ -619,7 +661,9 @@ class AppRouter {
       if (isAuthenticated) {
         await roleGuard.refreshRole();
         final homeRoute = _defaultRouteForRole(roleGuard.currentRole);
-        debugPrint('🔄 Authenticated user on onboarding - redirecting to: $homeRoute');
+        debugPrint(
+          '🔄 Authenticated user on onboarding - redirecting to: $homeRoute',
+        );
         return homeRoute;
       }
       debugPrint('✅ Onboarding route - allowing unauthenticated user');
@@ -633,7 +677,9 @@ class AppRouter {
       if (isAuthenticated) {
         await roleGuard.refreshRole();
         final homeRoute = _defaultRouteForRole(roleGuard.currentRole);
-        debugPrint('🔄 Authenticated user on auth - redirecting to: $homeRoute');
+        debugPrint(
+          '🔄 Authenticated user on auth - redirecting to: $homeRoute',
+        );
         return homeRoute;
       }
       debugPrint('✅ Auth route - allowing unauthenticated user');
@@ -747,9 +793,9 @@ class _MemberShellScaffoldState extends State<_MemberShellScaffold> {
     } else if (location.startsWith(RoutePaths.classes)) {
       return 3;
     } else if (location.startsWith(RoutePaths.profile) ||
-               location.startsWith(RoutePaths.settings) ||
-               location.startsWith(RoutePaths.history) ||
-               location.startsWith(RoutePaths.rewards)) {
+        location.startsWith(RoutePaths.settings) ||
+        location.startsWith(RoutePaths.history) ||
+        location.startsWith(RoutePaths.rewards)) {
       // Settings, History, and Rewards are accessed from Profile tab
       return 4;
     }
@@ -787,8 +833,7 @@ class _PartnerShellScaffold extends StatefulWidget {
   final Widget child;
 
   @override
-  State<_PartnerShellScaffold> createState() =>
-      _PartnerShellScaffoldState();
+  State<_PartnerShellScaffold> createState() => _PartnerShellScaffoldState();
 }
 
 class _PartnerShellScaffoldState extends State<_PartnerShellScaffold> {
@@ -797,8 +842,9 @@ class _PartnerShellScaffoldState extends State<_PartnerShellScaffold> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _currentIndex =
-        _getIndexForLocation(GoRouterState.of(context).matchedLocation);
+    _currentIndex = _getIndexForLocation(
+      GoRouterState.of(context).matchedLocation,
+    );
   }
 
   int _getIndexForLocation(String location) {

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
+import 'package:mygym/src/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:mygym/src/features/auth/presentation/bloc/auth_state.dart';
 import 'package:mygym/src/features/qr_checkin/domain/entities/qr_token.dart';
 import 'package:mygym/src/features/qr_checkin/presentation/bloc/qr_checkin_cubit.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -16,6 +19,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 /// - Gold gradient accents and elegant typography
 /// - Timer with gradient progress
 /// - Refined luxury styling without animations
+/// - Subscription check before showing QR
 class QrCheckInView extends StatefulWidget {
   final String? gymId;
   const QrCheckInView({super.key, this.gymId});
@@ -30,10 +34,31 @@ class _QrCheckInViewState extends State<QrCheckInView> {
   @override
   void initState() {
     super.initState();
-    // Generate token after frame is built
+    // Generate token after frame is built (only if has subscription)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<QrCheckinCubit>().generateToken(gymId: widget.gymId);
+      if (_hasActiveSubscription()) {
+        context.read<QrCheckinCubit>().generateToken(gymId: widget.gymId);
+      }
     });
+  }
+
+  /// Check if user has active subscription
+  bool _hasActiveSubscription() {
+    final authState = context.read<AuthCubit>().state;
+    final user = authState.user;
+    
+    if (user == null) return false;
+    
+    final status = user.subscriptionStatus?.toLowerCase() ?? '';
+    final remainingVisits = user.remainingVisits;
+    
+    final hasValidStatus = status.isNotEmpty && 
+                           !status.contains('no active') &&
+                           !status.contains('expired');
+    
+    final hasVisits = remainingVisits == null || remainingVisits > 0;
+    
+    return hasValidStatus && hasVisits;
   }
 
   @override
@@ -60,7 +85,6 @@ class _QrCheckInViewState extends State<QrCheckInView> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -88,26 +112,42 @@ class _QrCheckInViewState extends State<QrCheckInView> {
                   // Custom app bar
                   _buildLuxuryAppBar(colorScheme, luxury),
                   
-                  // QR content
+                  // ════════════════════════════════════════════════════════
+                  // 🆕 Check subscription status first
+                  // ════════════════════════════════════════════════════════
                   Expanded(
-                    child: BlocBuilder<QrCheckinCubit, QrCheckinState>(
-                      builder: (context, state) {
-                        final token = state.currentToken;
+                    child: BlocBuilder<AuthCubit, AuthState>(
+                      buildWhen: (prev, curr) => 
+                          prev.user?.subscriptionStatus != curr.user?.subscriptionStatus ||
+                          prev.user?.remainingVisits != curr.user?.remainingVisits,
+                      builder: (context, authState) {
+                        final hasSubscription = _checkSubscription(authState);
+                        
+                        if (!hasSubscription) {
+                          return _NoSubscriptionState();
+                        }
+                        
+                        // Has subscription - show QR content
+                        return BlocBuilder<QrCheckinCubit, QrCheckinState>(
+                          builder: (context, state) {
+                            final token = state.currentToken;
 
-                        if (state.isLoading && token == null) {
-                          return _buildLoadingState(colorScheme, luxury);
-                        }
-                        if (state.error != null && token == null) {
-                          return _buildError(context, colorScheme, state.error!);
-                        }
-                        if (token == null) {
-                          return _buildError(context, colorScheme, 'No QR token available');
-                        }
-                        final isExpired = !token.isValid || state.secondsRemaining <= 0;
-                        return _QrContent(
-                          state: state,
-                          token: token,
-                          isExpired: isExpired,
+                            if (state.isLoading && token == null) {
+                              return _buildLoadingState(colorScheme, luxury);
+                            }
+                            if (state.error != null && token == null) {
+                              return _buildError(context, colorScheme, state.error!);
+                            }
+                            if (token == null) {
+                              return _buildError(context, colorScheme, 'No QR token available');
+                            }
+                            final isExpired = !token.isValid || state.secondsRemaining <= 0;
+                            return _QrContent(
+                              state: state,
+                              token: token,
+                              isExpired: isExpired,
+                            );
+                          },
                         );
                       },
                     ),
@@ -119,6 +159,23 @@ class _QrCheckInViewState extends State<QrCheckInView> {
         ),
       ),
     );
+  }
+
+  /// Check subscription from auth state
+  bool _checkSubscription(AuthState authState) {
+    final user = authState.user;
+    if (user == null) return false;
+    
+    final status = user.subscriptionStatus?.toLowerCase() ?? '';
+    final remainingVisits = user.remainingVisits;
+    
+    final hasValidStatus = status.isNotEmpty && 
+                           !status.contains('no active') &&
+                           !status.contains('expired');
+    
+    final hasVisits = remainingVisits == null || remainingVisits > 0;
+    
+    return hasValidStatus && hasVisits;
   }
 
   Widget _buildLuxuryAppBar(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
@@ -239,9 +296,274 @@ class _QrCheckInViewState extends State<QrCheckInView> {
   }
 }
 
-// ============================================================================
-// QR CONTENT WIDGET
-// ============================================================================
+// ════════════════════════════════════════════════════════════════════════════
+// 🆕 NO SUBSCRIPTION STATE
+// ════════════════════════════════════════════════════════════════════════════
+
+class _NoSubscriptionState extends StatelessWidget {
+  const _NoSubscriptionState();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon with gradient background
+            Container(
+              width: 120.w,
+              height: 120.w,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    luxury.gold.withValues(alpha: 0.2),
+                    luxury.gold.withValues(alpha: 0.05),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: luxury.gold.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+              ),
+              child: Center(
+                child: ShaderMask(
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      colors: [luxury.gold, luxury.goldLight],
+                    ).createShader(bounds);
+                  },
+                  child: Icon(
+                    Icons.workspace_premium_rounded,
+                    color: colorScheme.onPrimary,
+                    size: 56.sp,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 32.h),
+            
+            // Title
+            Text(
+              'Subscription Required',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w700,
+                color: colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 12.h),
+            
+            // Description
+            Text(
+              'You need an active subscription to check in at gyms. Subscribe now to unlock access to premium fitness facilities.',
+              style: GoogleFonts.inter(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                color: colorScheme.onSurfaceVariant,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 32.h),
+            
+            // Features list
+            _FeaturesList(),
+            SizedBox(height: 32.h),
+            
+            // Subscribe button
+            _SubscribeButton(),
+            SizedBox(height: 16.h),
+            
+            // Browse gyms link
+            TextButton(
+              onPressed: () => context.go('/member/gyms/map'),
+              child: Text(
+                'Browse Gyms First',
+                style: GoogleFonts.inter(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FeaturesList extends StatelessWidget {
+  const _FeaturesList();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+
+    final features = [
+      ('Access to premium gyms', Icons.fitness_center_rounded),
+      ('Flexible visit options', Icons.event_available_rounded),
+      ('QR code check-in', Icons.qr_code_scanner_rounded),
+      ('Track your progress', Icons.insights_rounded),
+    ];
+
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            luxury.surfaceElevated,
+            colorScheme.surface,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: luxury.gold.withValues(alpha: 0.15),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: features.map((feature) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(
+                    feature.$2,
+                    color: colorScheme.primary,
+                    size: 18.sp,
+                  ),
+                ),
+                SizedBox(width: 14.w),
+                Expanded(
+                  child: Text(
+                    feature.$1,
+                    style: GoogleFonts.inter(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.green,
+                  size: 20.sp,
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _SubscribeButton extends StatelessWidget {
+  const _SubscribeButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GestureDetector(
+      onTap: () => context.push('/member/subscriptions/bundles'),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 18.h),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              luxury.gold,
+              luxury.goldLight,
+              luxury.gold.withValues(alpha: 0.9),
+            ],
+            stops: const [0.0, 0.5, 1.0],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(18.r),
+          border: Border.all(
+            color: luxury.goldLight.withValues(alpha: 0.4),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: luxury.gold.withValues(alpha: 0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+              spreadRadius: -4,
+            ),
+            BoxShadow(
+              color: luxury.goldLight.withValues(alpha: isDark ? 0.2 : 0.15),
+              blurRadius: 30,
+              offset: const Offset(0, 12),
+              spreadRadius: -6,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(
+                Icons.workspace_premium_rounded,
+                color: Colors.white,
+                size: 20.sp,
+              ),
+            ),
+            SizedBox(width: 14.w),
+            Text(
+              "View Subscription Plans",
+              style: GoogleFonts.inter(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Icon(
+              Icons.arrow_forward_rounded,
+              color: Colors.white.withValues(alpha: 0.8),
+              size: 18.sp,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ... باقي الكود كما هو (QrContent, QrCard, TimerAndStatus, etc.)
+// ════════════════════════════════════════════════════════════════════════════
+// QR CONTENT WIDGET (Keep existing code)
+// ════════════════════════════════════════════════════════════════════════════
 
 class _QrContent extends StatelessWidget {
   final QrCheckinState state;
@@ -266,7 +588,6 @@ class _QrContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: 8.h),
-          // Instruction text
           Text(
             'Show this QR code at the gym entrance to check in.',
             style: GoogleFonts.inter(
@@ -278,23 +599,12 @@ class _QrContent extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 28.h),
-          
-          // QR Code with premium styling
-          _QrCard(
-            token: token,
-            isExpired: isExpired,
-          ),
+          _QrCard(token: token, isExpired: isExpired),
           SizedBox(height: 24.h),
-          
-          // Timer and status
           _TimerAndStatus(state: state, isExpired: isExpired),
           SizedBox(height: 28.h),
-          
-          // Subscriber info card
           _InfoCard(token: token),
           SizedBox(height: 32.h),
-          
-          // Action button
           _LuxuryButton(
             label: isExpired ? 'Generate New QR' : 'Refresh QR',
             icon: Icons.refresh_rounded,
@@ -307,15 +617,14 @@ class _QrContent extends StatelessWidget {
     );
   }
 }
-
+// ============================================================================
+// QR CONTENT WIDGET
+// ============================================================================
 class _QrCard extends StatelessWidget {
   final QrToken token;
   final bool isExpired;
 
-  const _QrCard({
-    required this.token,
-    required this.isExpired,
-  });
+  const _QrCard({required this.token, required this.isExpired});
 
   @override
   Widget build(BuildContext context) {
@@ -328,10 +637,7 @@ class _QrCard extends StatelessWidget {
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            luxury.surfaceElevated,
-            colorScheme.surface,
-          ],
+          colors: [luxury.surfaceElevated, colorScheme.surface],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -418,7 +724,7 @@ class _QrCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.h),
-          
+
           // Premium badge
           if (!isExpired)
             Container(
@@ -495,10 +801,7 @@ class _TimerAndStatus extends StatelessWidget {
                       colorScheme.error.withValues(alpha: 0.15),
                       colorScheme.error.withValues(alpha: 0.05),
                     ]
-                  : [
-                      luxury.surfaceElevated,
-                      colorScheme.surface,
-                    ],
+                  : [luxury.surfaceElevated, colorScheme.surface],
             ),
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
@@ -531,7 +834,7 @@ class _TimerAndStatus extends StatelessWidget {
           ),
         ),
         SizedBox(height: 12.h),
-        
+
         // Progress bar (only when not expired)
         if (!isExpired) ...[
           Container(
@@ -556,14 +859,14 @@ class _TimerAndStatus extends StatelessWidget {
           ),
           SizedBox(height: 12.h),
         ],
-        
+
         // Status text
         Text(
           isExpired
               ? "Tap Refresh to generate a new QR code."
               : state.isExpiringSoon
-                  ? 'QR is about to expire, a new one will be generated.'
-                  : 'A new QR will be generated automatically before it expires.',
+              ? 'QR is about to expire, a new one will be generated.'
+              : 'A new QR will be generated automatically before it expires.',
           style: GoogleFonts.inter(
             fontSize: 12.sp,
             fontWeight: FontWeight.w400,
@@ -591,18 +894,12 @@ class _InfoCard extends StatelessWidget {
       padding: EdgeInsets.all(18.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            luxury.surfaceElevated,
-            colorScheme.surface,
-          ],
+          colors: [luxury.surfaceElevated, colorScheme.surface],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(
-          color: luxury.gold.withValues(alpha: 0.1),
-          width: 1,
-        ),
+        border: Border.all(color: luxury.gold.withValues(alpha: 0.1), width: 1),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.15),
@@ -641,7 +938,7 @@ class _InfoCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 14.h),
-          
+
           if (token.subscriptionId != null)
             _InfoRow(
               icon: Icons.confirmation_number_rounded,
@@ -723,7 +1020,9 @@ class _InfoRow extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
-                    color: highlight ? colorScheme.primary : colorScheme.onSurface,
+                    color: highlight
+                        ? colorScheme.primary
+                        : colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -743,10 +1042,7 @@ class _LuxuryIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const _LuxuryIconButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _LuxuryIconButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -762,10 +1058,7 @@ class _LuxuryIconButton extends StatelessWidget {
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                luxury.surfaceElevated,
-                colorScheme.surface,
-              ],
+              colors: [luxury.surfaceElevated, colorScheme.surface],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -793,11 +1086,7 @@ class _LuxuryIconButton extends StatelessWidget {
                 end: Alignment.bottomRight,
               ).createShader(bounds);
             },
-            child: Icon(
-              icon,
-              color: colorScheme.onPrimary,
-              size: 20.sp,
-            ),
+            child: Icon(icon, color: colorScheme.onPrimary, size: 20.sp),
           ),
         ),
       ),
@@ -837,10 +1126,7 @@ class _LuxuryButton extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 16.h),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                colorScheme.primary,
-                colorScheme.secondary,
-              ],
+              colors: [colorScheme.primary, colorScheme.secondary],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
@@ -870,11 +1156,7 @@ class _LuxuryButton extends StatelessWidget {
                   ),
                 )
               else
-                Icon(
-                  icon,
-                  color: colorScheme.onPrimary,
-                  size: 20.sp,
-                ),
+                Icon(icon, color: colorScheme.onPrimary, size: 20.sp),
               SizedBox(width: 10.w),
               Text(
                 label,

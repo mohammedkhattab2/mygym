@@ -21,7 +21,7 @@ class ClassesCalendarView extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.go(RoutePaths.memberHome),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           "Classes",

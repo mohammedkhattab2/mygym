@@ -24,7 +24,6 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
-
   void _setSystemUI(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     SystemChrome.setSystemUIOverlayStyle(
@@ -41,15 +40,13 @@ class _SettingsViewState extends State<SettingsView> {
     _setSystemUI(context);
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: luxury.backgroundGradient,
-        ),
+        decoration: BoxDecoration(gradient: luxury.backgroundGradient),
         child: Stack(
           children: [
             // Main content
@@ -58,16 +55,21 @@ class _SettingsViewState extends State<SettingsView> {
                 children: [
                   // Custom app bar
                   _buildLuxuryAppBar(),
-                  
+
                   // Settings content
                   Expanded(
                     child: ListView(
                       physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20.w,
+                        vertical: 8.h,
+                      ),
                       children: [
                         _buildAppearanceSection(context),
                         SizedBox(height: 24.h),
                         _buildGeneralSection(context),
+                        SizedBox(height: 24.h),
+                        _buildSubscriptionSection(context),
                         SizedBox(height: 24.h),
                         _buildSupportSection(context),
                         SizedBox(height: 24.h),
@@ -88,7 +90,7 @@ class _SettingsViewState extends State<SettingsView> {
   Widget _buildLuxuryAppBar() {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
@@ -135,7 +137,7 @@ class _SettingsViewState extends State<SettingsView> {
   Widget _buildAppearanceSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -176,7 +178,7 @@ class _SettingsViewState extends State<SettingsView> {
   void _showThemeBottomSheet(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -190,10 +192,7 @@ class _SettingsViewState extends State<SettingsView> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    luxury.surfaceElevated,
-                    colorScheme.surface,
-                  ],
+                  colors: [luxury.surfaceElevated, colorScheme.surface],
                 ),
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
                 border: Border.all(
@@ -215,7 +214,7 @@ class _SettingsViewState extends State<SettingsView> {
                     ),
                   ),
                   SizedBox(height: 20.h),
-                  
+
                   // Title
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -258,7 +257,7 @@ class _SettingsViewState extends State<SettingsView> {
                     ),
                   ),
                   SizedBox(height: 24.h),
-                  
+
                   // Theme options
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -269,7 +268,10 @@ class _SettingsViewState extends State<SettingsView> {
                           title: 'System Default',
                           subtitle: 'Automatically match device theme',
                           isSelected: state.themeMode == AppThemeMode.system,
-                          gradientColors: [colorScheme.primary, colorScheme.secondary],
+                          gradientColors: [
+                            colorScheme.primary,
+                            colorScheme.secondary,
+                          ],
                           onTap: () {
                             context.read<ThemeCubit>().setSystemTheme();
                             Navigator.pop(bottomSheetContext);
@@ -281,7 +283,10 @@ class _SettingsViewState extends State<SettingsView> {
                           title: 'Light Mode',
                           subtitle: 'Clean and bright appearance',
                           isSelected: state.themeMode == AppThemeMode.light,
-                          gradientColors: [const Color(0xFFF59E0B), const Color(0xFFFBBF24)],
+                          gradientColors: [
+                            const Color(0xFFF59E0B),
+                            const Color(0xFFFBBF24),
+                          ],
                           onTap: () {
                             context.read<ThemeCubit>().setLightTheme();
                             Navigator.pop(bottomSheetContext);
@@ -303,7 +308,7 @@ class _SettingsViewState extends State<SettingsView> {
                     ),
                   ),
                   SizedBox(height: 32.h),
-                  
+
                   // Safe area padding
                   SizedBox(height: MediaQuery.of(context).padding.bottom),
                 ],
@@ -318,7 +323,7 @@ class _SettingsViewState extends State<SettingsView> {
   Widget _buildGeneralSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -374,7 +379,7 @@ class _SettingsViewState extends State<SettingsView> {
   Widget _buildSupportSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -411,7 +416,10 @@ class _SettingsViewState extends State<SettingsView> {
               icon: Icons.help_outline_rounded,
               title: "Help & Support",
               subtitle: "FAQ, contact support, about app",
-              gradientColors: [luxury.success, luxury.success.withValues(alpha: 0.7)],
+              gradientColors: [
+                luxury.success,
+                luxury.success.withValues(alpha: 0.7),
+              ],
               onTap: () => context.push('${RoutePaths.settings}/support'),
             ),
           ],
@@ -423,7 +431,7 @@ class _SettingsViewState extends State<SettingsView> {
   Widget _buildAboutSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
@@ -485,6 +493,62 @@ class _SettingsViewState extends State<SettingsView> {
       ),
     );
   }
+
+ Widget _buildSubscriptionSection(BuildContext context) {
+    final colorSchame = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            ShaderMask(
+              shaderCallback: (bound) {
+                return LinearGradient(
+                  colors: [luxury.gold, luxury.goldLight],
+                  ).createShader(bound);
+              },
+              child: Icon(
+                Icons.workspace_premium_rounded,
+                color: colorSchame.onPrimary,
+                size: 15.sp,
+              ),
+            ),
+            SizedBox(width: 8.w,),
+            Text(
+              "Subscription",
+              style: GoogleFonts.montserrat(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: colorSchame.onSurface,
+                letterSpacing: 0.5,
+              ),
+            )
+          ],
+        ),
+        SizedBox(height: 12.h,),
+        _LuxurySettingsCard(
+          items: [
+            _SettingsItem(
+              icon: Icons.card_membership_rounded,
+              title: "Subscription Plans",
+              subtitle: "View and manage your subscription",
+              gradientColors: [ luxury.gold, luxury.goldLight],
+              onTap: () => context.push('/member/subscriptions/bundles'),
+            ),
+            _SettingsItem(
+              icon: Icons.receipt_long_rounded,
+              title: "Billing & Invoices",
+              subtitle: "View payment history and invoices",
+              gradientColors: [ colorSchame.tertiary, colorSchame.secondary],
+              onTap: () => context.push('/member/subscriptions/invoices'),
+            )
+          ],
+        )
+      ],
+    );
+  }
 }
 
 // ============================================================================
@@ -507,7 +571,7 @@ class _AppearanceSettingsCard extends StatelessWidget {
         String currentThemeText;
         IconData themeIcon;
         List<Color> iconColors;
-        
+
         switch (state.themeMode) {
           case AppThemeMode.light:
             currentThemeText = 'Light';
@@ -569,10 +633,7 @@ class _AppearanceButton extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                luxury.surfaceElevated,
-                colorScheme.surface,
-              ],
+              colors: [luxury.surfaceElevated, colorScheme.surface],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -614,11 +675,7 @@ class _AppearanceButton extends StatelessWidget {
                       colors: gradientColors,
                     ).createShader(bounds);
                   },
-                  child: Icon(
-                    icon,
-                    color: colorScheme.onPrimary,
-                    size: 20.sp,
-                  ),
+                  child: Icon(icon, color: colorScheme.onPrimary, size: 20.sp),
                 ),
               ),
               SizedBox(width: 14.w),
@@ -768,11 +825,7 @@ class _ThemeBottomSheetOption extends StatelessWidget {
                       colors: gradientColors,
                     ).createShader(bounds);
                   },
-                  child: Icon(
-                    icon,
-                    color: colorScheme.onPrimary,
-                    size: 20.sp,
-                  ),
+                  child: Icon(icon, color: colorScheme.onPrimary, size: 20.sp),
                 ),
               ),
               SizedBox(width: 14.w),
@@ -786,7 +839,9 @@ class _ThemeBottomSheetOption extends StatelessWidget {
                       title,
                       style: GoogleFonts.inter(
                         fontSize: 14.sp,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                         color: isSelected
                             ? colorScheme.onSurface
                             : colorScheme.onSurface.withValues(alpha: 0.9),
@@ -816,10 +871,7 @@ class _ThemeBottomSheetOption extends StatelessWidget {
                       : null,
                   border: isSelected
                       ? null
-                      : Border.all(
-                          color: colorScheme.outline,
-                          width: 2,
-                        ),
+                      : Border.all(color: colorScheme.outline, width: 2),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
@@ -853,26 +905,20 @@ class _LuxuryIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const _LuxuryIconButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _LuxuryIconButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              luxury.surfaceElevated,
-              colorScheme.surface,
-            ],
+            colors: [luxury.surfaceElevated, colorScheme.surface],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -900,11 +946,7 @@ class _LuxuryIconButton extends StatelessWidget {
               end: Alignment.bottomRight,
             ).createShader(bounds);
           },
-          child: Icon(
-            icon,
-            color: colorScheme.onPrimary,
-            size: 20.sp,
-          ),
+          child: Icon(icon, color: colorScheme.onPrimary, size: 20.sp),
         ),
       ),
     );
@@ -924,22 +966,16 @@ class _LuxurySettingsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            luxury.surfaceElevated,
-            colorScheme.surface,
-          ],
+          colors: [luxury.surfaceElevated, colorScheme.surface],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(
-          color: luxury.gold.withValues(alpha: 0.1),
-          width: 1,
-        ),
+        border: Border.all(color: luxury.gold.withValues(alpha: 0.1), width: 1),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.15),
@@ -994,7 +1030,7 @@ class _SettingsItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -1035,7 +1071,7 @@ class _SettingsItemTile extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 14.w),
-              
+
               // Text content
               Expanded(
                 child: Column(
@@ -1061,7 +1097,7 @@ class _SettingsItemTile extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Arrow
               ShaderMask(
                 shaderCallback: (bounds) {

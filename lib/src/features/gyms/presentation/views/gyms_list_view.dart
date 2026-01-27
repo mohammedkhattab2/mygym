@@ -55,7 +55,7 @@ class _GymsListViewState extends State<GymsListView> {
   }
 
   void _onGymTap(Gym gym) {
-    context.go('${RoutePaths.gyms}/${gym.id}');
+    context.push('${RoutePaths.gyms}/${gym.id}');
   }
 
   @override
@@ -204,6 +204,50 @@ class _GymsListViewState extends State<GymsListView> {
               ],
             ),
           ),
+          
+          BlocBuilder<GymsBloc,GymsState>(
+            buildWhen: (prev,curr)=> 
+                  prev.currentFilter != curr.currentFilter,
+            builder: (context, state) {
+              final hasFilter = state.currentFilter?.hasActiveFilters?? false;
+              return Stack(
+                children: [
+                  _LuxuryIconButton(
+                    icon: Icons.filter_list_rounded, 
+                    onTap: ()=> context.push('/member/gyms/filter'),
+                    ),
+                    if (hasFilter) Positioned(
+                      right: 6.h,
+                      top: 6.h,
+                      child: Container(
+                        width: 10.w,
+                        height: 10.w,
+                        decoration: BoxDecoration(
+                          color: luxury.gold,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: colorScheme.surface,width: 1.5.w),
+                        ),
+                      ),
+                    )
+                ],
+              );
+            }
+            ),
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+          SizedBox(width: 8.w,),
           // Map button
           _LuxuryIconButton(
             icon: Icons.map_rounded,

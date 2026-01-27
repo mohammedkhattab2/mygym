@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/router/route_paths.dart';
 import '../../../../core/theme/luxury_theme_extension.dart';
 
 /// Luxury Premium Splash Screen for MyGym
@@ -56,7 +57,7 @@ class _SplashViewState extends State<SplashView> {
   void _navigateAfterDelay() {
     Future.delayed(const Duration(milliseconds: 3000), () {
       if (mounted) {
-        context.go('/onboarding');
+        context.go(RoutePaths.onboardingSlides);
       }
     });
   }

@@ -25,7 +25,6 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
-
   void _setSystemUI(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     SystemChrome.setSystemUIOverlayStyle(
@@ -53,53 +52,70 @@ class _ProfileViewState extends State<ProfileView> {
       child: Scaffold(
         backgroundColor: colorScheme.surface,
         body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              colorScheme.surface,
-              colorScheme.surface.withValues(alpha: 0.95),
-              luxury.surfaceElevated,
-            ],
-            stops: const [0.0, 0.4, 1.0],
-          ),
-        ),
-        child: Stack(
-          children: [
-            // Main content
-            SafeArea(
-              child: Column(
-                children: [
-                  // Custom app bar
-                  _buildLuxuryAppBar(colorScheme, luxury),
-                  
-                  // Profile content
-                  Expanded(
-                    child: BlocBuilder<AuthCubit, AuthState>(
-                      builder: (context, state) {
-                        if (state.status == AuthStatus.loading) {
-                          return _buildLoadingState(colorScheme, luxury);
-                        }
-                        if (state.status == AuthStatus.unauthenticated) {
-                          return _buildUnauthenticated(context, colorScheme, luxury);
-                        }
-                        if (state.hasError) {
-                          return _buildError(context, colorScheme, state.errorMessage);
-                        }
-                        final user = state.user;
-                        if (user == null) {
-                          return _buildError(context, colorScheme, "User data not available");
-                        }
-                        return _buildContent(context, user, colorScheme, luxury);
-                      },
-                    ),
-                  ),
-                ],
-              ),
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                colorScheme.surface,
+                colorScheme.surface.withValues(alpha: 0.95),
+                luxury.surfaceElevated,
+              ],
+              stops: const [0.0, 0.4, 1.0],
             ),
+          ),
+          child: Stack(
+            children: [
+              // Main content
+              SafeArea(
+                child: Column(
+                  children: [
+                    // Custom app bar
+                    _buildLuxuryAppBar(colorScheme, luxury),
+
+                    // Profile content
+                    Expanded(
+                      child: BlocBuilder<AuthCubit, AuthState>(
+                        builder: (context, state) {
+                          if (state.status == AuthStatus.loading) {
+                            return _buildLoadingState(colorScheme, luxury);
+                          }
+                          if (state.status == AuthStatus.unauthenticated) {
+                            return _buildUnauthenticated(
+                              context,
+                              colorScheme,
+                              luxury,
+                            );
+                          }
+                          if (state.hasError) {
+                            return _buildError(
+                              context,
+                              colorScheme,
+                              state.errorMessage,
+                            );
+                          }
+                          final user = state.user;
+                          if (user == null) {
+                            return _buildError(
+                              context,
+                              colorScheme,
+                              "User data not available",
+                            );
+                          }
+                          return _buildContent(
+                            context,
+                            user,
+                            colorScheme,
+                            luxury,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -107,7 +123,10 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildLuxuryAppBar(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
+  Widget _buildLuxuryAppBar(
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+  ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
@@ -149,7 +168,10 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildLoadingState(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
+  Widget _buildLoadingState(
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -176,7 +198,11 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildUnauthenticated(BuildContext context, ColorScheme colorScheme, LuxuryThemeExtension luxury) {
+  Widget _buildUnauthenticated(
+    BuildContext context,
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -210,7 +236,11 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildError(BuildContext context, ColorScheme colorScheme, String? message) {
+  Widget _buildError(
+    BuildContext context,
+    ColorScheme colorScheme,
+    String? message,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -235,7 +265,12 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildContent(BuildContext context, User user, ColorScheme colorScheme, LuxuryThemeExtension luxury) {
+  Widget _buildContent(
+    BuildContext context,
+    User user,
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+  ) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
@@ -250,9 +285,7 @@ class _ProfileViewState extends State<ProfileView> {
           SizedBox(height: 24.h),
           _AccountSection(),
           SizedBox(height: 32.h),
-          _LuxuryLogoutButton(
-            onTap: () => context.read<AuthCubit>().signOut(),
-          ),
+          _LuxuryLogoutButton(onTap: () => context.read<AuthCubit>().signOut()),
           SizedBox(height: 40.h),
         ],
       ),
@@ -274,16 +307,14 @@ class _ProfileHeader extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     final displayName = user.displayName ?? user.email.split('@').first;
-    final initial = (displayName.isNotEmpty ? displayName[0] : "U").toUpperCase();
+    final initial = (displayName.isNotEmpty ? displayName[0] : "U")
+        .toUpperCase();
 
     return Container(
       padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            luxury.surfaceElevated,
-            colorScheme.surface,
-          ],
+          colors: [luxury.surfaceElevated, colorScheme.surface],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -321,29 +352,26 @@ class _ProfileHeader extends StatelessWidget {
                 width: 2,
               ),
             ),
-          child: Center(
-            child: ShaderMask(
-              shaderCallback: (bounds) {
-                return LinearGradient(
-                  colors: [
-                    colorScheme.primary,
-                    luxury.gold,
-                  ],
-                ).createShader(bounds);
-              },
-              child: Text(
-                initial,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 28.sp,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onPrimary,
+            child: Center(
+              child: ShaderMask(
+                shaderCallback: (bounds) {
+                  return LinearGradient(
+                    colors: [colorScheme.primary, luxury.gold],
+                  ).createShader(bounds);
+                },
+                child: Text(
+                  initial,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ),
           ),
-          ),
           SizedBox(width: 18.w),
-          
+
           // User info
           Expanded(
             child: Column(
@@ -410,92 +438,72 @@ class _SubscriptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
+    final hasSubscription =
+        user.subscriptionStatus != null &&
+        user.subscriptionStatus!.toLowerCase() != "no active subscription";
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colorScheme.primary.withValues(alpha: 0.15),
-            luxury.gold.withValues(alpha: 0.08),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: luxury.gold.withValues(alpha: 0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.primary.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    colors: [luxury.gold, luxury.goldLight],
-                  ).createShader(bounds);
-                },
-                child: Icon(
-                  Icons.workspace_premium_rounded,
-                  color: colorScheme.onPrimary,
-                  size: 22.sp,
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Text(
-                "Subscription",
-                style: GoogleFonts.montserrat(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
-                  letterSpacing: 0.5,
-                ),
-              ),
+    return GestureDetector(
+      onTap: () => context.push('/member/subscriptions/bundles'),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(20.w),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              colorScheme.primary.withValues(alpha: 0.15),
+              luxury.gold.withValues(alpha: 0.08),
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          SizedBox(height: 14.h),
-          Text(
-            user.subscriptionStatus ?? "No active subscription",
-            style: GoogleFonts.inter(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.onSurface,
+          borderRadius: BorderRadius.circular(20.r),
+          border: Border.all(
+            color: luxury.gold.withValues(alpha: 0.2),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.primary.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
             ),
-          ),
-          if (user.remainingVisits != null || user.points > 0) ...[
-            SizedBox(height: 14.h),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
-                if (user.remainingVisits != null)
-                  _StatChip(
-                    icon: Icons.confirmation_number_rounded,
-                    label: '${user.remainingVisits} Visits',
-                    colors: [colorScheme.primary, colorScheme.secondary],
+                ShaderMask(
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      colors: [
+                        luxury.gold, luxury.goldLight
+                      ],
+                      ).createShader(bounds);
+                  },
+                  child: Icon(
+                    Icons.workspace_premium_rounded,
+                    color: colorScheme.onPrimary,
+                    size: 22.sp,
                   ),
-                if (user.remainingVisits != null && user.points > 0)
-                  SizedBox(width: 12.w),
-                if (user.points > 0)
-                  _StatChip(
-                    icon: Icons.stars_rounded,
-                    label: '${user.points} Points',
-                    colors: [luxury.gold, luxury.goldLight],
-                  ),
+                ),
+                SizedBox(width: 10.w,),
+                Expanded(
+                  child: Text(
+                    "Subscription",
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                      letterSpacing: 0.5,
+                    ),
+                  )
+                  )
               ],
             ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -515,7 +523,7 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
@@ -526,10 +534,7 @@ class _StatChip extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: colors[0].withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: colors[0].withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -538,11 +543,7 @@ class _StatChip extends StatelessWidget {
             shaderCallback: (bounds) {
               return LinearGradient(colors: colors).createShader(bounds);
             },
-            child: Icon(
-              icon,
-              color: colorScheme.onPrimary,
-              size: 16.sp,
-            ),
+            child: Icon(icon, color: colorScheme.onPrimary, size: 16.sp),
           ),
           SizedBox(width: 6.w),
           Text(
@@ -668,6 +669,21 @@ class _AccountSection extends StatelessWidget {
         SizedBox(height: 12.h),
         _LuxuryMenuCard(
           items: [
+
+            _LuxuryMenuItem(
+              icon: Icons.card_membership_rounded, 
+              title: "Subscription Plans", 
+              subtitle: "View and manage your subscription", 
+              gradientColors: [luxury.gold, luxury.goldLight], 
+              onTap: () => context.push('/member/subscriptions/bundles'),
+              ),
+            _LuxuryMenuItem(
+              icon: Icons.receipt_long_rounded, 
+              title: "Billing & Invoices", 
+              subtitle: "View payment history", 
+              gradientColors: [colorScheme.tertiary, colorScheme.secondary], 
+              onTap: () => context.push('/member/subscriptions/invoices'),
+              ),
             _LuxuryMenuItem(
               icon: Icons.edit_rounded,
               title: "Edit Profile",
@@ -697,10 +713,7 @@ class _LuxuryIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const _LuxuryIconButton({
-    required this.icon,
-    required this.onTap,
-  });
+  const _LuxuryIconButton({required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -713,10 +726,7 @@ class _LuxuryIconButton extends StatelessWidget {
         padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              luxury.surfaceElevated,
-              colorScheme.surface,
-            ],
+            colors: [luxury.surfaceElevated, colorScheme.surface],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -744,11 +754,7 @@ class _LuxuryIconButton extends StatelessWidget {
               end: Alignment.bottomRight,
             ).createShader(bounds);
           },
-          child: Icon(
-            icon,
-            color: colorScheme.onPrimary,
-            size: 20.sp,
-          ),
+          child: Icon(icon, color: colorScheme.onPrimary, size: 20.sp),
         ),
       ),
     );
@@ -772,18 +778,12 @@ class _LuxuryMenuCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            luxury.surfaceElevated,
-            colorScheme.surface,
-          ],
+          colors: [luxury.surfaceElevated, colorScheme.surface],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(
-          color: luxury.gold.withValues(alpha: 0.1),
-          width: 1,
-        ),
+        border: Border.all(color: luxury.gold.withValues(alpha: 0.1), width: 1),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.15),
@@ -879,7 +879,7 @@ class _LuxuryMenuItemTile extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 14.w),
-              
+
               // Text content
               Expanded(
                 child: Column(
@@ -905,7 +905,7 @@ class _LuxuryMenuItemTile extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Arrow
               ShaderMask(
                 shaderCallback: (bounds) {

@@ -8,6 +8,7 @@ import 'package:mygym/src/features/home/presentation/widget/build_nearby_gyms.da
 import 'package:mygym/src/features/home/presentation/widget/build_newly_added_gyms.dart';
 import 'package:mygym/src/features/home/presentation/widget/build_popular_classes.dart';
 import 'package:mygym/src/features/home/presentation/widget/build_search_bar.dart';
+import 'package:mygym/src/features/home/presentation/widget/build_subscription_promo.dart';
 
 /// Premium Luxury Home View
 ///
@@ -66,6 +67,8 @@ class HomeView extends StatelessWidget {
                 const BuildSearchBar(),
                 SizedBox(height: 24.h),
                 const BuildBannar(),
+                SizedBox(height: 24.h),
+                const BuildSubscriptionPromo(),
                 SizedBox(height: 32.h),
                 // Explore Gyms - Large premium cards
                 const BuildExploreGyms(),

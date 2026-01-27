@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/router/route_paths.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/home/data/datasources/home_dummy_data_source.dart';
 import 'package:mygym/src/features/home/domain/entities/fitness_class_entity.dart';
@@ -60,7 +62,7 @@ class BuildPopularClasses extends StatelessWidget {
                 ],
               ),
               GestureDetector(
-                onTap: _onSeeAllClasses,
+                onTap: () => _onSeeAllClasses(context),
                 child: Row(
                   children: [
                     Text(
@@ -106,8 +108,8 @@ class BuildPopularClasses extends StatelessWidget {
     );
   }
 
-  void _onSeeAllClasses() {
-    // todo: navigate to classes screen
+  void _onSeeAllClasses(BuildContext context) {
+    context.push(RoutePaths.classesCalendar);
   }
 
   void onClassTap(FitnessClassEntity fitnessClass) {

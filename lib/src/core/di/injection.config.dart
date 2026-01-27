@@ -41,6 +41,7 @@ import '../../features/classes/presentation/cubit/classes_cubit.dart' as _i205;
 import '../../features/gyms/data/repositories/gym_repository_impl.dart'
     as _i541;
 import '../../features/gyms/domain/repositories/gym_repository.dart' as _i786;
+import '../../features/gyms/presentation/bloc/gym_filter_cubit.dart' as _i741;
 import '../../features/gyms/presentation/bloc/gyms_bloc.dart' as _i587;
 import '../../features/onboarding/presentation/bloc/onboarding_cubit.dart'
     as _i153;
@@ -66,6 +67,12 @@ import '../../features/settings/domain/repositories/settings_repository.dart'
     as _i674;
 import '../../features/settings/presentation/cubit/settings_cubit.dart'
     as _i792;
+import '../../features/subscriptions/data/repositories/subscription_repository_impl.dart'
+    as _i944;
+import '../../features/subscriptions/domain/repositories/subscription_repository.dart'
+    as _i384;
+import '../../features/subscriptions/presentation/cubit/subscriptions_cubit.dart'
+    as _i454;
 import '../../features/support/data/datasources/support_local_data_source.dart'
     as _i855;
 import '../../features/support/data/repositories/support_repository_impl.dart'
@@ -80,6 +87,7 @@ import '../router/guards/auth_guard.dart' as _i530;
 import '../router/guards/role_guard.dart' as _i746;
 import '../router/guards/subscription_guard.dart' as _i204;
 import '../storage/secure_storage.dart' as _i619;
+import '../theme/cubit/theme_cubit.dart' as _i194;
 import 'modules/network_module.dart' as _i851;
 import 'modules/storage_module.dart' as _i148;
 
@@ -151,10 +159,17 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i932.NetworkInfoImpl(gh<_i895.Connectivity>()));
     gh.lazySingleton<_i1042.PartnerRepository>(
         () => _i57.PartnerRepositoryImpl(gh<_i824.PartnerLocalDataSource>()));
+    gh.lazySingleton<_i194.ThemeCubit>(
+        () => _i194.ThemeCubit(gh<_i674.SettingsRepository>()));
     gh.lazySingleton<_i852.AuthLocalDataSource>(() => _i852.AuthLocalDataSource(
           gh<_i619.SecureStorageService>(),
           gh<_i986.Box<String>>(instanceName: 'userBox'),
         ));
+    gh.lazySingleton<_i384.SubscriptionRepository>(
+        () => _i944.SubscriptionRepositoryImpl(
+              gh<_i667.DioClient>(),
+              gh<_i932.NetworkInfo>(),
+            ));
     gh.lazySingleton<_i583.AdminRepository>(() => _i335.AdminRepositoryImpl(
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),
@@ -180,6 +195,8 @@ extension GetItInjectableX on _i174.GetIt {
           roleGuard: gh<_i746.RoleGuard>(),
           subscriptionGuard: gh<_i204.SubscriptionGuard>(),
         ));
+    gh.factory<_i454.SubscriptionsCubit>(
+        () => _i454.SubscriptionsCubit(gh<_i384.SubscriptionRepository>()));
     gh.factory<_i587.GymsBloc>(() => _i587.GymsBloc(gh<_i786.GymRepository>()));
     gh.lazySingleton<_i787.AuthRepository>(() => _i153.AuthRepositoryImpl(
           gh<_i107.AuthRemoteDataSource>(),
@@ -195,6 +212,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i52.AuthCubit(gh<_i787.AuthRepository>()));
     gh.factory<_i153.OnboardingCubit>(
         () => _i153.OnboardingCubit(gh<_i787.AuthRepository>()));
+    gh.factory<_i741.GymFilterCubit>(
+        () => _i741.GymFilterCubit(gh<_i587.GymsBloc>()));
     return this;
   }
 }

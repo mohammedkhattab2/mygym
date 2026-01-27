@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/router/route_paths.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
 /// Premium Luxury Search Bar
@@ -23,7 +25,7 @@ class BuildSearchBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: GestureDetector(
-        onTap: _onSearchTab,
+        onTap: () => _onSearchTab(context),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 15.h),
           decoration: BoxDecoration(
@@ -129,7 +131,7 @@ class BuildSearchBar extends StatelessWidget {
     );
   }
 
-  void _onSearchTab() {
-    // todo: navigate to search screen
+  void _onSearchTab(BuildContext context) {
+    context.push(RoutePaths.search);
   }
 }

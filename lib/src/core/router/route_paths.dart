@@ -20,6 +20,7 @@ class RoutePaths {
   static const String member = '/member';
   static const String memberHome = '$member/home';
   static const String home = memberHome;  // Alias for convenience
+  static const String search = '$member/search';
   
   // Gyms
   static const String gyms = '$member/gyms';

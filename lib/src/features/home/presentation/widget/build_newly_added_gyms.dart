@@ -68,10 +68,10 @@ class BuildNewlyAddedGyms extends StatelessWidget {
   }
 
   void _onSeeAllGyms(BuildContext context) {
-    context.go(RoutePaths.gymsList);
+    context.push(RoutePaths.gymsList);
   }
 
   void _onGymTap(BuildContext context, GymEntity gym) {
-    context.go('${RoutePaths.gyms}/${gym.id}');
+    context.push('${RoutePaths.gyms}/${gym.id}');
   }
 }
