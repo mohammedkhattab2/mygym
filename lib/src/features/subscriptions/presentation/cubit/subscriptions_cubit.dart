@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -152,12 +153,17 @@ class SubscriptionsCubit extends Cubit<SubscriptionsState> {
 
   /// Create checkout session
   Future<void> createCheckout() async {
+    debugPrint('📦 createCheckout() called');
+    debugPrint('   selectedBundle: ${state.selectedBundle?.name}');
+    debugPrint('   selectedProvider: ${state.selectedProvider}');
     if (state.selectedBundle == null || state.selectedProvider == null) {
+      debugPrint('❌ Missing bundle or provider');
       emit(state.copyWith(
         errorMessage: 'Please select a bundle and payment method',
       ));
       return;
     }
+    debugPrint('⏳ Setting status to loading...');
 
     emit(state.copyWith(checkoutStatus: SubscriptionsStatus.loading));
 
@@ -168,14 +174,20 @@ class SubscriptionsCubit extends Cubit<SubscriptionsState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
+      (failure) {
+        debugPrint('❌ Checkout failed: ${failure.message}');
+        emit(state.copyWith(
         checkoutStatus: SubscriptionsStatus.failure,
         errorMessage: failure.message,
-      )),
-      (session) => emit(state.copyWith(
+      ));
+      },
+      (session) {
+        debugPrint('✅ Checkout session created: ${session.sessionId}');
+        emit(state.copyWith(
         checkoutStatus: SubscriptionsStatus.success,
         checkoutSession: session,
-      )),
+      ));
+      },
     );
   }
 

@@ -7,15 +7,15 @@ import 'package:mygym/src/core/theme/widgets/luxury_section_header.dart';
 import 'package:mygym/src/features/home/data/datasources/home_dummy_data_source.dart';
 import 'package:mygym/src/features/home/domain/entities/gym_entity.dart';
 
-/// Premium Luxury Nearby Gyms Section
+/// Compact Luxury Nearby Gyms Section
 ///
 /// Features:
-/// - Clean luxury section header
-/// - Unified luxury gym cards
+/// - Clean section header
+/// - Compact gym cards
 /// - Horizontal scrollable list
-/// - Premium spacing and layout
+/// - Optimized spacing
 /// - Full Light/Dark mode compliance
-/// - NO animations
+/// - NO animations, NO glow
 class BuildNearbyGyms extends StatelessWidget {
   const BuildNearbyGyms({super.key});
 
@@ -26,22 +26,22 @@ class BuildNearbyGyms extends StatelessWidget {
         // Section header
         LuxurySectionHeader(
           title: 'Nearby Gyms',
-          subtitle: 'Discover fitness centers around you',
+          subtitle: 'Fitness spots around you',
           onSeeAllTap: () => _onSeeAllGyms(context),
         ),
-        SizedBox(height: 16.h),
-        // Gym cards list
+        SizedBox(height: 12.h),
+        // Compact gym cards list
         SizedBox(
-          height: 290.h,
+          height: 175.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             physics: const BouncingScrollPhysics(),
             itemCount: HomeDummyDataSource.gyms.length,
             itemBuilder: (itemContext, index) {
               final gym = HomeDummyDataSource.gyms[index];
               return Padding(
-                padding: EdgeInsets.only(right: 14.w),
+                padding: EdgeInsets.only(right: 10.w),
                 child: LuxuryGymCard(
                   id: gym.id,
                   name: gym.name,

@@ -33,6 +33,7 @@ import 'package:mygym/src/core/di/injection.dart';
 import 'package:mygym/src/features/gyms/presentation/views/gyms_map_view.dart';
 
 import 'package:mygym/src/features/gyms/presentation/views/gyms_list_view.dart';
+import 'package:mygym/src/features/subscriptions/domain/entities/subscription.dart';
 import 'package:mygym/src/features/subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import 'package:mygym/src/features/subscriptions/presentation/views/bundles_view.dart';
 import 'package:mygym/src/features/subscriptions/presentation/views/checkout_view.dart';
@@ -283,9 +284,9 @@ class AppRouter {
                 path: 'payment',
                 name: 'payment',
                 builder: (context, state) {
-                  return BlocProvider.value(
-                    value: context.read<SubscriptionsCubit>(),
-                    child: const PaymentWebview(),
+                  return BlocProvider(
+                    create: (ctx) => getIt<SubscriptionsCubit>(),
+                    child: const PaymentWebView(),
                   );
                 },
               ),

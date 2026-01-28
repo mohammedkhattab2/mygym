@@ -3,19 +3,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/router/route_paths.dart';
+import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/home/data/datasources/home_dummy_data_source.dart';
 import 'package:mygym/src/features/home/domain/entities/fitness_class_entity.dart';
 
-/// Premium Luxury Popular Classes Section
+/// Premium Magical Popular Classes - Compact Edition
 ///
 /// Features:
-/// - Elegant section header with gold accent bar
-/// - Premium glassmorphism class cards
-/// - Gradient time badges
-/// - Instructor info with avatar placeholder
+/// - Compact section header
+/// - Refined class cards with glow
 /// - Full Light/Dark mode compliance
-/// - NO animations (static luxury design)
+/// - NO animations
 class BuildPopularClasses extends StatelessWidget {
   const BuildPopularClasses({super.key});
 
@@ -27,23 +26,20 @@ class BuildPopularClasses extends StatelessWidget {
 
     return Column(
       children: [
-        // Section header with luxury styling
+        // Section header
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
                   Container(
-                    width: 4.w,
-                    height: 20.h,
+                    width: 3.w,
+                    height: 18.h,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          colorScheme.secondary,
-                          isDark ? luxury.gold : colorScheme.primary,
-                        ],
+                        colors: [colorScheme.secondary, isDark ? luxury.gold : colorScheme.primary],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ),
@@ -54,7 +50,7 @@ class BuildPopularClasses extends StatelessWidget {
                   Text(
                     'Popular Classes',
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 20.sp,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.onSurface,
                     ),
@@ -62,43 +58,33 @@ class BuildPopularClasses extends StatelessWidget {
                 ],
               ),
               GestureDetector(
-                onTap: () => _onSeeAllClasses(context),
-                child: Row(
-                  children: [
-                    Text(
-                      "See all",
-                      style: GoogleFonts.inter(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? luxury.gold : colorScheme.primary,
-                      ),
-                    ),
-                    SizedBox(width: 4.w),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 12.sp,
-                      color: (isDark ? luxury.gold : colorScheme.primary).withValues(alpha: 0.7),
-                    ),
-                  ],
+                onTap: () => context.push(RoutePaths.classesCalendar),
+                child: Text(
+                  "See all",
+                  style: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? luxury.gold : colorScheme.primary,
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 18.h),
+        SizedBox(height: 14.h),
         // Class cards
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: Column(
             children: HomeDummyDataSource.classes.asMap().entries.map((entry) {
               final index = entry.key;
               final fitnessClass = entry.value;
               return Padding(
-                padding: EdgeInsets.only(bottom: 14.h),
-                child: _LuxuryClassCard(
+                padding: EdgeInsets.only(bottom: 10.h),
+                child: _CompactClassCard(
                   fitnessClass: fitnessClass,
                   index: index,
-                  onTap: () => onClassTap(fitnessClass),
+                  onTap: () {},
                 ),
               );
             }).toList(),
@@ -107,36 +93,21 @@ class BuildPopularClasses extends StatelessWidget {
       ],
     );
   }
-
-  void _onSeeAllClasses(BuildContext context) {
-    context.push(RoutePaths.classesCalendar);
-  }
-
-  void onClassTap(FitnessClassEntity fitnessClass) {
-    // todo: navigate to class details screen
-  }
 }
 
-/// Static Luxury Class Card (no animations)
-class _LuxuryClassCard extends StatelessWidget {
+class _CompactClassCard extends StatelessWidget {
   final FitnessClassEntity fitnessClass;
   final int index;
   final VoidCallback onTap;
 
-  const _LuxuryClassCard({
+  const _CompactClassCard({
     required this.fitnessClass,
     required this.index,
     required this.onTap,
   });
 
-  // Different accent colors for variety using theme colors
   Color _getAccentColor(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
-    final colors = [
-      colorScheme.primary,
-      colorScheme.secondary,
-      colorScheme.tertiary, // Uses theme tertiary instead of hardcoded teal
-      luxury.gold,
-    ];
+    final colors = [colorScheme.primary, colorScheme.secondary, colorScheme.tertiary, luxury.gold];
     return colors[index % colors.length];
   }
 
@@ -150,65 +121,37 @@ class _LuxuryClassCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isDark
-                ? [luxury.surfaceElevated, luxury.surfacePremium]
-                : [colorScheme.surface, colorScheme.surfaceContainerHighest ?? colorScheme.surface],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.circular(18.r),
+          color: isDark ? luxury.surfaceElevated : colorScheme.surface,
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: isDark
-                ? luxury.gold.withValues(alpha: 0.1)
-                : colorScheme.outline.withValues(alpha: 0.15),
-            width: 1,
+            color: isDark ? accentColor.withOpacity(0.12) : colorScheme.outline.withOpacity(0.08),
           ),
           boxShadow: [
             BoxShadow(
-              color: luxury.cardShadow.withValues(alpha: isDark ? 0.3 : 0.15),
+              color: accentColor.withOpacity(isDark ? 0.08 : 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
-            ),
-            BoxShadow(
-              color: accentColor.withValues(alpha: isDark ? 0.05 : 0.03),
-              blurRadius: 20,
-              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Row(
           children: [
-            // Emoji container with gradient background
+            // Emoji container
             Container(
-              width: 64.w,
-              height: 64.w,
+              width: 48.w,
+              height: 48.w,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    accentColor.withValues(alpha: isDark ? 0.2 : 0.15),
-                    accentColor.withValues(alpha: isDark ? 0.08 : 0.05),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(
-                  color: accentColor.withValues(alpha: isDark ? 0.2 : 0.15),
-                  width: 1,
-                ),
+                color: accentColor.withOpacity(isDark ? 0.15 : 0.1),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: Center(
-                child: Text(
-                  fitnessClass.emoji,
-                  style: TextStyle(fontSize: 32.sp),
-                ),
+                child: Text(fitnessClass.emoji, style: TextStyle(fontSize: 24.sp)),
               ),
             ),
-            SizedBox(width: 16.w),
-            // Class info
+            SizedBox(width: 12.w),
+            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,45 +159,38 @@ class _LuxuryClassCard extends StatelessWidget {
                   Text(
                     fitnessClass.name,
                     style: GoogleFonts.inter(
-                      fontSize: 15.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: colorScheme.onSurface,
                     ),
                   ),
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 3.h),
                   Row(
                     children: [
-                      // Instructor avatar placeholder
                       Container(
-                        width: 20.w,
-                        height: 20.w,
+                        width: 18.w,
+                        height: 18.w,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              accentColor.withValues(alpha: 0.6),
-                              accentColor.withValues(alpha: 0.3),
-                            ],
-                          ),
+                          color: accentColor.withOpacity(0.5),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
                           child: Text(
-                            fitnessClass.instructor[0].toUpperCase(),
+                            fitnessClass.instructor[0],
                             style: GoogleFonts.inter(
-                              fontSize: 10.sp,
+                              fontSize: 9.sp,
                               fontWeight: FontWeight.w700,
-                              color: colorScheme.onPrimary,
+                              color: Colors.white,
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(width: 8.w),
+                      SizedBox(width: 6.w),
                       Text(
                         fitnessClass.instructor,
                         style: GoogleFonts.inter(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w400,
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontSize: 11.sp,
+                          color: luxury.textTertiary,
                         ),
                       ),
                     ],
@@ -262,59 +198,34 @@ class _LuxuryClassCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Time and duration
+            // Time
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // Time badge with gradient
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 5.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        accentColor,
-                        accentColor.withValues(alpha: 0.7),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(8.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: accentColor.withValues(alpha: isDark ? 0.3 : 0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
                     fitnessClass.time,
                     style: GoogleFonts.spaceGrotesk(
-                      fontSize: 11.sp,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.w700,
-                      color: colorScheme.onPrimary,
+                      color: Colors.white,
                     ),
                   ),
                 ),
-                SizedBox(height: 8.h),
-                // Duration
+                SizedBox(height: 4.h),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.timer_outlined,
-                      size: 12.sp,
-                      color: colorScheme.onSurface.withValues(alpha: 0.5),
-                    ),
-                    SizedBox(width: 4.w),
+                    Icon(Icons.timer_outlined, size: 11.sp, color: luxury.textMuted),
+                    SizedBox(width: 3.w),
                     Text(
                       fitnessClass.duration,
-                      style: GoogleFonts.inter(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
+                      style: GoogleFonts.inter(fontSize: 10.sp, color: luxury.textMuted),
                     ),
                   ],
                 ),

@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
+/// Premium Magical Subscription Promo - Compact Edition
+///
+/// Features:
+/// - Compact glowing gold card
+/// - Refined icon and text
+/// - Full Light/Dark mode compliance
+/// - NO animations
 class BuildSubscriptionPromo extends StatelessWidget {
   const BuildSubscriptionPromo({super.key});
 
@@ -12,59 +20,52 @@ class BuildSubscriptionPromo extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     final isDark = context.isDarkMode;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: GestureDetector(
-        onTap: ()=>  context.push('/member/subscriptions/bundles'),
+        onTap: () => context.push('/member/subscriptions/bundles'),
         child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(20.w),
+          padding: EdgeInsets.all(14.w),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: isDark?[
-                luxury.gold.withValues(alpha: 0.15),
-                luxury.gold.withValues(alpha: 0.05),
-              ]:[
-                colorScheme.primaryContainer,
-                colorScheme.primaryContainer.withValues(alpha: 0.7)
-              ],
+              colors: isDark
+                  ? [luxury.gold.withOpacity(0.1), luxury.gold.withOpacity(0.04)]
+                  : [colorScheme.primaryContainer, colorScheme.primaryContainer.withOpacity(0.6)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isDark ? luxury.gold.withOpacity(0.25) : colorScheme.primary.withOpacity(0.15),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: (isDark ? luxury.gold : colorScheme.primary).withOpacity(isDark ? 0.15 : 0.08),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
               ),
-              borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(
-                color: isDark
-                ? luxury.gold.withValues(alpha: 0.3)
-                : colorScheme.primary.withValues(alpha: 0.2),
-                width: 1
-              ),
-              boxShadow: [BoxShadow(
-                color: isDark
-                ? Colors.black.withValues(alpha: 0.3)
-                :colorScheme.primary.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              )
-              ]
+            ],
           ),
           child: Row(
             children: [
+              // Icon
               Container(
-                width: 56.w,
-                height: 56.w,
+                width: 44.w,
+                height: 44.w,
                 decoration: BoxDecoration(
-                  color: isDark
-                  ? luxury.gold.withValues(alpha:  0.2)
-                  :colorScheme.primary.withValues(alpha:  0.1),
-                  borderRadius: BorderRadius.circular(16.r),
+                  gradient: isDark ? luxury.goldGradient : luxury.primaryGradient,
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
                   Icons.workspace_premium_rounded,
-                  color: isDark? luxury.gold : colorScheme.primary,
-                  size: 25.sp,
+                  color: isDark ? AppColors.backgroundDark : Colors.white,
+                  size: 22.sp,
                 ),
               ),
-              SizedBox(width: 16.w,),
+              SizedBox(width: 12.w),
+
+              // Text
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,72 +75,61 @@ class BuildSubscriptionPromo extends StatelessWidget {
                         Text(
                           "PREMIUM",
                           style: GoogleFonts.montserrat(
-                            fontSize: 10.sp,
+                            fontSize: 9.sp,
                             fontWeight: FontWeight.w700,
-                            color: isDark? luxury.gold:colorScheme.primary,
-                            letterSpacing: 2
+                            color: isDark ? luxury.gold : colorScheme.primary,
+                            letterSpacing: 1.5,
                           ),
                         ),
-                        SizedBox(width: 8.w,),
+                        SizedBox(width: 8.w),
                         Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 2.h
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                           decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha:  0.2),
+                            color: luxury.success.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                           child: Text(
-                            "SAVE 20%",
+                            "20% OFF",
                             style: GoogleFonts.montserrat(
                               fontSize: 8.sp,
                               fontWeight: FontWeight.w700,
-                              color: Colors.green,
+                              color: luxury.success,
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
-                    SizedBox(height: 4.h,),
+                    SizedBox(height: 3.h),
                     Text(
                       "Unlock All Gyms",
                       style: GoogleFonts.playfairDisplay(
-                        fontSize: 15.sp,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
                         color: colorScheme.onSurface,
                       ),
                     ),
-                    SizedBox(height: 2.h,),
-                    Text(
-                      "Get unlimited access to premium facilities",
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: colorScheme.onSurface.withValues(alpha:  0.6),
-                      ),
-                    )
                   ],
-                )
                 ),
-                Container(
-                  width: 4.w,
-                  height: 40.w,
-                  decoration: BoxDecoration(
-                    color: isDark
-                    ? luxury.gold.withValues(alpha: 0.2)
-                    : colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward_rounded,
-                    color: isDark? luxury.gold : colorScheme.primary ,
-                    size: 20.sp,
-                  ),
-                )
+              ),
+
+              // Arrow
+              Container(
+                width: 32.w,
+                height: 32.w,
+                decoration: BoxDecoration(
+                  color: (isDark ? luxury.gold : colorScheme.primary).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  color: isDark ? luxury.gold : colorScheme.primary,
+                  size: 18.sp,
+                ),
+              ),
             ],
           ),
         ),
       ),
-      );
+    );
   }
 }

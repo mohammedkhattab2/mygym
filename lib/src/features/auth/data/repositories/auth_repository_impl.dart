@@ -145,20 +145,25 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, void>> requestOtp({required String phone}) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(NetworkFailure());
-    }
-
-    try {
-      await _remoteDataSource.requestOtp(
-        OtpRequestModel(phone: phone),
-      );
-      return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    } catch (e) {
-      return Left(UnexpectedFailure(e.toString()));
-    }
+    // DEV MODE: Bypass API call and return success immediately
+    // This allows testing OTP flow without a backend
+    return const Right(null);
+    
+    // TODO: Uncomment when backend is available
+    // if (!await _networkInfo.isConnected) {
+    //   return const Left(NetworkFailure());
+    // }
+    //
+    // try {
+    //   await _remoteDataSource.requestOtp(
+    //     OtpRequestModel(phone: phone),
+    //   );
+    //   return const Right(null);
+    // } on ServerException catch (e) {
+    //   return Left(ServerFailure(e.message));
+    // } catch (e) {
+    //   return Left(UnexpectedFailure(e.toString()));
+    // }
   }
 
   @override
@@ -166,24 +171,54 @@ class AuthRepositoryImpl implements AuthRepository {
     required String phone,
     required String otp,
   }) async {
-    if (!await _networkInfo.isConnected) {
-      return const Left(NetworkFailure());
-    }
-
-    try {
-      final response = await _remoteDataSource.verifyOtp(
-        OtpVerifyModel(phone: phone, otp: otp),
+    // DEV MODE: Accept any 6-digit OTP and return dummy user
+    // This allows testing OTP flow without a backend
+    if (otp.length == 6) {
+      // Create a dummy user for development
+      final dummyUser = UserModel(
+        id: 'otp_user_${DateTime.now().millisecondsSinceEpoch}',
+        email: '',
+        name: 'User',
+        phone: phone,
+        photoUrl: null,
+        roleString: 'member',
+        selectedCity: null,
+        interests: [],
+        createdAt: DateTime.now(),
+        subscriptionStatus: 'none',
+        remainingVisits: 0,
+        points: 0,
+        referralCode: null,
       );
-
-      await _localDataSource.saveAuthResponse(response);
-      return Right(response.user.toEntity());
-    } on UnauthorizedException {
-      return const Left(AuthFailure('Invalid OTP code'));
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    } catch (e) {
-      return Left(UnexpectedFailure(e.toString()));
+      
+      // Cache user locally
+      await _localDataSource.cacheUser(dummyUser);
+      await _localDataSource.saveAccessToken('dummy_otp_token_${DateTime.now().millisecondsSinceEpoch}');
+      
+      return Right(dummyUser.toEntity());
     }
+    
+    return const Left(AuthFailure('Invalid OTP code'));
+    
+    // TODO: Uncomment when backend is available
+    // if (!await _networkInfo.isConnected) {
+    //   return const Left(NetworkFailure());
+    // }
+    //
+    // try {
+    //   final response = await _remoteDataSource.verifyOtp(
+    //     OtpVerifyModel(phone: phone, otp: otp),
+    //   );
+    //
+    //   await _localDataSource.saveAuthResponse(response);
+    //   return Right(response.user.toEntity());
+    // } on UnauthorizedException {
+    //   return const Left(AuthFailure('Invalid OTP code'));
+    // } on ServerException catch (e) {
+    //   return Left(ServerFailure(e.message));
+    // } catch (e) {
+    //   return Left(UnexpectedFailure(e.toString()));
+    // }
   }
 
   @override

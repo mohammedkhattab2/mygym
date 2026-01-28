@@ -8,14 +8,14 @@ import 'package:mygym/src/core/theme/widgets/luxury_section_header.dart';
 import 'package:mygym/src/features/home/data/datasources/home_dummy_data_source.dart';
 import 'package:mygym/src/features/home/domain/entities/gym_entity.dart';
 
-/// Premium Luxury Newly Added Gyms Section
+/// Compact Luxury Newly Added Gyms Section
 ///
 /// Features:
-/// - Unified luxury gym cards with "NEW" badge
-/// - Subtle distinction through badge styling
-/// - Same premium design system
+/// - Compact gym cards with "NEW" badge
+/// - Clean design without glow
+/// - Optimized spacing
 /// - Full Light/Dark mode compliance
-/// - NO animations
+/// - NO animations, NO glow
 class BuildNewlyAddedGyms extends StatelessWidget {
   const BuildNewlyAddedGyms({super.key});
 
@@ -23,8 +23,8 @@ class BuildNewlyAddedGyms extends StatelessWidget {
   Widget build(BuildContext context) {
     final luxury = context.luxury;
     
-    // Get only the last 2 gyms as "newly added" for demo
-    final newGyms = HomeDummyDataSource.gyms.take(2).toList();
+    // Get only the last 3 gyms as "newly added" for demo
+    final newGyms = HomeDummyDataSource.gyms.take(3).toList();
 
     return Column(
       children: [
@@ -35,19 +35,19 @@ class BuildNewlyAddedGyms extends StatelessWidget {
           badgeColor: luxury.success,
           onSeeAllTap: () => _onSeeAllGyms(context),
         ),
-        SizedBox(height: 16.h),
-        // Gym cards list - horizontal scroll with medium cards
+        SizedBox(height: 12.h),
+        // Compact gym cards list
         SizedBox(
-          height: 290.h,
+          height: 160.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             physics: const BouncingScrollPhysics(),
             itemCount: newGyms.length,
             itemBuilder: (itemContext, index) {
               final gym = newGyms[index];
               return Padding(
-                padding: EdgeInsets.only(right: 14.w),
+                padding: EdgeInsets.only(right: 10.w),
                 child: LuxuryGymCard(
                   id: gym.id,
                   name: gym.name,
@@ -56,7 +56,7 @@ class BuildNewlyAddedGyms extends StatelessWidget {
                   rating: gym.rating,
                   distance: gym.distance,
                   isNew: true,
-                  size: LuxuryGymCardSize.medium,
+                  size: LuxuryGymCardSize.small,
                   onTap: () => _onGymTap(itemContext, gym),
                 ),
               );

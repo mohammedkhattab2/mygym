@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
-/// Premium Luxury Header for Home screen
+/// Premium Magical Header - Compact Edition
 ///
 /// Features:
-/// - Elegant greeting with premium typography
-/// - Notification button with gold accent
-/// - Profile avatar with gradient and glow
+/// - Compact greeting with gradient text
+/// - Minimal notification button with glow indicator
+/// - Refined profile avatar
 /// - Full Light/Dark mode compliance
-/// - NO animations (static luxury design)
+/// - NO animations
 class BuildHeader extends StatelessWidget {
   final String userName;
 
   const BuildHeader({super.key, required this.userName});
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,97 +31,70 @@ class BuildHeader extends StatelessWidget {
     final isDark = context.isDarkMode;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Greeting with gold accent
+                Text(
+                  _getGreeting(),
+                  style: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w400,
+                    color: luxury.textTertiary,
+                  ),
+                ),
+                SizedBox(height: 2.h),
                 Row(
                   children: [
-                    Text(
-                      "Hi, ",
-                      style: GoogleFonts.inter(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w400,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
                     ShaderMask(
-                      shaderCallback: (bounds) {
-                        return LinearGradient(
-                          colors: isDark
-                              ? [colorScheme.onSurface, luxury.goldLight]
-                              : [colorScheme.primary, colorScheme.secondary],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds);
-                      },
+                      shaderCallback: (bounds) => LinearGradient(
+                        colors: isDark
+                            ? [colorScheme.onSurface, luxury.gold]
+                            : [colorScheme.primary, colorScheme.secondary],
+                      ).createShader(bounds),
                       child: Text(
-                        "$userName ",
+                        userName,
                         style: GoogleFonts.playfairDisplay(
-                          fontSize: 24.sp,
+                          fontSize: 22.sp,
                           fontWeight: FontWeight.w700,
-                          color: colorScheme.onSurface,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                    Text(
-                      "👋",
-                      style: TextStyle(fontSize: 22.sp),
-                    ),
+                    SizedBox(width: 4.w),
+                    Text('👋', style: TextStyle(fontSize: 18.sp)),
                   ],
-                ),
-                SizedBox(height: 6.h),
-                Text(
-                  'Ready to elevate your fitness?',
-                  style: GoogleFonts.inter(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
                 ),
               ],
             ),
           ),
-          // Notification button with luxury styling
-          _LuxuryIconButton(
+          // Notification
+          _CompactIconButton(
             icon: Icons.notifications_outlined,
-            onTap: _onNotificationsTab,
-            hasNotification: true,
+            hasIndicator: true,
+            onTap: () {},
           ),
-          SizedBox(width: 12.w),
-          // Profile avatar with gradient and glow
-          _LuxuryProfileAvatar(
-            userName: userName,
-            onTap: _onProfileTab,
-          ),
+          SizedBox(width: 10.w),
+          // Profile
+          _CompactProfileAvatar(userName: userName, onTap: () {}),
         ],
       ),
     );
   }
-
-  void _onNotificationsTab() {
-    // todo: navigate to notifications screen
-  }
-
-  void _onProfileTab() {
-    // todo: navigate to profile screen
-  }
 }
 
-/// Static Luxury Icon Button (no animations)
-class _LuxuryIconButton extends StatelessWidget {
+class _CompactIconButton extends StatelessWidget {
   final IconData icon;
+  final bool hasIndicator;
   final VoidCallback onTap;
-  final bool hasNotification;
 
-  const _LuxuryIconButton({
+  const _CompactIconButton({
     required this.icon,
+    this.hasIndicator = false,
     required this.onTap,
-    this.hasNotification = false,
   });
 
   @override
@@ -125,71 +106,32 @@ class _LuxuryIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(11.w),
+        padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: isDark
-                ? [luxury.surfaceElevated, luxury.surfacePremium]
-                : [colorScheme.surface, colorScheme.surfaceContainerHighest ?? colorScheme.surface],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          borderRadius: BorderRadius.circular(14.r),
+          color: isDark ? luxury.surfaceElevated : colorScheme.surface,
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: isDark
-                ? luxury.gold.withValues(alpha: 0.15)
-                : colorScheme.outline.withValues(alpha: 0.2),
-            width: 1,
+            color: isDark ? luxury.borderLight.withOpacity(0.5) : colorScheme.outline.withOpacity(0.1),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: luxury.cardShadow.withValues(alpha: isDark ? 0.3 : 0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            ShaderMask(
-              shaderCallback: (bounds) {
-                return LinearGradient(
-                  colors: isDark
-                      ? [colorScheme.onSurface, luxury.gold.withValues(alpha: 0.7)]
-                      : [colorScheme.onSurface, colorScheme.primary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds);
-              },
-              child: Icon(
-                icon,
-                color: colorScheme.onSurface,
-                size: 22.sp,
-              ),
-            ),
-            // Notification indicator
-            if (hasNotification)
+            Icon(icon, color: colorScheme.onSurface, size: 20.sp),
+            if (hasIndicator)
               Positioned(
-                right: 0,
-                top: 0,
+                right: -2.w,
+                top: -2.h,
                 child: Container(
                   width: 8.w,
                   height: 8.w,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        luxury.gold,
-                        luxury.gold.withValues(alpha: 0.8),
-                      ],
-                    ),
+                    gradient: luxury.goldGradient,
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: luxury.gold.withValues(alpha: 0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
+                    border: Border.all(
+                      color: isDark ? AppColors.backgroundDark : colorScheme.surface,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
@@ -200,15 +142,11 @@ class _LuxuryIconButton extends StatelessWidget {
   }
 }
 
-/// Static Luxury Profile Avatar (no animations)
-class _LuxuryProfileAvatar extends StatelessWidget {
+class _CompactProfileAvatar extends StatelessWidget {
   final String userName;
   final VoidCallback onTap;
 
-  const _LuxuryProfileAvatar({
-    required this.userName,
-    required this.onTap,
-  });
+  const _CompactProfileAvatar({required this.userName, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -219,34 +157,25 @@ class _LuxuryProfileAvatar extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 46.w,
-        height: 46.w,
+        width: 42.w,
+        height: 42.w,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
               colorScheme.primary,
-              colorScheme.primary.withValues(alpha: 0.8),
-              luxury.gold.withValues(alpha: isDark ? 0.6 : 0.4),
+              colorScheme.secondary.withOpacity(0.8),
+              luxury.gold.withOpacity(isDark ? 0.4 : 0.3),
             ],
-            stops: const [0.0, 0.6, 1.0],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(
-            color: luxury.gold.withValues(alpha: 0.3),
-            width: 1,
-          ),
+          border: Border.all(color: luxury.gold.withOpacity(0.3)),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withValues(alpha: isDark ? 0.3 : 0.2),
+              color: colorScheme.primary.withOpacity(isDark ? 0.25 : 0.15),
               blurRadius: 12,
               offset: const Offset(0, 4),
-            ),
-            BoxShadow(
-              color: luxury.gold.withValues(alpha: 0.1),
-              blurRadius: 16,
-              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -254,9 +183,9 @@ class _LuxuryProfileAvatar extends StatelessWidget {
           child: Text(
             userName[0].toUpperCase(),
             style: GoogleFonts.playfairDisplay(
-              fontSize: 20.sp,
+              fontSize: 18.sp,
               fontWeight: FontWeight.w700,
-              color: colorScheme.onPrimary,
+              color: Colors.white,
             ),
           ),
         ),

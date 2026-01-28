@@ -5,14 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/router/route_paths.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
-/// Premium Luxury Search Bar
+/// Premium Magical Search Bar - Compact Edition
 ///
 /// Features:
-/// - Glassmorphism effect with gold accent border
-/// - Gradient search icon
-/// - Elegant filter button with glow
+/// - Compact glassmorphism container
+/// - Gradient filter button
 /// - Full Light/Dark mode compliance
-/// - NO animations (static luxury design)
+/// - NO animations
 class BuildSearchBar extends StatelessWidget {
   const BuildSearchBar({super.key});
 
@@ -23,105 +22,54 @@ class BuildSearchBar extends StatelessWidget {
     final isDark = context.isDarkMode;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: GestureDetector(
-        onTap: () => _onSearchTab(context),
+        onTap: () => context.push(RoutePaths.search),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 15.h),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isDark
-                  ? [luxury.surfaceElevated, luxury.surfacePremium]
-                  : [colorScheme.surface, colorScheme.surfaceContainerHighest ?? colorScheme.surface],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: BorderRadius.circular(18.r),
+            color: isDark ? luxury.surfaceElevated : colorScheme.surface,
+            borderRadius: BorderRadius.circular(14.r),
             border: Border.all(
               color: isDark
-                  ? luxury.gold.withValues(alpha: 0.12)
-                  : colorScheme.outline.withValues(alpha: 0.2),
-              width: 1,
+                  ? luxury.gold.withOpacity(0.1)
+                  : colorScheme.outline.withOpacity(0.12),
             ),
             boxShadow: [
               BoxShadow(
-                color: luxury.cardShadow.withValues(alpha: isDark ? 0.3 : 0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: Row(
             children: [
-              // Search icon with gradient
-              ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    colors: isDark
-                        ? [colorScheme.onSurface.withValues(alpha: 0.7), luxury.gold.withValues(alpha: 0.6)]
-                        : [colorScheme.onSurface.withValues(alpha: 0.6), colorScheme.primary.withValues(alpha: 0.6)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ).createShader(bounds);
-                },
-                child: Icon(
-                  Icons.search_rounded,
-                  color: colorScheme.onSurface,
-                  size: 24.sp,
-                ),
+              Icon(
+                Icons.search_rounded,
+                color: luxury.textTertiary,
+                size: 20.sp,
               ),
-              SizedBox(width: 14.w),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   "Search gyms, classes...",
                   style: GoogleFonts.inter(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    color: colorScheme.onSurface.withValues(alpha: 0.5),
+                    fontSize: 13.sp,
+                    color: luxury.textMuted,
                   ),
                 ),
               ),
-              // Filter button with luxury styling
               Container(
                 padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isDark
-                        ? [
-                            colorScheme.primary.withValues(alpha: 0.15),
-                            luxury.gold.withValues(alpha: 0.08),
-                          ]
-                        : [
-                            colorScheme.primary.withValues(alpha: 0.1),
-                            colorScheme.secondary.withValues(alpha: 0.08),
-                          ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: isDark ? luxury.goldGradient : luxury.primaryGradient,
                   borderRadius: BorderRadius.circular(10.r),
-                  border: Border.all(
-                    color: isDark
-                        ? luxury.gold.withValues(alpha: 0.15)
-                        : colorScheme.primary.withValues(alpha: 0.2),
-                    width: 1,
-                  ),
                 ),
-                child: ShaderMask(
-                  shaderCallback: (bounds) {
-                    return LinearGradient(
-                      colors: [
-                        colorScheme.primary,
-                        isDark ? luxury.gold : colorScheme.secondary,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ).createShader(bounds);
-                  },
-                  child: Icon(
-                    Icons.tune_rounded,
-                    color: colorScheme.onSurface,
-                    size: 18.sp,
-                  ),
+                child: Icon(
+                  Icons.tune_rounded,
+                  color: isDark ? colorScheme.surface : Colors.white,
+                  size: 16.sp,
                 ),
               ),
             ],
@@ -129,9 +77,5 @@ class BuildSearchBar extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _onSearchTab(BuildContext context) {
-    context.push(RoutePaths.search);
   }
 }
