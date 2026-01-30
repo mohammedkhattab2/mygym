@@ -200,8 +200,6 @@ class _PulsingLoader extends StatefulWidget {
 class _PulsingLoaderState extends State<_PulsingLoader>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
@@ -210,20 +208,6 @@ class _PulsingLoaderState extends State<_PulsingLoader>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat();
-
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
-
-    _opacityAnimation = Tween<double>(begin: 0.3, end: 0.8).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
   }
 
   @override

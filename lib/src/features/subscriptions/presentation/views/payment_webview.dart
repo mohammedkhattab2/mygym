@@ -38,7 +38,7 @@ class PaymentWebView extends StatelessWidget {
                       gradient: isDark
                           ? LinearGradient(
                               colors: [
-                                luxury.gold.withOpacity(0.12),
+                                luxury.gold.withValues(alpha: 0.12),
                                 colorScheme.surface,
                               ],
                               begin: Alignment.topCenter,
@@ -46,7 +46,7 @@ class PaymentWebView extends StatelessWidget {
                             )
                           : LinearGradient(
                               colors: [
-                                luxury.goldLight.withOpacity(0.3),
+                                luxury.goldLight.withValues(alpha: 0.3),
                                 colorScheme.surface,
                               ],
                               begin: Alignment.topCenter,
@@ -62,7 +62,7 @@ class PaymentWebView extends StatelessWidget {
                       color: isDark ? luxury.surfaceElevated : colorScheme.surface,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.2),
+                        color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Icon(
@@ -93,10 +93,10 @@ class PaymentWebView extends StatelessWidget {
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                         decoration: BoxDecoration(
-                          color: luxury.warning.withOpacity(0.1),
+                          color: luxury.warning.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(30.r),
                           border: Border.all(
-                            color: luxury.warning.withOpacity(0.3),
+                            color: luxury.warning.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -132,7 +132,7 @@ class PaymentWebView extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: luxury.gold.withOpacity(0.4),
+                              color: luxury.gold.withValues(alpha: 0.4),
                               blurRadius: 40,
                               spreadRadius: 5,
                             ),
@@ -207,365 +207,275 @@ class PaymentWebView extends StatelessWidget {
   }
 
   void _simulateSuccessPayment(BuildContext context) async {
-    final luxury = context.luxury;
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Capture EVERYTHING before any async operations
+    final cubit = context.read<SubscriptionsCubit>();
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
+    final router = GoRouter.of(context);
 
     // Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => Dialog(
-        backgroundColor: isDark ? luxury.surfaceElevated : colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.r),
-          side: BorderSide(
-            color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.1),
+      useRootNavigator: true,
+      builder: (loadingDialogContext) {
+        final luxury = Theme.of(loadingDialogContext).extension<LuxuryThemeExtension>()!;
+        final colorScheme = Theme.of(loadingDialogContext).colorScheme;
+        final isDark = Theme.of(loadingDialogContext).brightness == Brightness.dark;
+        
+        return Dialog(
+          backgroundColor: isDark ? luxury.surfaceElevated : colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.r),
+            side: BorderSide(
+              color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha: 0.1),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(32.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 48.w,
-                height: 48.w,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  color: colorScheme.primary,
+          child: Padding(
+            padding: EdgeInsets.all(32.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 48.w,
+                  height: 48.w,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: colorScheme.primary,
+                  ),
                 ),
-              ),
-              SizedBox(height: 24.h),
-              Text(
-                "Processing Payment...",
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+                SizedBox(height: 24.h),
+                Text(
+                  "Processing Payment...",
+                  style: Theme.of(loadingDialogContext).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                "Please wait",
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: luxury.textTertiary,
+                SizedBox(height: 8.h),
+                Text(
+                  "Please wait",
+                  style: Theme.of(loadingDialogContext).textTheme.bodyMedium?.copyWith(
+                    color: luxury.textTertiary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
 
-    // Simulate delay
+    // Simulate delay and verify payment
     await Future.delayed(const Duration(seconds: 2));
+    final sessionId = cubit.state.checkoutSession?.sessionId ?? '';
+    await cubit.verifyPayment(sessionId);
 
-    // Verify payment
-    if (context.mounted) {
-      final cubit = context.read<SubscriptionsCubit>();
-      final sessionId = cubit.state.checkoutSession?.sessionId ?? '';
-      await cubit.verifyPayment(sessionId);
-    }
+    // Pop loading dialog using captured navigator (no context.mounted check needed)
+    rootNavigator.pop();
 
-    // Close loading dialog
-    if (context.mounted) Navigator.of(context).pop();
-
-    // Show success dialog
-    if (context.mounted) {
-      _showSuccessDialog(context);
-    }
-  }
-
-  void _showSuccessDialog(BuildContext context) {
-    final luxury = Theme.of(context).extension<LuxuryThemeExtension>()!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => Dialog(
-        backgroundColor: isDark ? luxury.surfaceElevated : colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.r),
-          side: BorderSide(
-            color: luxury.success.withOpacity(0.3),
-          ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(32.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 80.w,
-                height: 80.w,
-                decoration: BoxDecoration(
-                  color: luxury.success.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_circle_rounded,
-                  color: luxury.success,
-                  size: 48.sp,
-                ),
-              ),
-              SizedBox(height: 24.h),
-              Text(
-                "Payment Successful!",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: luxury.success,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                "Your subscription is now active.\nEnjoy your premium access!",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: luxury.textTertiary,
-                  height: 1.5,
-                ),
-              ),
-              SizedBox(height: 32.h),
-              SizedBox(
-                width: double.infinity,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: AppColors.energyGradient,
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        context.go('/member/home');
-                      },
-                      borderRadius: BorderRadius.circular(14.r),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.explore_rounded,
-                              color: Colors.white,
-                              size: 20.sp,
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              "Start Exploring",
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    // Navigate to home (success) using captured router
+    router.go('/member/home');
   }
 
   void _simulateFailedPayment(BuildContext context) {
-    final luxury = Theme.of(context).extension<LuxuryThemeExtension>()!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
+    final router = GoRouter.of(context);
+    
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        backgroundColor: isDark ? luxury.surfaceElevated : colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.r),
-          side: BorderSide(
-            color: colorScheme.error.withOpacity(0.3),
+      builder: (dialogContext) {
+        final luxury = Theme.of(dialogContext).extension<LuxuryThemeExtension>()!;
+        final colorScheme = Theme.of(dialogContext).colorScheme;
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        
+        return Dialog(
+          backgroundColor: isDark ? luxury.surfaceElevated : colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.r),
+            side: BorderSide(
+              color: colorScheme.error.withValues(alpha: 0.3),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(32.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 80.w,
-                height: 80.w,
-                decoration: BoxDecoration(
-                  color: colorScheme.error.withOpacity(0.1),
-                  shape: BoxShape.circle,
+          child: Padding(
+            padding: EdgeInsets.all(32.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 80.w,
+                  height: 80.w,
+                  decoration: BoxDecoration(
+                    color: colorScheme.error.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.error_rounded,
+                    color: colorScheme.error,
+                    size: 48.sp,
+                  ),
                 ),
-                child: Icon(
-                  Icons.error_rounded,
-                  color: colorScheme.error,
-                  size: 48.sp,
+                SizedBox(height: 24.h),
+                Text(
+                  "Payment Failed",
+                  style: Theme.of(dialogContext).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.error,
+                  ),
                 ),
-              ),
-              SizedBox(height: 24.h),
-              Text(
-                "Payment Failed",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.error,
+                SizedBox(height: 12.h),
+                Text(
+                  "The payment could not be processed.\nPlease try again.",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
+                    color: luxury.textTertiary,
+                    height: 1.5,
+                  ),
                 ),
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                "The payment could not be processed.\nPlease try again.",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: luxury.textTertiary,
-                  height: 1.5,
-                ),
-              ),
-              SizedBox(height: 32.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        context.pop();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                        side: BorderSide(
-                          color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.3),
+                SizedBox(height: 32.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          router.pop();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14.h),
+                          side: BorderSide(
+                            color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha: 0.3),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: Text(
-                        "Go Back",
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
+                        child: Text(
+                          "Go Back",
+                          style: Theme.of(dialogContext).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: FilledButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: FilledButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        "Try Again",
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        child: Text(
+                          "Try Again",
+                          style: Theme.of(dialogContext).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   void _showCancelConfirmation(BuildContext context) {
-    final luxury = Theme.of(context).extension<LuxuryThemeExtension>()!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
+    final router = GoRouter.of(context);
+    
     showDialog(
       context: context,
-      builder: (_) => Dialog(
-        backgroundColor: isDark ? luxury.surfaceElevated : colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.r),
-          side: BorderSide(
-            color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.1),
+      builder: (dialogContext) {
+        final luxury = Theme.of(dialogContext).extension<LuxuryThemeExtension>()!;
+        final colorScheme = Theme.of(dialogContext).colorScheme;
+        final isDark = Theme.of(dialogContext).brightness == Brightness.dark;
+        
+        return Dialog(
+          backgroundColor: isDark ? luxury.surfaceElevated : colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.r),
+            side: BorderSide(
+              color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha: 0.1),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(32.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 64.w,
-                height: 64.w,
-                decoration: BoxDecoration(
-                  color: luxury.warning.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.warning_amber_rounded,
-                  color: luxury.warning,
-                  size: 32.sp,
-                ),
-              ),
-              SizedBox(height: 24.h),
-              Text(
-                "Cancel Payment?",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              Text(
-                "Are you sure you want to cancel?\nYour payment will not be processed.",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: luxury.textTertiary,
-                  height: 1.5,
-                ),
-              ),
-              SizedBox(height: 32.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        context.pop();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                        foregroundColor: colorScheme.error,
-                        side: BorderSide(color: colorScheme.error.withOpacity(0.5)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: const Text("Cancel"),
-                    ),
+          child: Padding(
+            padding: EdgeInsets.all(32.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 64.w,
+                  height: 64.w,
+                  decoration: BoxDecoration(
+                    color: luxury.warning.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: FilledButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 14.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      child: const Text("Continue"),
-                    ),
+                  child: Icon(
+                    Icons.warning_amber_rounded,
+                    color: luxury.warning,
+                    size: 32.sp,
                   ),
-                ],
-              ),
-            ],
+                ),
+                SizedBox(height: 24.h),
+                Text(
+                  "Cancel Payment?",
+                  style: Theme.of(dialogContext).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  "Are you sure you want to cancel?\nYour payment will not be processed.",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
+                    color: luxury.textTertiary,
+                    height: 1.5,
+                  ),
+                ),
+                SizedBox(height: 32.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                          router.pop();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14.h),
+                          foregroundColor: colorScheme.error,
+                          side: BorderSide(color: colorScheme.error.withValues(alpha: 0.5)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                        ),
+                        child: const Text("Cancel"),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        style: FilledButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                        ),
+                        child: const Text("Continue"),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -588,13 +498,13 @@ class _LuxuryOrderCard extends StatelessWidget {
         color: isDark ? luxury.surfaceElevated : colorScheme.surface,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: isDark ? luxury.borderGold : luxury.gold.withOpacity(0.2),
+          color: isDark ? luxury.borderGold : luxury.gold.withValues(alpha: 0.2),
         ),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -607,7 +517,7 @@ class _LuxuryOrderCard extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(10.w),
                 decoration: BoxDecoration(
-                  color: luxury.gold.withOpacity(0.1),
+                  color: luxury.gold.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
@@ -644,7 +554,7 @@ class _LuxuryOrderCard extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16.h),
             child: Divider(
-              color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.15),
+              color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha: 0.15),
             ),
           ),
           Row(
@@ -730,7 +640,7 @@ class _LuxuryDemoCardInput extends StatelessWidget {
         color: isDark ? luxury.surfaceElevated : colorScheme.surface,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.15),
+          color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha: 0.15),
         ),
       ),
       child: Column(
@@ -741,7 +651,7 @@ class _LuxuryDemoCardInput extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(10.w),
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
+                  color: colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
@@ -761,7 +671,7 @@ class _LuxuryDemoCardInput extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                 decoration: BoxDecoration(
-                  color: luxury.textMuted.withOpacity(0.1),
+                  color: luxury.textMuted.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Text(
@@ -825,7 +735,7 @@ class _DemoTextField extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
-        color: isDark ? luxury.surfacePremium : context.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: isDark ? luxury.surfacePremium : context.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: Row(
@@ -905,7 +815,7 @@ class _LuxurySuccessButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: luxury.success.withOpacity(0.4),
+            color: luxury.success.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -959,7 +869,7 @@ class _LuxuryFailureButton extends StatelessWidget {
         color: isDark ? luxury.surfaceElevated : colorScheme.surface,
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
-          color: colorScheme.error.withOpacity(0.4),
+          color: colorScheme.error.withValues(alpha: 0.4),
         ),
       ),
       child: Material(

@@ -119,61 +119,54 @@ class LuxuryThemeExtension extends ThemeExtension<LuxuryThemeExtension> {
   // Shadow
   final Color cardShadow;
 
-  /// Light theme luxury extension
+  /// Light theme luxury extension - PREMIUM ELEGANT
+  /// Soft, warm, airy, luxurious feel with refined surfaces
   static LuxuryThemeExtension get light => LuxuryThemeExtension(
-        // Gold colors
+        // Gold colors - warm luxury accent
         gold: AppColors.gold,
         goldLight: AppColors.goldLight,
         goldDark: AppColors.goldDark,
         goldShimmer: AppColors.goldShimmer,
-        // Rose gold
+        // Rose gold - feminine luxury
         roseGold: AppColors.roseGold,
         roseGoldLight: AppColors.roseGoldLight,
-        // Platinum
+        // Platinum - cool elegance
         platinum: AppColors.platinum,
-        // Background variants
-        backgroundSecondary: AppColors.surfaceElevated,
-        surfacePremium: AppColors.surface,
+        // Background variants - warm, airy surfaces
+        backgroundSecondary: AppColors.backgroundSecondary,
+        surfacePremium: AppColors.surfacePremium,
         surfaceElevated: AppColors.surfaceElevated,
-        // Border variants
-        borderLight: AppColors.grey200,
-        borderGold: AppColors.gold.withValues(alpha: 0.25),
-        // Text variants
+        // Border variants - soft, refined edges
+        borderLight: AppColors.borderLight,
+        borderGold: AppColors.gold.withValues(alpha: 0.20),
+        // Text variants - clear hierarchy
         textTertiary: AppColors.textTertiary,
         textMuted: AppColors.textDisabled,
         textGold: AppColors.goldDark,
-        // Glow colors
-        primaryGlow: AppColors.primary.withValues(alpha: 0.15),
-        goldGlow: AppColors.gold.withValues(alpha: 0.15),
-        successGlow: AppColors.success.withValues(alpha: 0.15),
-        // Glass colors
-        glassWhite: Colors.white.withValues(alpha: 0.8),
-        glassBorder: AppColors.grey200,
-        glassOverlay: Colors.black.withValues(alpha: 0.3),
-        // Gradients
+        // Glow colors - subtle, elegant
+        primaryGlow: AppColors.primaryGlowLightMode,
+        goldGlow: AppColors.goldGlowLightMode,
+        successGlow: AppColors.successGlowLightMode,
+        // Glass colors - elegant transparency
+        glassWhite: AppColors.glassLight,
+        glassBorder: AppColors.glassBorderLightMode,
+        glassOverlay: AppColors.glassOverlayLightMode,
+        // Gradients - subtle warmth
         primaryGradient: AppColors.primaryGradient,
         goldGradient: AppColors.goldGradient,
-        premiumGradient: AppColors.premiumGradient,
-        backgroundGradient: const LinearGradient(
-          colors: [AppColors.background, AppColors.surfaceElevated],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        cardGradient: const LinearGradient(
-          colors: [AppColors.surface, AppColors.surfaceElevated],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        // Semantic colors
+        premiumGradient: AppColors.premiumGradientLight,
+        backgroundGradient: AppColors.backgroundGradientLight,
+        cardGradient: AppColors.cardGradientLight,
+        // Semantic colors - clear indicators
         success: AppColors.success,
         warning: AppColors.warning,
         info: AppColors.info,
-        // Gym status
+        // Gym status - visible but refined
         gymOpen: AppColors.gymOpen,
         gymClosed: AppColors.gymClosed,
         gymBusy: AppColors.gymBusy,
-        // Shadow
-        cardShadow: Colors.black.withValues(alpha: 0.06),
+        // Shadow - soft, elegant depth
+        cardShadow: AppColors.cardShadowLight,
       );
 
   /// Dark theme luxury extension - Premium Elegant style

@@ -24,12 +24,12 @@ class BuildBannar extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Container(
         width: double.infinity,
-        height: 140.h,
+        height: 155.h,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withOpacity(isDark ? 0.3 : 0.2),
+              color: colorScheme.primary.withValues(alpha:  isDark ? 0.3 : 0.2),
               blurRadius: 25,
               offset: Offset(0, 10.h),
             ),
@@ -45,9 +45,9 @@ class BuildBannar extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       colorScheme.primary,
-                      colorScheme.primary.withOpacity(0.85),
-                      colorScheme.secondary.withOpacity(0.7),
-                      luxury.gold.withOpacity(isDark ? 0.4 : 0.3),
+                      colorScheme.primary.withValues(alpha:  0.85),
+                      colorScheme.secondary.withValues(alpha:  0.7),
+                      luxury.gold.withValues(alpha:  isDark ? 0.4 : 0.3),
                     ],
                     stops: const [0.0, 0.35, 0.65, 1.0],
                     begin: Alignment.topLeft,
@@ -67,7 +67,7 @@ class BuildBannar extends StatelessWidget {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        Colors.white.withOpacity(0.12),
+                        Colors.white.withValues(alpha:  0.12),
                         Colors.transparent,
                       ],
                     ),
@@ -79,12 +79,12 @@ class BuildBannar extends StatelessWidget {
               Positioned(
                 top: 20.h,
                 right: 50.w,
-                child: _Sparkle(size: 3, color: Colors.white.withOpacity(0.6)),
+                child: _Sparkle(size: 3, color: Colors.white.withValues(alpha:  0.6)),
               ),
               Positioned(
                 top: 50.h,
                 right: 25.w,
-                child: _Sparkle(size: 2, color: luxury.gold.withOpacity(0.5)),
+                child: _Sparkle(size: 2, color: luxury.gold.withValues(alpha:  0.5)),
               ),
 
               // Border
@@ -92,7 +92,7 @@ class BuildBannar extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
-                    color: luxury.gold.withOpacity(isDark ? 0.25 : 0.15),
+                    color: luxury.gold.withValues(alpha:  isDark ? 0.25 : 0.15),
                     width: 1,
                   ),
                 ),
@@ -107,14 +107,15 @@ class BuildBannar extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           // Badge
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha:  0.2),
                               borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(color: Colors.white.withOpacity(0.25)),
+                              border: Border.all(color: Colors.white.withValues(alpha:  0.25)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -140,7 +141,7 @@ class BuildBannar extends StatelessWidget {
                               ],
                             ),
                           ),
-                          SizedBox(height: 10.h),
+                          SizedBox(height: 8.h),
 
                           // Headline
                           ShaderMask(
@@ -150,26 +151,26 @@ class BuildBannar extends StatelessWidget {
                             child: Text(
                               'Get 20% Off',
                               style: GoogleFonts.playfairDisplay(
-                                fontSize: 22.sp,
+                                fontSize: 20.sp,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                               ),
                             ),
                           ),
-                          SizedBox(height: 3.h),
+                          SizedBox(height: 2.h),
 
                           Text(
                             "First month subscription",
                             style: GoogleFonts.inter(
-                              fontSize: 11.sp,
-                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 10.sp,
+                              color: Colors.white.withValues(alpha:  0.8),
                             ),
                           ),
-                          SizedBox(height: 10.h),
+                          SizedBox(height: 8.h),
 
                           // CTA
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
+                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10.r),
@@ -184,7 +185,7 @@ class BuildBannar extends StatelessWidget {
                                   child: Text(
                                     'Claim',
                                     style: GoogleFonts.montserrat(
-                                      fontSize: 11.sp,
+                                      fontSize: 10.sp,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
                                     ),
@@ -195,7 +196,7 @@ class BuildBannar extends StatelessWidget {
                                   shaderCallback: (bounds) => LinearGradient(
                                     colors: [colorScheme.primary, luxury.gold],
                                   ).createShader(bounds),
-                                  child: Icon(Icons.arrow_forward_rounded, size: 14.sp, color: Colors.white),
+                                  child: Icon(Icons.arrow_forward_rounded, size: 12.sp, color: Colors.white),
                                 ),
                               ],
                             ),
@@ -209,9 +210,9 @@ class BuildBannar extends StatelessWidget {
                       width: 70.w,
                       height: 70.w,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20.r),
-                        border: Border.all(color: luxury.gold.withOpacity(0.3)),
+                        border: Border.all(color: luxury.gold.withValues(alpha: 0.3)),
                       ),
                       child: Center(
                         child: Text('💎', style: TextStyle(fontSize: 36.sp)),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
 /// Premium Clean List Card - Luxury Edition
@@ -46,38 +47,34 @@ class LuxuryGymListCard extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.all(14.w),
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
-          // Clean gradient background
-          gradient: LinearGradient(
-            colors: isDark
-                ? [
-                    const Color(0xFF161620),
-                    const Color(0xFF12121A),
-                  ]
-                : [
-                    colorScheme.surface,
-                    colorScheme.surfaceContainerHighest,
-                  ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          // Clean surface background
+          color: isDark ? luxury.surfaceElevated : colorScheme.surface,
           borderRadius: BorderRadius.circular(18.r),
           // Clean border
           border: Border.all(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.08)
-                : colorScheme.outline.withValues(alpha: 0.1),
+                : AppColors.border,
             width: 1,
           ),
-          // Simple shadow - no glow
+          // Elegant shadow for light mode
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-              spreadRadius: -4,
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : AppColors.cardShadowLight,
+              blurRadius: isDark ? 16 : 20,
+              offset: Offset(0, isDark ? 6 : 8),
+              spreadRadius: isDark ? -4 : 0,
             ),
+            if (!isDark)
+              BoxShadow(
+                color: AppColors.cardShadowLight.withValues(alpha: 0.5),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
           ],
         ),
         child: Row(
@@ -93,10 +90,10 @@ class LuxuryGymListCard extends StatelessWidget {
                 children: [
                   // Name row
                   _buildNameRow(colorScheme, luxury, isDark),
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 8.h),
                   // Address row
                   _buildAddressRow(colorScheme, luxury, isDark),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 12.h),
                   // Info row with rating and crowd
                   _buildInfoRow(colorScheme, luxury, isDark),
                 ],
@@ -117,10 +114,10 @@ class LuxuryGymListCard extends StatelessWidget {
     bool isDark,
   ) {
     return Container(
-      width: 58.w,
-      height: 58.w,
+      width: 60.w,
+      height: 60.w,
       decoration: BoxDecoration(
-        // Clean gradient background
+        // Elegant gradient background
         gradient: LinearGradient(
           colors: isDark
               ? [
@@ -128,19 +125,26 @@ class LuxuryGymListCard extends StatelessWidget {
                   const Color(0xFF18181F),
                 ]
               : [
-                  colorScheme.primary.withValues(alpha: 0.12),
-                  colorScheme.secondary.withValues(alpha: 0.08),
+                  AppColors.primaryLight.withValues(alpha: 0.15),
+                  AppColors.primary.withValues(alpha: 0.08),
                 ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.08)
-              : colorScheme.primary.withValues(alpha: 0.15),
+              : colorScheme.primary.withValues(alpha: 0.12),
           width: 1,
         ),
+        boxShadow: !isDark ? [
+          BoxShadow(
+            color: colorScheme.primary.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ] : null,
       ),
       child: Center(
         child: Text(
@@ -166,23 +170,27 @@ class LuxuryGymListCard extends StatelessWidget {
           child: Text(
             name,
             style: GoogleFonts.inter(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : colorScheme.onSurface,
-              letterSpacing: -0.2,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : AppColors.textPrimary,
+              letterSpacing: -0.3,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         if (formattedDistance != null) ...[
-          SizedBox(width: 8.w),
-          // Distance badge - clean style
+          SizedBox(width: 10.w),
+          // Distance badge - elegant style
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: isDark ? 0.15 : 0.1),
-              borderRadius: BorderRadius.circular(6.r),
+              color: colorScheme.primary.withValues(alpha: isDark ? 0.15 : 0.08),
+              borderRadius: BorderRadius.circular(8.r),
+              border: !isDark ? Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.12),
+                width: 1,
+              ) : null,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -190,13 +198,13 @@ class LuxuryGymListCard extends StatelessWidget {
                 Icon(
                   Icons.near_me_rounded,
                   color: colorScheme.primary,
-                  size: 11.sp,
+                  size: 12.sp,
                 ),
-                SizedBox(width: 4.w),
+                SizedBox(width: 5.w),
                 Text(
                   formattedDistance!,
                   style: GoogleFonts.inter(
-                    fontSize: 10.sp,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: colorScheme.primary,
                   ),
@@ -217,27 +225,35 @@ class LuxuryGymListCard extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(4.w),
+          padding: EdgeInsets.all(5.w),
           decoration: BoxDecoration(
-            color: colorScheme.primary.withValues(alpha: isDark ? 0.12 : 0.08),
-            borderRadius: BorderRadius.circular(5.r),
+            color: isDark
+                ? colorScheme.primary.withValues(alpha: 0.12)
+                : AppColors.surfaceElevated,
+            borderRadius: BorderRadius.circular(6.r),
+            border: !isDark ? Border.all(
+              color: AppColors.borderLight,
+              width: 1,
+            ) : null,
           ),
           child: Icon(
             Icons.location_on_rounded,
-            size: 11.sp,
-            color: colorScheme.primary.withValues(alpha: 0.8),
+            size: 12.sp,
+            color: isDark
+                ? colorScheme.primary.withValues(alpha: 0.8)
+                : AppColors.textTertiary,
           ),
         ),
-        SizedBox(width: 6.w),
+        SizedBox(width: 8.w),
         Expanded(
           child: Text(
             address,
             style: GoogleFonts.inter(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w500,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w400,
               color: isDark
                   ? Colors.white.withValues(alpha: 0.55)
-                  : colorScheme.onSurface.withValues(alpha: 0.5),
+                  : AppColors.textSecondary,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -256,16 +272,16 @@ class LuxuryGymListCard extends StatelessWidget {
       children: [
         // Rating container
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
           decoration: BoxDecoration(
             color: isDark
                 ? Colors.black.withValues(alpha: 0.3)
-                : Colors.white.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(6.r),
+                : AppColors.surfaceElevated,
+            borderRadius: BorderRadius.circular(8.r),
             border: Border.all(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.08)
-                  : Colors.black.withValues(alpha: 0.05),
+                  : AppColors.borderLight,
               width: 1,
             ),
           ),
@@ -274,63 +290,66 @@ class LuxuryGymListCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.star_rounded,
-                size: 13.sp,
+                size: 14.sp,
                 color: luxury.gold,
               ),
-              SizedBox(width: 4.w),
+              SizedBox(width: 5.w),
               Text(
                 rating.toStringAsFixed(1),
                 style: GoogleFonts.inter(
-                  fontSize: 12.sp,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : colorScheme.onSurface,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
               ),
-              SizedBox(width: 4.w),
+              SizedBox(width: 5.w),
               Text(
                 '($reviewCount)',
                 style: GoogleFonts.inter(
-                  fontSize: 10.sp,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.45)
-                      : colorScheme.onSurface.withValues(alpha: 0.4),
+                      : AppColors.textTertiary,
                 ),
               ),
             ],
           ),
         ),
         if (crowdLevel != null) ...[
-          SizedBox(width: 10.w),
+          SizedBox(width: 12.w),
           // Divider
           Container(
             width: 1,
-            height: 14.h,
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : colorScheme.outline.withValues(alpha: 0.12),
+            height: 16.h,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : AppColors.borderLight,
+              borderRadius: BorderRadius.circular(1),
+            ),
           ),
-          SizedBox(width: 10.w),
+          SizedBox(width: 12.w),
           // Crowd level
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.people_alt_rounded,
-                size: 13.sp,
+                size: 14.sp,
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.45)
-                    : colorScheme.onSurface.withValues(alpha: 0.4),
+                    : AppColors.textTertiary,
               ),
-              SizedBox(width: 4.w),
+              SizedBox(width: 5.w),
               Text(
                 crowdLevel!,
                 style: GoogleFonts.inter(
-                  fontSize: 11.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w500,
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.55)
-                      : colorScheme.onSurface.withValues(alpha: 0.5),
+                      : AppColors.textSecondary,
                 ),
               ),
             ],
@@ -349,12 +368,16 @@ class LuxuryGymListCard extends StatelessWidget {
       onTap: onFavoriteTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.all(8.w),
+        padding: EdgeInsets.all(10.w),
         decoration: BoxDecoration(
           color: isFavorite
-              ? colorScheme.error.withValues(alpha: isDark ? 0.15 : 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10.r),
+              ? colorScheme.error.withValues(alpha: isDark ? 0.15 : 0.08)
+              : (isDark ? Colors.transparent : AppColors.surfaceElevated),
+          borderRadius: BorderRadius.circular(12.r),
+          border: !isFavorite && !isDark ? Border.all(
+            color: AppColors.borderLight,
+            width: 1,
+          ) : null,
         ),
         child: Icon(
           isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
@@ -363,7 +386,7 @@ class LuxuryGymListCard extends StatelessWidget {
               ? colorScheme.error
               : (isDark
                   ? Colors.white.withValues(alpha: 0.35)
-                  : colorScheme.onSurface.withValues(alpha: 0.3)),
+                  : AppColors.textTertiary),
         ),
       ),
     );

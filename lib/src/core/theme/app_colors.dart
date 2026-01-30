@@ -93,19 +93,49 @@ class AppColors {
   static const Color infoDark = Color(0xFF2563EB);
 
   // ============================================
-  // LIGHT THEME COLORS
+  // LIGHT THEME COLORS - PREMIUM ELEGANT
+  // Soft, warm, airy, and luxurious
   // ============================================
   
-  static const Color background = Color(0xFFFAFAFA);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceElevated = Color(0xFFF5F5F5);
-  static const Color border = Color(0xFFE5E5E5);
+  /// Primary background - warm off-white for elegance
+  static const Color background = Color(0xFFFBFAF8);
   
-  // Light theme text
-  static const Color textPrimary = Color(0xFF171717);
-  static const Color textSecondary = Color(0xFF525252);
-  static const Color textTertiary = Color(0xFF737373);
-  static const Color textDisabled = Color(0xFFA3A3A3);
+  /// Secondary background - subtle warmth
+  static const Color backgroundSecondary = Color(0xFFF7F6F3);
+  
+  /// Card/Surface - pure with subtle warmth
+  static const Color surface = Color(0xFFFFFFFF);
+  
+  /// Elevated surface - cream undertone
+  static const Color surfaceElevated = Color(0xFFFAF9F7);
+  
+  /// Premium surface - subtle luxury
+  static const Color surfacePremium = Color(0xFFF8F7F4);
+  
+  /// Primary border - soft, refined
+  static const Color border = Color(0xFFE8E6E1);
+  
+  /// Secondary border - lighter, subtle
+  static const Color borderLight = Color(0xFFF0EEE9);
+  
+  /// Accent border - warm touch
+  static const Color borderWarm = Color(0xFFE5E0D8);
+  
+  // Light theme text - REFINED HIERARCHY
+  /// Primary text - deep charcoal (not pure black)
+  static const Color textPrimary = Color(0xFF1A1A1A);
+  
+  /// Secondary text - warm grey
+  static const Color textSecondary = Color(0xFF5C5C5C);
+  
+  /// Tertiary text - muted
+  static const Color textTertiary = Color(0xFF8A8A8A);
+  
+  /// Disabled text - subtle
+  static const Color textDisabled = Color(0xFFB8B8B8);
+  
+  /// Placeholder text - light
+  static const Color textPlaceholder = Color(0xFFC5C5C5);
 
   // ============================================
   // DARK THEME COLORS - PREMIUM CHARCOAL
@@ -255,10 +285,42 @@ class AppColors {
   );
 
   // ============================================
-  // GLASS / OVERLAY COLORS
+  // LIGHT MODE GRADIENTS - PREMIUM ELEGANT
   // ============================================
   
-  /// Glass effect - subtle overlay
+  /// Light background gradient - subtle warmth
+  static const LinearGradient backgroundGradientLight = LinearGradient(
+    colors: [Color(0xFFFBFAF8), Color(0xFFF7F6F3)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+  
+  /// Light card gradient - elegant surface
+  static const LinearGradient cardGradientLight = LinearGradient(
+    colors: [Color(0xFFFFFFFF), Color(0xFFFAF9F7)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  /// Light premium gradient - subtle luxury
+  static const LinearGradient premiumGradientLight = LinearGradient(
+    colors: [Color(0xFFF8F7F4), Color(0xFFF5F3EE)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  /// Light accent gradient - soft purple
+  static const LinearGradient accentGradientLight = LinearGradient(
+    colors: [Color(0xFFF5F3FF), Color(0xFFEDE9FE)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // ============================================
+  // GLASS / OVERLAY COLORS - DARK MODE
+  // ============================================
+  
+  /// Glass effect - subtle overlay (dark mode)
   static Color glassWhite = Colors.white.withValues(alpha: 0.06);
   static Color glassWhiteStrong = Colors.white.withValues(alpha: 0.10);
   static Color glassWhiteLight = Colors.white.withValues(alpha: 0.03);
@@ -269,7 +331,7 @@ class AppColors {
   static Color glassGold = const Color(0xFFD4A574).withValues(alpha: 0.08);
   static Color glassGoldStrong = const Color(0xFFD4A574).withValues(alpha: 0.12);
   
-  /// Glass border
+  /// Glass border (dark mode)
   static Color glassBorder = Colors.white.withValues(alpha: 0.10);
   static Color glassBorderLight = Colors.white.withValues(alpha: 0.06);
   static Color glassBorderStrong = Colors.white.withValues(alpha: 0.15);
@@ -280,7 +342,24 @@ class AppColors {
   static Color glassOverlayLight = Colors.black.withValues(alpha: 0.40);
 
   // ============================================
-  // SHADOW / GLOW COLORS
+  // GLASS / OVERLAY COLORS - LIGHT MODE
+  // ============================================
+  
+  /// Light glass effect - elegant transparency
+  static Color glassLight = const Color(0xFFFFFFFF).withValues(alpha: 0.85);
+  static Color glassLightStrong = const Color(0xFFFFFFFF).withValues(alpha: 0.95);
+  static Color glassLightSubtle = const Color(0xFFFFFFFF).withValues(alpha: 0.70);
+  
+  /// Light glass border - refined edge
+  static Color glassBorderLightMode = const Color(0xFFE8E6E1).withValues(alpha: 0.60);
+  static Color glassBorderLightModeStrong = const Color(0xFFE8E6E1).withValues(alpha: 0.80);
+  
+  /// Light overlay
+  static Color glassOverlayLightMode = const Color(0xFF1A1A1A).withValues(alpha: 0.04);
+  static Color glassOverlayLightModeStrong = const Color(0xFF1A1A1A).withValues(alpha: 0.08);
+
+  // ============================================
+  // SHADOW / GLOW COLORS - DARK MODE
   // ============================================
   
   /// Primary glow - subtle
@@ -306,6 +385,26 @@ class AppColors {
   /// Card shadow - deep for dark theme
   static Color cardShadowDark = Colors.black.withValues(alpha: 0.40);
   static Color cardShadowPremium = const Color(0xFF8B5CF6).withValues(alpha: 0.15);
+
+  // ============================================
+  // SHADOW COLORS - LIGHT MODE (PREMIUM ELEGANT)
+  // ============================================
+  
+  /// Light mode card shadow - soft, refined
+  static Color cardShadowLight = const Color(0xFF1A1A1A).withValues(alpha: 0.04);
+  static Color cardShadowLightMedium = const Color(0xFF1A1A1A).withValues(alpha: 0.06);
+  static Color cardShadowLightStrong = const Color(0xFF1A1A1A).withValues(alpha: 0.10);
+  
+  /// Light mode primary glow - subtle elegant
+  static Color primaryGlowLightMode = const Color(0xFF8B5CF6).withValues(alpha: 0.08);
+  static Color primaryGlowLightModeStrong = const Color(0xFF8B5CF6).withValues(alpha: 0.12);
+  
+  /// Light mode gold glow - warm accent
+  static Color goldGlowLightMode = const Color(0xFFD4A574).withValues(alpha: 0.10);
+  static Color goldGlowLightModeStrong = const Color(0xFFD4A574).withValues(alpha: 0.15);
+  
+  /// Light mode success glow
+  static Color successGlowLightMode = const Color(0xFF10B981).withValues(alpha: 0.08);
 
   // ============================================
   // GYM STATUS COLORS

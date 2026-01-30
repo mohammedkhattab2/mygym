@@ -9,7 +9,9 @@ import '../../domain/repositories/subscription_repository.dart';
 
 @LazySingleton(as: SubscriptionRepository)
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
+  // ignore: unused_field - will be used when backend is available
   final DioClient _dioClient;
+  // ignore: unused_field - will be used when backend is available
   final NetworkInfo _networkInfo;
 
   // Local cache for current subscription

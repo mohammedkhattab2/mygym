@@ -53,12 +53,19 @@ import '../../features/partner/domain/repositories/partner_repository.dart'
     as _i1042;
 import '../../features/partner/presentation/cubit/partner_dashboard_cubit.dart'
     as _i8;
+import '../../features/partner/presentation/cubit/partner_settings_cubit.dart'
+    as _i518;
 import '../../features/qr_checkin/data/repositories/qr_repository_impl.dart'
     as _i971;
 import '../../features/qr_checkin/domain/repositories/qr_repository.dart'
     as _i631;
 import '../../features/qr_checkin/presentation/bloc/qr_checkin_cubit.dart'
     as _i846;
+import '../../features/rewards/data/repositories/rewards_repository_impl.dart'
+    as _i862;
+import '../../features/rewards/domain/repositories/rewards_repository.dart'
+    as _i801;
+import '../../features/rewards/presentation/cubit/rewards_cubit.dart' as _i246;
 import '../../features/settings/data/datasources/settings_local_data_source.dart'
     as _i599;
 import '../../features/settings/data/repositories/settings_repository_impl.dart'
@@ -143,6 +150,8 @@ extension GetItInjectableX on _i174.GetIt {
         _i955.SettingsRepositoryImpl(gh<_i599.SettingsLocalDataSource>()));
     gh.lazySingleton<_i107.AuthRemoteDataSource>(
         () => _i107.AuthRemoteDataSourceImpl(gh<_i361.Dio>()));
+    gh.lazySingleton<_i801.RewardsRepository>(
+        () => _i862.RewardsRepositoryImpl());
     gh.lazySingleton<_i275.SupportRepository>(
         () => _i387.SupportRepositoryImpl(gh<_i855.SupportLocalDataSource>()));
     gh.factory<_i792.SettingsCubit>(
@@ -159,6 +168,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i932.NetworkInfoImpl(gh<_i895.Connectivity>()));
     gh.lazySingleton<_i1042.PartnerRepository>(
         () => _i57.PartnerRepositoryImpl(gh<_i824.PartnerLocalDataSource>()));
+    gh.factory<_i246.RewardsCubit>(
+        () => _i246.RewardsCubit(gh<_i801.RewardsRepository>()));
     gh.lazySingleton<_i194.ThemeCubit>(
         () => _i194.ThemeCubit(gh<_i674.SettingsRepository>()));
     gh.lazySingleton<_i852.AuthLocalDataSource>(() => _i852.AuthLocalDataSource(
@@ -178,6 +189,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i196.SupportCubit(gh<_i275.SupportRepository>()));
     gh.factory<_i8.PartnerDashboardCubit>(
         () => _i8.PartnerDashboardCubit(gh<_i1042.PartnerRepository>()));
+    gh.factory<_i518.PartnerSettingsCubit>(
+        () => _i518.PartnerSettingsCubit(gh<_i1042.PartnerRepository>()));
     gh.lazySingleton<_i631.QrRepository>(() => _i971.QrRepositoryImpl(
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),

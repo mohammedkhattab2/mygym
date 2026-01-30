@@ -248,8 +248,6 @@ class _QrCheckInViewState extends State<QrCheckInView> {
   }
 
   Widget _buildError(BuildContext context, ColorScheme colorScheme, String message) {
-    final luxury = context.luxury;
-    
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 40.w),
@@ -482,7 +480,6 @@ class _SubscribeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -579,7 +576,6 @@ class _QrContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -630,8 +626,6 @@ class _QrCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
-    final glowIntensity = isExpired ? 0.0 : (isDark ? 0.4 : 0.25);
 
     return Container(
       padding: EdgeInsets.all(20.w),

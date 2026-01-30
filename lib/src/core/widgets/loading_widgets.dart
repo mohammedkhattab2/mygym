@@ -45,17 +45,35 @@ class _GlassOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: Container(
-        color: AppColors.glassOverlay,
+        color: isDark
+            ? AppColors.glassOverlay
+            : AppColors.textPrimary.withValues(alpha: 0.4),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
             decoration: BoxDecoration(
-              color: AppColors.glassWhiteStrong,
+              color: isDark
+                  ? AppColors.glassWhiteStrong
+                  : AppColors.surfacePremium,
               borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
-              border: Border.all(color: AppColors.glassBorder, width: 1),
+              border: Border.all(
+                color: isDark ? AppColors.glassBorder : AppColors.borderLight,
+                width: isDark ? 1 : 0.8,
+              ),
+              boxShadow: !isDark
+                  ? [
+                      BoxShadow(
+                        color: AppColors.cardShadowLightStrong,
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
+                      ),
+                    ]
+                  : null,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -66,7 +84,7 @@ class _GlassOverlay extends StatelessWidget {
                   Text(
                     message!,
                     style: TextStyle(
-                      color: AppColors.white,
+                      color: isDark ? AppColors.white : AppColors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -321,9 +339,9 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final baseColor = widget.baseColor ??
-        (isDark ? AppColors.surfaceElevatedDark : AppColors.grey200);
+        (isDark ? AppColors.surfaceElevatedDark : AppColors.backgroundSecondary);
     final highlightColor = widget.highlightColor ??
-        (isDark ? AppColors.surfaceDark : AppColors.grey100);
+        (isDark ? AppColors.surfaceDark : AppColors.surfaceElevated);
 
     return AnimatedBuilder(
       animation: _animation,
@@ -378,8 +396,14 @@ class SkeletonBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
+        color: isDark ? AppColors.surfaceElevatedDark : AppColors.backgroundSecondary,
         borderRadius: BorderRadius.circular(borderRadius ?? AppTheme.borderRadiusSmall),
+        border: !isDark
+            ? Border.all(
+                color: AppColors.borderLight.withValues(alpha: 0.5),
+                width: 0.5,
+              )
+            : null,
       ),
     );
   }
@@ -402,8 +426,14 @@ class SkeletonCircle extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
+        color: isDark ? AppColors.surfaceElevatedDark : AppColors.backgroundSecondary,
         shape: BoxShape.circle,
+        border: !isDark
+            ? Border.all(
+                color: AppColors.borderLight.withValues(alpha: 0.5),
+                width: 0.5,
+              )
+            : null,
       ),
     );
   }
@@ -430,8 +460,14 @@ class SkeletonLine extends StatelessWidget {
       width: width ?? double.infinity,
       height: height,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
-        borderRadius: BorderRadius.circular(borderRadius ?? 4),
+        color: isDark ? AppColors.surfaceElevatedDark : AppColors.backgroundSecondary,
+        borderRadius: BorderRadius.circular(borderRadius ?? 6),
+        border: !isDark
+            ? Border.all(
+                color: AppColors.borderLight.withValues(alpha: 0.5),
+                width: 0.5,
+              )
+            : null,
       ),
     );
   }
@@ -511,12 +547,21 @@ class SkeletonCard extends StatelessWidget {
       child: Container(
         height: height,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.surface,
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
           border: Border.all(
-            color: isDark ? AppColors.borderDark : AppColors.border,
-            width: 1,
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            width: isDark ? 1 : 0.8,
           ),
+          boxShadow: !isDark
+              ? [
+                  BoxShadow(
+                    color: AppColors.cardShadowLight,
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,7 +570,7 @@ class SkeletonCard extends StatelessWidget {
               Container(
                 height: imageHeight,
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
+                  color: isDark ? AppColors.surfaceElevatedDark : AppColors.backgroundSecondary,
                   borderRadius: BorderRadius.vertical(
                     top: Radius.circular(AppTheme.kBorderRadiusLarge),
                   ),
@@ -563,12 +608,26 @@ class SkeletonGymCard extends StatelessWidget {
     return ShimmerLoading(
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.surface,
+          color: isDark ? AppColors.surfaceDark : AppColors.surfaceElevated,
           borderRadius: BorderRadius.circular(AppTheme.borderRadiusLarge),
           border: Border.all(
-            color: isDark ? AppColors.borderDark : AppColors.border,
-            width: 1,
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            width: isDark ? 1 : 0.8,
           ),
+          boxShadow: !isDark
+              ? [
+                  BoxShadow(
+                    color: AppColors.cardShadowLight,
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                  BoxShadow(
+                    color: AppColors.cardShadowLightMedium,
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,7 +636,7 @@ class SkeletonGymCard extends StatelessWidget {
             Container(
               height: 160,
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
+                color: isDark ? AppColors.surfaceElevatedDark : AppColors.backgroundSecondary,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(AppTheme.kBorderRadiusLarge),
                 ),
@@ -598,11 +657,11 @@ class SkeletonGymCard extends StatelessWidget {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      const SkeletonBox(width: 60, height: 28, borderRadius: 6),
+                      const SkeletonBox(width: 60, height: 28, borderRadius: 8),
                       const SizedBox(width: 8),
-                      const SkeletonBox(width: 60, height: 28, borderRadius: 6),
+                      const SkeletonBox(width: 60, height: 28, borderRadius: 8),
                       const SizedBox(width: 8),
-                      const SkeletonBox(width: 60, height: 28, borderRadius: 6),
+                      const SkeletonBox(width: 60, height: 28, borderRadius: 8),
                     ],
                   ),
                 ],

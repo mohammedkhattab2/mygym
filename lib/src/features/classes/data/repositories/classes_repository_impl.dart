@@ -44,5 +44,9 @@ class ClassesRepositoryImpl implements ClassesRepository {
       filter: filter,
     );
   }
-  
+
+  @override
+  Future<ClassSchedule?> getScheduleById(String scheduleId) {
+    return _local.getScheduleById(scheduleId);
+  }
 }

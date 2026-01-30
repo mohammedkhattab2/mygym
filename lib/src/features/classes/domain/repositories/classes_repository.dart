@@ -7,6 +7,9 @@ abstract class ClassesRepository {
     ClassFilter? filter,
   });
 
+  /// Get a specific schedule by ID
+  Future<ClassSchedule?> getScheduleById(String scheduleId);
+
   Future<List<ClassBooking>> getMyBookings();
 
   Future<ClassBooking> bookClass({required String scheduleId});

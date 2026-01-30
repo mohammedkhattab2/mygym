@@ -40,16 +40,17 @@ class RoutePaths {
   static const String qr = '$member/qr';
   
   // Classes
-  static const String classes = '$member/classes';
-  static const String classesCalendar = '$classes/calendar';
-  static const String classDetail = '$classes/:classId';
-  static const String myBookings = '$classes/bookings';
+  static const classes = '/member/classes';
+  static const classesSchedule = '/member/classes';  // Alias - main entry (weekly schedule)
+  static const classesCalendar = '/member/classes/calendar';
+  static const classDetail = '/member/classes/detail';  // + /:scheduleId
+  static const classBookings = '/member/classes/bookings';
   
   // Rewards
-  static const String rewards = '$member/rewards';
-  static const String rewardsList = '$rewards/list';
-  static const String referrals = '$rewards/referrals';
-  static const String pointsHistory = '$rewards/history';
+  // Rewards
+  static const rewards = '/member/rewards';
+  static const referrals = '/member/rewards/referrals';
+  static const pointsHistory = '/member/rewards/history';
   
   // History
   static const String history = '$member/history';

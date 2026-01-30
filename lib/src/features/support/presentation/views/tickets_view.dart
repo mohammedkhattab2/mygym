@@ -39,7 +39,6 @@ class _TicketsViewState extends State<TicketsView> {
     _setSystemUI(context);
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -736,7 +735,7 @@ class _LuxuryCreateTicketForm extends StatelessWidget {
 
                 // Category dropdown
                 DropdownButtonFormField<SupportCategory>(
-                  value: initialCategory,
+                  initialValue: initialCategory,
                   decoration: InputDecoration(
                     labelText: 'Category',
                     labelStyle: GoogleFonts.inter(

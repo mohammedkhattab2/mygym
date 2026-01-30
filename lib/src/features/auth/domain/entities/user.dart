@@ -20,6 +20,8 @@ class User {
     this.remainingVisits,
     this.points = 0,
     this.referralCode,
+    this.totalVisits = 0,
+    this.visitedGymsCount = 0,
   });
 
   final String id;
@@ -41,6 +43,8 @@ class User {
   final int? remainingVisits;
   final int points;
   final String? referralCode;
+  final int totalVisits;
+  final int visitedGymsCount;
 
   /// Check if user has completed onboarding
   bool get hasCompletedOnboarding => (city != null || selectedCity != null) && interests.isNotEmpty;
@@ -78,6 +82,8 @@ class User {
     int? remainingVisits,
     int? points,
     String? referralCode,
+    int? totalVisits,
+    int? visitedGymsCount,
   }) {
     return User(
       id: id ?? this.id,
@@ -99,6 +105,8 @@ class User {
       remainingVisits: remainingVisits ?? this.remainingVisits,
       points: points ?? this.points,
       referralCode: referralCode ?? this.referralCode,
+      totalVisits: totalVisits ?? this.totalVisits,
+      visitedGymsCount: visitedGymsCount ?? this.visitedGymsCount,
     );
   }
 

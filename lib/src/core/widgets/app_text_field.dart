@@ -107,7 +107,7 @@ class _AppTextFieldState extends State<AppTextField> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveBorderRadius = widget.borderRadius ?? ResponsiveSizes.radiusLg;
     final effectiveFillColor = widget.fillColor ??
-        (isDark ? AppColors.surfaceElevatedDark : AppColors.grey100);
+        (isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevated);
 
     Widget textField = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -123,78 +123,107 @@ class _AppTextFieldState extends State<AppTextField> {
                   ? AppColors.primary
                   : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
               fontWeight: _isFocused ? FontWeight.w600 : FontWeight.w500,
+              letterSpacing: -0.2,
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 10.h),
         ],
         
-        // Text Field
-        TextFormField(
-          controller: widget.controller,
-          focusNode: _focusNode,
-          obscureText: _obscureText,
-          enabled: widget.enabled,
-          readOnly: widget.readOnly,
-          autofocus: widget.autofocus,
-          maxLines: widget.obscureText ? 1 : widget.maxLines,
-          minLines: widget.minLines,
-          maxLength: widget.maxLength,
-          keyboardType: widget.keyboardType,
-          textInputAction: widget.textInputAction,
-          inputFormatters: widget.inputFormatters,
-          textCapitalization: widget.textCapitalization,
-          validator: widget.validator,
-          onChanged: widget.onChanged,
-          onFieldSubmitted: widget.onSubmitted,
-          onTap: widget.onTap,
-          style: AppTextStyles.input.copyWith(
-            fontSize: ResponsiveFontSizes.bodyLarge,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-          ),
-          cursorColor: AppColors.primary,
-          decoration: InputDecoration(
-            hintText: widget.hint,
-            hintStyle: AppTextStyles.inputHint.copyWith(
+        // Text Field with subtle shadow for light mode
+        Container(
+          decoration: !isDark && !_isFocused && widget.errorText == null
+              ? BoxDecoration(
+                  borderRadius: BorderRadius.circular(effectiveBorderRadius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.cardShadowLight,
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                )
+              : _isFocused && !isDark
+                  ? BoxDecoration(
+                      borderRadius: BorderRadius.circular(effectiveBorderRadius),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.15),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    )
+                  : null,
+          child: TextFormField(
+            controller: widget.controller,
+            focusNode: _focusNode,
+            obscureText: _obscureText,
+            enabled: widget.enabled,
+            readOnly: widget.readOnly,
+            autofocus: widget.autofocus,
+            maxLines: widget.obscureText ? 1 : widget.maxLines,
+            minLines: widget.minLines,
+            maxLength: widget.maxLength,
+            keyboardType: widget.keyboardType,
+            textInputAction: widget.textInputAction,
+            inputFormatters: widget.inputFormatters,
+            textCapitalization: widget.textCapitalization,
+            validator: widget.validator,
+            onChanged: widget.onChanged,
+            onFieldSubmitted: widget.onSubmitted,
+            onTap: widget.onTap,
+            style: AppTextStyles.input.copyWith(
               fontSize: ResponsiveFontSizes.bodyLarge,
-              color: isDark ? AppColors.textTertiaryDark : AppColors.textDisabled,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+              letterSpacing: -0.2,
             ),
-            errorText: widget.errorText,
-            helperText: widget.helperText,
-            counterText: widget.showCounter ? null : '',
-            filled: true,
-            fillColor: effectiveFillColor,
-            prefixIcon: widget.prefixIcon != null
-                ? IconTheme(
-                    data: IconThemeData(
-                      color: _isFocused
-                          ? AppColors.primary
-                          : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
-                      size: 22.sp,
-                    ),
-                    child: widget.prefixIcon!,
-                  )
-                : null,
-            suffixIcon: widget.obscureText
-                ? IconButton(
-                    icon: Icon(
-                      _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
-                      size: 22.sp,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
-                  )
-                : widget.suffixIcon,
-            contentPadding: ResponsivePadding.input,
-            border: _buildBorder(effectiveBorderRadius, isDark, false, false),
-            enabledBorder: _buildBorder(effectiveBorderRadius, isDark, false, false),
-            focusedBorder: _buildBorder(effectiveBorderRadius, isDark, true, false),
-            errorBorder: _buildBorder(effectiveBorderRadius, isDark, false, true),
-            focusedErrorBorder: _buildBorder(effectiveBorderRadius, isDark, true, true),
-            disabledBorder: _buildBorder(effectiveBorderRadius, isDark, false, false, disabled: true),
+            cursorColor: AppColors.primary,
+            decoration: InputDecoration(
+              hintText: widget.hint,
+              hintStyle: AppTextStyles.inputHint.copyWith(
+                fontSize: ResponsiveFontSizes.bodyLarge,
+                color: isDark ? AppColors.textTertiaryDark : AppColors.textPlaceholder,
+              ),
+              errorText: widget.errorText,
+              helperText: widget.helperText,
+              counterText: widget.showCounter ? null : '',
+              filled: true,
+              fillColor: effectiveFillColor,
+              prefixIcon: widget.prefixIcon != null
+                  ? IconTheme(
+                      data: IconThemeData(
+                        color: _isFocused
+                            ? AppColors.primary
+                            : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+                        size: 22.sp,
+                      ),
+                      child: widget.prefixIcon!,
+                    )
+                  : null,
+              suffixIcon: widget.obscureText
+                  ? IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                        color: _isFocused
+                            ? AppColors.primary
+                            : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondary),
+                        size: 22.sp,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      },
+                    )
+                  : widget.suffixIcon,
+              contentPadding: ResponsivePadding.input,
+              border: _buildBorder(effectiveBorderRadius, isDark, false, false),
+              enabledBorder: _buildBorder(effectiveBorderRadius, isDark, false, false),
+              focusedBorder: _buildBorder(effectiveBorderRadius, isDark, true, false),
+              errorBorder: _buildBorder(effectiveBorderRadius, isDark, false, true),
+              focusedErrorBorder: _buildBorder(effectiveBorderRadius, isDark, true, true),
+              disabledBorder: _buildBorder(effectiveBorderRadius, isDark, false, false, disabled: true),
+            ),
           ),
         ),
       ],
@@ -298,20 +327,20 @@ class _AppTextFieldState extends State<AppTextField> {
     bool disabled = false,
   }) {
     Color borderColor;
-    double borderWidth = 1.w;
+    double borderWidth = isDark ? 1.w : 0.8.w;
 
     if (isError) {
       borderColor = AppColors.error;
       borderWidth = isFocused ? 2.w : 1.w;
     } else if (isFocused) {
       borderColor = AppColors.primary;
-      borderWidth = 2.w;
+      borderWidth = 1.5.w;
     } else if (disabled) {
       borderColor = isDark
           ? AppColors.borderDark.withValues(alpha: 0.5)
-          : AppColors.border.withValues(alpha: 0.5);
+          : AppColors.borderLight.withValues(alpha: 0.5);
     } else {
-      borderColor = isDark ? AppColors.borderDark : Colors.transparent;
+      borderColor = isDark ? AppColors.borderDark : AppColors.borderLight;
     }
 
     return OutlineInputBorder(
@@ -387,10 +416,20 @@ class _AppSearchFieldState extends State<AppSearchField> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
+        color: isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevated,
         borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
-        border: isDark
-            ? Border.all(color: AppColors.borderDark, width: 1.w)
+        border: Border.all(
+          color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          width: isDark ? 1.w : 0.8.w,
+        ),
+        boxShadow: !isDark
+            ? [
+                BoxShadow(
+                  color: AppColors.cardShadowLight,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
             : null,
       ),
       child: Row(
@@ -404,13 +443,14 @@ class _AppSearchFieldState extends State<AppSearchField> {
               style: AppTextStyles.input.copyWith(
                 fontSize: ResponsiveFontSizes.bodyLarge,
                 color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+                letterSpacing: -0.2,
               ),
               cursorColor: AppColors.primary,
               decoration: InputDecoration(
                 hintText: widget.hint,
                 hintStyle: AppTextStyles.inputHint.copyWith(
                   fontSize: ResponsiveFontSizes.bodyLarge,
-                  color: isDark ? AppColors.textTertiaryDark : AppColors.textDisabled,
+                  color: isDark ? AppColors.textTertiaryDark : AppColors.textPlaceholder,
                 ),
                 prefixIcon: Icon(
                   Icons.search_rounded,
@@ -445,7 +485,7 @@ class _AppSearchFieldState extends State<AppSearchField> {
             Container(
               width: 1.w,
               height: 24.h,
-              color: isDark ? AppColors.borderDark : AppColors.border,
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
             ),
             IconButton(
               icon: Icon(
@@ -492,16 +532,35 @@ class OtpTextField extends StatelessWidget {
       width: 56.w,
       height: 64.h,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
+        color: isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevated,
         borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMd),
         border: Border.all(
           color: hasError
               ? AppColors.error
               : isFocused
                   ? AppColors.primary
-                  : (isDark ? AppColors.borderDark : AppColors.border),
-          width: isFocused || hasError ? 2.w : 1.w,
+                  : (isDark ? AppColors.borderDark : AppColors.borderLight),
+          width: isFocused || hasError ? 1.5.w : (isDark ? 1.w : 0.8.w),
         ),
+        boxShadow: !isDark
+            ? isFocused
+                ? [
+                    BoxShadow(
+                      color: hasError
+                          ? AppColors.error.withValues(alpha: 0.2)
+                          : AppColors.primary.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: AppColors.cardShadowLight,
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+            : null,
       ),
       child: TextField(
         controller: controller,
@@ -668,19 +727,30 @@ class PhoneInputField extends StatelessWidget {
             style: AppTextStyles.inputLabel.copyWith(
               fontSize: ResponsiveFontSizes.labelMedium,
               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+              letterSpacing: -0.2,
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 10.h),
         ],
         Container(
           decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
+            color: isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevated,
             borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg),
             border: errorText != null
                 ? Border.all(color: AppColors.error, width: 1.w)
-                : (isDark
-                    ? Border.all(color: AppColors.borderDark, width: 1.w)
-                    : null),
+                : Border.all(
+                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                    width: isDark ? 1.w : 0.8.w,
+                  ),
+            boxShadow: !isDark
+                ? [
+                    BoxShadow(
+                      color: AppColors.cardShadowLight,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Row(
             children: [
@@ -706,6 +776,7 @@ class PhoneInputField extends StatelessWidget {
                           fontSize: ResponsiveFontSizes.bodyLarge,
                           color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
                           fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
                         ),
                       ),
                       SizedBox(width: 4.w),
@@ -723,7 +794,7 @@ class PhoneInputField extends StatelessWidget {
               Container(
                 width: 1.w,
                 height: 30.h,
-                color: isDark ? AppColors.borderDark : AppColors.border,
+                color: isDark ? AppColors.borderDark : AppColors.borderLight,
               ),
               
               // Phone number input
@@ -736,6 +807,7 @@ class PhoneInputField extends StatelessWidget {
                   style: AppTextStyles.input.copyWith(
                     fontSize: ResponsiveFontSizes.bodyLarge,
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+                    letterSpacing: 0.5,
                   ),
                   cursorColor: AppColors.primary,
                   inputFormatters: [
@@ -746,7 +818,7 @@ class PhoneInputField extends StatelessWidget {
                     hintText: hint,
                     hintStyle: AppTextStyles.inputHint.copyWith(
                       fontSize: ResponsiveFontSizes.bodyLarge,
-                      color: isDark ? AppColors.textTertiaryDark : AppColors.textDisabled,
+                      color: isDark ? AppColors.textTertiaryDark : AppColors.textPlaceholder,
                     ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,

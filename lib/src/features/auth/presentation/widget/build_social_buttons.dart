@@ -66,6 +66,12 @@ class _LuxurySocialButton extends StatelessWidget {
     final isApple = isAppleButton;
     final isDark = context.isDarkMode;
 
+    // Apple button colors based on theme (following Apple HIG)
+    // Dark mode: white button with black text
+    // Light mode: black button with white text (or white with black)
+    final appleButtonBg = isDark ? Colors.white : Colors.black;
+    final appleButtonFg = isDark ? Colors.black : Colors.white;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -75,8 +81,8 @@ class _LuxurySocialButton extends StatelessWidget {
           gradient: isApple
               ? LinearGradient(
                   colors: [
-                    colorScheme.onPrimary,
-                    colorScheme.onPrimary.withValues(alpha: 0.95),
+                    appleButtonBg,
+                    appleButtonBg.withValues(alpha: 0.95),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -84,15 +90,17 @@ class _LuxurySocialButton extends StatelessWidget {
               : LinearGradient(
                   colors: isDark
                       ? [luxury.surfaceElevated, luxury.surfacePremium]
-                      : [colorScheme.surface, colorScheme.surfaceContainerHighest ?? colorScheme.surface],
+                      : [colorScheme.surface, colorScheme.surfaceContainerHighest],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: isDark
-                ? luxury.gold.withValues(alpha: isApple ? 0.2 : 0.15)
-                : colorScheme.outline.withValues(alpha: 0.2),
+            color: isApple
+                ? (isDark ? Colors.white.withValues(alpha: 0.3) : Colors.black.withValues(alpha: 0.2))
+                : (isDark
+                    ? luxury.gold.withValues(alpha: 0.15)
+                    : colorScheme.outline.withValues(alpha: 0.2)),
             width: 1,
           ),
           boxShadow: [
@@ -112,14 +120,14 @@ class _LuxurySocialButton extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isApple
-                    ? colorScheme.onSurface.withValues(alpha: 0.05)
+                    ? appleButtonFg.withValues(alpha: 0.1)
                     : colorScheme.primary.withValues(alpha: isDark ? 0.15 : 0.1),
               ),
               child: Icon(
                 icon,
                 size: 24.sp,
                 color: isApple
-                    ? colorScheme.onSurface
+                    ? appleButtonFg
                     : (isDark ? colorScheme.onSurface : colorScheme.primary),
               ),
             ),
@@ -129,7 +137,7 @@ class _LuxurySocialButton extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w600,
-                color: isApple ? colorScheme.onSurface : colorScheme.onSurface,
+                color: isApple ? appleButtonFg : colorScheme.onSurface,
                 letterSpacing: 0.3,
               ),
             ),

@@ -236,38 +236,6 @@ class QrRepositoryImpl implements QrRepository {
 
   // Helper parsing methods
 
-  QrToken _parseQrToken(Map<String, dynamic> json) {
-    return QrToken(
-      token: json['token'] ?? '',
-      userId: json['user_id'] ?? '',
-      gymId: json['gym_id'],
-      issuedAt: DateTime.tryParse(json['issued_at'] ?? '') ?? DateTime.now(),
-      expiresAt: DateTime.tryParse(json['expires_at'] ?? '') ?? 
-          DateTime.now().add(const Duration(seconds: 60)),
-      nonce: json['nonce'] ?? '',
-      status: _parseTokenStatus(json['status']),
-      remainingVisits: json['remaining_visits'],
-      subscriptionId: json['subscription_id'],
-    );
-  }
-
-  QrTokenStatus _parseTokenStatus(String? status) {
-    switch (status) {
-      case 'valid':
-        return QrTokenStatus.valid;
-      case 'used':
-        return QrTokenStatus.used;
-      case 'expired':
-        return QrTokenStatus.expired;
-      case 'invalid':
-        return QrTokenStatus.invalid;
-      case 'revoked':
-        return QrTokenStatus.revoked;
-      default:
-        return QrTokenStatus.valid;
-    }
-  }
-
   CheckInResult _parseCheckInResult(Map<String, dynamic> json) {
     final isAllowed = json['is_allowed'] ?? false;
     final status = _parseCheckInStatus(json['status']);

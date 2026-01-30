@@ -128,7 +128,6 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {

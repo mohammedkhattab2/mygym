@@ -577,18 +577,14 @@ class _AppearanceSettingsCard extends StatelessWidget {
             currentThemeText = 'Light';
             themeIcon = Icons.light_mode_rounded;
             iconColors = [const Color(0xFFF59E0B), const Color(0xFFFBBF24)];
-            break;
           case AppThemeMode.dark:
             currentThemeText = 'Dark';
             themeIcon = Icons.dark_mode_rounded;
             iconColors = [luxury.gold, luxury.goldLight];
-            break;
           case AppThemeMode.system:
-          default:
             currentThemeText = 'System';
             themeIcon = Icons.brightness_auto_rounded;
             iconColors = [colorScheme.primary, colorScheme.secondary];
-            break;
         }
 
         return _AppearanceButton(

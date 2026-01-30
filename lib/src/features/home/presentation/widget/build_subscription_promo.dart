@@ -30,18 +30,18 @@ class BuildSubscriptionPromo extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: isDark
-                  ? [luxury.gold.withOpacity(0.1), luxury.gold.withOpacity(0.04)]
-                  : [colorScheme.primaryContainer, colorScheme.primaryContainer.withOpacity(0.6)],
+                  ? [luxury.gold.withValues(alpha: 0.1), luxury.gold.withValues(alpha: 0.04)]
+                  : [colorScheme.primaryContainer, colorScheme.primaryContainer.withValues(alpha: 0.6)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
-              color: isDark ? luxury.gold.withOpacity(0.25) : colorScheme.primary.withOpacity(0.15),
+              color: isDark ? luxury.gold.withValues(alpha: 0.25) : colorScheme.primary.withValues(alpha: 0.15),
             ),
             boxShadow: [
               BoxShadow(
-                color: (isDark ? luxury.gold : colorScheme.primary).withOpacity(isDark ? 0.15 : 0.08),
+                color: (isDark ? luxury.gold : colorScheme.primary).withValues(alpha: isDark ? 0.15 : 0.08),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -85,7 +85,7 @@ class BuildSubscriptionPromo extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                           decoration: BoxDecoration(
-                            color: luxury.success.withOpacity(0.15),
+                            color: luxury.success.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                           child: Text(
@@ -117,7 +117,7 @@ class BuildSubscriptionPromo extends StatelessWidget {
                 width: 32.w,
                 height: 32.w,
                 decoration: BoxDecoration(
-                  color: (isDark ? luxury.gold : colorScheme.primary).withOpacity(0.1),
+                  color: (isDark ? luxury.gold : colorScheme.primary).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Icon(

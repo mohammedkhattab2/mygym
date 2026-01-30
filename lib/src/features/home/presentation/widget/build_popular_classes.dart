@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/router/route_paths.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/home/data/datasources/home_dummy_data_source.dart';
 import 'package:mygym/src/features/home/domain/entities/fitness_class_entity.dart';
@@ -126,11 +125,11 @@ class _CompactClassCard extends StatelessWidget {
           color: isDark ? luxury.surfaceElevated : colorScheme.surface,
           borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
-            color: isDark ? accentColor.withOpacity(0.12) : colorScheme.outline.withOpacity(0.08),
+            color: isDark ? accentColor.withValues(alpha: 0.12) : colorScheme.outline.withValues(alpha: 0.08),
           ),
           boxShadow: [
             BoxShadow(
-              color: accentColor.withOpacity(isDark ? 0.08 : 0.04),
+              color: accentColor.withValues(alpha: isDark ? 0.08 : 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -143,7 +142,7 @@ class _CompactClassCard extends StatelessWidget {
               width: 48.w,
               height: 48.w,
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(isDark ? 0.15 : 0.1),
+                color: accentColor.withValues(alpha:  isDark ? 0.15 : 0.1),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Center(
@@ -171,7 +170,7 @@ class _CompactClassCard extends StatelessWidget {
                         width: 18.w,
                         height: 18.w,
                         decoration: BoxDecoration(
-                          color: accentColor.withOpacity(0.5),
+                          color: accentColor.withValues(alpha:  0.5),
                           shape: BoxShape.circle,
                         ),
                         child: Center(

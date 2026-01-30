@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/subscriptions/domain/entities/subscription.dart';
 import 'package:mygym/src/features/subscriptions/presentation/cubit/subscriptions_cubit.dart';

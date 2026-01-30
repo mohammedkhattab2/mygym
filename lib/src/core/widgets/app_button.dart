@@ -54,7 +54,21 @@ class AppButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         gradient: isEnabled ? effectiveGradient : null,
-        color: isEnabled ? null : (isDark ? AppColors.grey700 : AppColors.grey300),
+        color: isEnabled ? null : (isDark ? AppColors.grey700 : AppColors.grey200),
+        boxShadow: isEnabled && !isDark
+            ? [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ]
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -122,7 +136,7 @@ class AppOutlinedButton extends StatelessWidget {
     final effectiveColor = textColor ?? AppColors.primary;
     final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
     final effectiveHeight = height ?? ResponsiveSizes.buttonHeight;
-    final effectiveBorderWidth = borderWidth ?? 1.5.w;
+    final effectiveBorderWidth = borderWidth ?? (isDark ? 1.5.w : 1.2.w);
 
     return Container(
       width: width ?? double.infinity,
@@ -131,11 +145,22 @@ class AppOutlinedButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         border: Border.all(
           color: isEnabled
-              ? (borderColor ?? effectiveColor)
+              ? (borderColor ?? effectiveColor.withValues(alpha: isDark ? 1.0 : 0.8))
               : (isDark ? AppColors.grey600 : AppColors.grey300),
           width: effectiveBorderWidth,
         ),
-        color: Colors.transparent,
+        color: !isDark && isEnabled
+            ? effectiveColor.withValues(alpha: 0.04)
+            : Colors.transparent,
+        boxShadow: isEnabled && !isDark
+            ? [
+                BoxShadow(
+                  color: effectiveColor.withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -153,7 +178,7 @@ class AppOutlinedButton extends StatelessWidget {
                     iconPosition: iconPosition,
                     textColor: isEnabled
                         ? effectiveColor
-                        : (isDark ? AppColors.grey500 : AppColors.grey400),
+                        : (isDark ? AppColors.grey500 : AppColors.textDisabled),
                     isDisabled: isDisabled,
                   ),
           ),
@@ -261,7 +286,7 @@ class AppIconButton extends StatelessWidget {
     final effectiveSize = size ?? 44.w;
     final effectiveIconSize = iconSize ?? 22.sp;
     final effectiveBgColor = backgroundColor ??
-        (isDark ? AppColors.surfaceElevatedDark : AppColors.grey100);
+        (isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevated);
     final effectiveIconColor = iconColor ??
         (isDark ? AppColors.textPrimaryDark : AppColors.textPrimary);
     final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusMd;
@@ -273,15 +298,31 @@ class AppIconButton extends StatelessWidget {
         color: effectiveBgColor,
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         border: border ??
-            (isDark
-                ? Border.all(color: AppColors.borderDark, width: 1)
-                : null),
+            Border.all(
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              width: isDark ? 1 : 0.8,
+            ),
+        boxShadow: !isDark
+            ? [
+                BoxShadow(
+                  color: AppColors.cardShadowLight,
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(effectiveBorderRadius),
+          splashColor: isDark
+              ? AppColors.white.withValues(alpha: 0.1)
+              : AppColors.primary.withValues(alpha: 0.1),
+          highlightColor: isDark
+              ? AppColors.white.withValues(alpha: 0.05)
+              : AppColors.primary.withValues(alpha: 0.05),
           child: Center(
             child: Icon(
               icon,
@@ -337,21 +378,37 @@ class SocialButton extends StatelessWidget {
     final effectiveTextColor = textColor ??
         (isDark ? AppColors.textPrimaryDark : AppColors.textPrimary);
     final effectiveBorderColor = borderColor ??
-        (isDark ? AppColors.borderDark : AppColors.border);
+        (isDark ? AppColors.borderDark : AppColors.borderLight);
 
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: ResponsiveSizes.buttonHeight,
+      decoration: !isDark
+          ? BoxDecoration(
+              borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.cardShadowLight,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            )
+          : null,
       child: OutlinedButton(
         onPressed: isLoading ? null : onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: effectiveBgColor,
           foregroundColor: effectiveTextColor,
-          side: BorderSide(color: effectiveBorderColor, width: 1),
+          side: BorderSide(
+            color: effectiveBorderColor,
+            width: isDark ? 1 : 0.8,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(ResponsiveSizes.radiusLg),
           ),
           padding: EdgeInsets.symmetric(horizontal: 20.w),
+          elevation: 0,
         ),
         child: isLoading
             ? _LoadingIndicator(color: effectiveTextColor)
@@ -365,6 +422,7 @@ class SocialButton extends StatelessWidget {
                     style: AppTextStyles.button.copyWith(
                       color: effectiveTextColor,
                       fontSize: ResponsiveFontSizes.button,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -509,21 +567,40 @@ class AppChipButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
         color: isSelected
             ? AppColors.primary
-            : (isDark ? AppColors.surfaceElevatedDark : AppColors.grey100),
+            : (isDark ? AppColors.surfaceElevatedDark : AppColors.surfaceElevated),
         border: isSelected
             ? null
             : Border.all(
-                color: isDark ? AppColors.borderDark : AppColors.border,
-                width: 1,
+                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                width: isDark ? 1 : 0.8,
               ),
+        boxShadow: !isDark
+            ? [
+                if (isSelected)
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.25),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  )
+                else
+                  BoxShadow(
+                    color: AppColors.cardShadowLight,
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+              ]
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
+          splashColor: isSelected
+              ? AppColors.white.withValues(alpha: 0.15)
+              : AppColors.primary.withValues(alpha: 0.1),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -539,12 +616,13 @@ class AppChipButton extends StatelessWidget {
                     ),
                     child: icon!,
                   ),
-                  SizedBox(width: 6.w),
+                  SizedBox(width: 8.w),
                 ],
                 Text(
                   text,
                   style: AppTextStyles.labelMedium.copyWith(
                     fontSize: ResponsiveFontSizes.labelMedium,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected
                         ? AppColors.white
                         : (isDark

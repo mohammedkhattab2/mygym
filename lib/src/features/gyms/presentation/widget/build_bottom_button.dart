@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/router/route_paths.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
-import 'package:mygym/src/features/auth/domain/entities/user.dart';
 import 'package:mygym/src/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mygym/src/features/auth/presentation/bloc/auth_state.dart';
 import 'package:mygym/src/features/gyms/domain/entities/gym.dart';
@@ -26,7 +25,6 @@ class BuildBottomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
 
     return Container(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 20.h),
@@ -48,14 +46,14 @@ class BuildBottomButton extends StatelessWidget {
           buildWhen: (prev, curr) =>
               prev.user?.subscriptionStatus != curr.user?.subscriptionStatus ||
               prev.user?.remainingVisits != curr.user?.remainingVisits,
-          builder: (context, AuthState) {
-            final user = AuthState.user;
+          builder: (context, authState) {
+            final user = authState.user;
             final hasActiveSubscription = _hasActiveSubscription(user);
 
             if (hasActiveSubscription) {
-              return _checkInButton(gym: gym);
+              return _CheckInButton(gym: gym);
             } else {
-              return _SubscriptionButton();
+              return const _SubscriptionButton();
             }
           },
         ),
@@ -78,9 +76,9 @@ class BuildBottomButton extends StatelessWidget {
   }
 }
 
-class _checkInButton extends StatelessWidget {
+class _CheckInButton extends StatelessWidget {
   final Gym gym;
-  const _checkInButton({super.key, required this.gym});
+  const _CheckInButton({required this.gym});
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +166,6 @@ class _SubscriptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return GestureDetector(

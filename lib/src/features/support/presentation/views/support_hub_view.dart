@@ -38,7 +38,6 @@ class _SupportHubViewState extends State<SupportHubView> {
     _setSystemUI(context);
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,

@@ -111,7 +111,6 @@ class _OnboardingViewState extends State<OnboardingView> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
     
     return Scaffold(
       backgroundColor: colorScheme.surface,

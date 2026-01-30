@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -58,7 +59,7 @@ class FirebaseAuthHelper {
       // Return the ID token for backend verification
       return await userCredential.user?.getIdToken();
     } catch (e) {
-      print('Google Sign-In Error: $e');
+      debugPrint('Google Sign-In Error: $e');
       rethrow;
     }
   }
@@ -106,7 +107,7 @@ class FirebaseAuthHelper {
       // Return the ID token for backend verification
       return await userCredential.user?.getIdToken();
     } catch (e) {
-      print('Apple Sign-In Error: $e');
+      debugPrint('Apple Sign-In Error: $e');
       rethrow;
     }
   }
@@ -160,7 +161,7 @@ class FirebaseAuthHelper {
 
       return await userCredential.user?.getIdToken();
     } catch (e) {
-      print('OTP Verification Error: $e');
+      debugPrint('OTP Verification Error: $e');
       rethrow;
     }
   }

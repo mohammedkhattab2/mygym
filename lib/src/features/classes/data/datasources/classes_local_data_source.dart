@@ -117,6 +117,16 @@ class ClassesLocalDataSource {
     ]);
   }
 
+  /// Get a specific schedule by ID
+  Future<ClassSchedule?> getScheduleById(String scheduleId) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    try {
+      return _schedules.firstWhere((s) => s.id == scheduleId);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<List<ClassSchedule>> getSchedule({
     required DateTime startDate,
     required DateTime endDate,

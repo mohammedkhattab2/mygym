@@ -141,7 +141,7 @@ class GymFilterView extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha:  0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -440,7 +440,7 @@ class _CrowdLevelSection extends StatelessWidget {
         final isSelected = selectedLevel == option.$1;
         return FilterChip(
           selected: isSelected,
-          selectedColor: option.$3.withOpacity(0.2),
+          selectedColor: option.$3.withValues(alpha:  0.2),
           checkmarkColor: option.$3,
           label: Row(
             mainAxisSize: MainAxisSize.min,

@@ -141,7 +141,13 @@ class _NotificationSwitchTile extends StatelessWidget {
         ),
         value: value,
         onChanged: onChanged,
-        activeColor: colorScheme.primary,
+        activeTrackColor: colorScheme.primary.withValues(alpha: 0.5),
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return colorScheme.primary;
+          }
+          return null;
+        }),
       ),
     );
   }

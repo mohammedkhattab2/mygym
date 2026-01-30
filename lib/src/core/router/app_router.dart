@@ -1,15 +1,27 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/auth/presentation/views/login_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/otp_view.dart';
 import 'package:mygym/src/features/classes/presentation/cubit/classes_cubit.dart';
+import 'package:mygym/src/features/classes/presentation/views/class_detail_view.dart';
+import 'package:mygym/src/features/classes/presentation/views/class_schedule_view.dart';
 import 'package:mygym/src/features/classes/presentation/views/classes_calendar_view.dart';
+import 'package:mygym/src/features/classes/presentation/views/my_bookings_view.dart';
 import 'package:mygym/src/features/gyms/presentation/bloc/gym_filter_cubit.dart';
 import 'package:mygym/src/features/gyms/presentation/views/gym_filter_view.dart';
 import 'package:mygym/src/features/home/presentation/views/home_view.dart';
+import 'package:mygym/src/features/partner/presentation/cubit/partner_settings_cubit.dart';
+import 'package:mygym/src/features/partner/presentation/views/partner_settings_view.dart';
+import 'package:mygym/src/features/rewards/presentation/cubit/rewards_cubit.dart';
+import 'package:mygym/src/features/rewards/presentation/views/my_vouchers_view.dart';
+import 'package:mygym/src/features/rewards/presentation/views/points_history_view.dart';
+import 'package:mygym/src/features/rewards/presentation/views/referrals_view.dart';
+import 'package:mygym/src/features/rewards/presentation/views/rewards_list_view.dart';
 import 'package:mygym/src/features/search/presentation/views/search_view.dart';
 import 'package:mygym/src/features/onboarding/presentation/presentation/views/onboarding_view.dart';
 import 'package:mygym/src/features/partner/presentation/cubit/partner_dashboard_cubit.dart';
@@ -33,7 +45,6 @@ import 'package:mygym/src/core/di/injection.dart';
 import 'package:mygym/src/features/gyms/presentation/views/gyms_map_view.dart';
 
 import 'package:mygym/src/features/gyms/presentation/views/gyms_list_view.dart';
-import 'package:mygym/src/features/subscriptions/domain/entities/subscription.dart';
 import 'package:mygym/src/features/subscriptions/presentation/cubit/subscriptions_cubit.dart';
 import 'package:mygym/src/features/subscriptions/presentation/views/bundles_view.dart';
 import 'package:mygym/src/features/subscriptions/presentation/views/checkout_view.dart';
@@ -316,40 +327,61 @@ class AppRouter {
             },
           ),
 
-          // Classes
+          // ═══════════════════════════════════════════════════════════════════════════════
+          // CLASSES ROUTES
+          // ═══════════════════════════════════════════════════════════════════════════════
           GoRoute(
             path: RoutePaths.classes,
             name: 'classes',
-            redirect: (context, state) {
-              if (state.matchedLocation == RoutePaths.classes) {
-                return RoutePaths.classesCalendar;
-              }
-              return null;
+            // Main entry - ClassScheduleView (Weekly view)
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<ClassesCubit>()
+                  ..loadThisWeekSchedule()
+                  ..loadMyBookings(),
+                child: const ClassScheduleView(),
+              );
             },
             routes: [
+              // Calendar View - Full month calendar
               GoRoute(
                 path: 'calendar',
                 name: 'classes-calendar',
                 builder: (context, state) {
                   return BlocProvider(
-                    create: (ctx) => getIt<ClassesCubit>()..loadInitial(),
+                    create: (ctx) => getIt<ClassesCubit>()
+                      ..loadInitial()
+                      ..loadMyBookings(),
                     child: const ClassesCalendarView(),
                   );
                 },
               ),
+
+              // Class Detail View
               GoRoute(
-                path: ':classId',
+                path: 'detail/:scheduleId',
                 name: 'class-detail',
                 builder: (context, state) {
-                  final classId = state.pathParameters['classId']!;
-                  return _PlaceholderPage(title: 'Class Detail: $classId');
+                  final scheduleId = state.pathParameters['scheduleId']!;
+                  return BlocProvider(
+                    create: (ctx) => getIt<ClassesCubit>()
+                      ..loadAndSelectSchedule(scheduleId)
+                      ..loadMyBookings(),
+                    child: ClassDetailView(scheduleId: scheduleId),
+                  );
                 },
               ),
+
+              // My Bookings View
               GoRoute(
                 path: 'bookings',
                 name: 'my-bookings',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'My Bookings'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<ClassesCubit>()..loadMyBookings(),
+                    child: const MyBookingsView(),
+                  );
+                },
               ),
             ],
           ),
@@ -358,30 +390,44 @@ class AppRouter {
           GoRoute(
             path: RoutePaths.rewards,
             name: 'rewards',
-            redirect: (context, state) {
-              if (state.uri.path == RoutePaths.rewards) {
-                return RoutePaths.rewardsList;
-              }
-              return null;
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<RewardsCubit>()..loadOverview(),
+                child: const RewardsListView(),
+              );
             },
             routes: [
               GoRoute(
-                path: 'list',
-                name: 'rewards-list',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Rewards'),
-              ),
-              GoRoute(
                 path: 'referrals',
                 name: 'referrals',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Referrals'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<RewardsCubit>()..loadReferrals(),
+                    child: const ReferralsView(),
+                  );
+                },
               ),
               GoRoute(
                 path: 'history',
                 name: 'points-history',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Points History'),
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<RewardsCubit>()
+                      ..loadPointsHistory()
+                      ..loadEarningRules(),
+                    child: const PointsHistoryView(),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'vouchers',
+                name: 'my-vouchers',
+                builder: (context, state) {
+                  return BlocProvider(
+                    create: (ctx) => getIt<RewardsCubit>()..loadRedemptions(),
+                    child: const MyVouchersView(),
+                  );
+                },
               ),
             ],
           ),
@@ -502,52 +548,72 @@ class AppRouter {
         ],
       ),
 
-      // Partner shell with navigation rail
+      // ═══════════════════════════════════════════════════════════════════════════════
+      // PARTNER SHELL ROUTE
+      // ═══════════════════════════════════════════════════════════════════════════════
       ShellRoute(
         navigatorKey: _partnerShellKey,
         builder: (context, state, child) {
           return _PartnerShellScaffold(child: child);
         },
         routes: [
+          // ─────────────────────────────────────────────────────────────────────────
+          // Dashboard - يستخدم PartnerDashboardView الجديد
+          // ─────────────────────────────────────────────────────────────────────────
           GoRoute(
             path: RoutePaths.partnerDashboard,
             name: 'partner-dashboard',
             builder: (context, state) {
               return BlocProvider(
                 create: (ctx) => getIt<PartnerDashboardCubit>()..loadInitial(),
-                child: const PartnerDashboardView(),
+                child: const PartnerDashboardView(), 
               );
             },
           ),
+
+          // ─────────────────────────────────────────────────────────────────────────
+          // QR Scanner - نفس القديم
+          // ─────────────────────────────────────────────────────────────────────────
           GoRoute(
             path: RoutePaths.partnerScanner,
             name: 'partner-scanner',
             builder: (context, state) {
-              // gymId جاي من query parameter: /partner/scanner?gymId=G1
-              final gymId = state.uri.queryParameters['gymId'] ?? 'unknown';
-
+              final gymId = state.uri.queryParameters['gymId'] ?? 'gym_1';
               return BlocProvider(
                 create: (ctx) => getIt<QrScannerCubit>(),
                 child: QrScannerView(gymId: gymId),
               );
             },
           ),
+
+          // ─────────────────────────────────────────────────────────────────────────
+          // Reports - يستخدم PartnerReportsView الجديد
+          // ─────────────────────────────────────────────────────────────────────────
           GoRoute(
             path: RoutePaths.partnerReports,
             name: 'partner-reports',
             builder: (context, state) {
-              // نعيد استخدام نفس Cubit (نفس البيانات)
-              return BlocProvider.value(
-                value: getIt<PartnerDashboardCubit>(),
-                child: const PartnerReportsView(),
+              return BlocProvider(
+                create: (ctx) => getIt<PartnerDashboardCubit>()..loadInitial(),
+                child: const PartnerReportsView(), // 🆕 الـ View الجديد
               );
             },
           ),
+
+          // ─────────────────────────────────────────────────────────────────────────
+          // Settings - يستخدم PartnerSettingsCubit و PartnerSettingsView الجداد
+          // ─────────────────────────────────────────────────────────────────────────
           GoRoute(
             path: RoutePaths.partnerSettings,
             name: 'partner-settings',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'Partner Settings'),
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) =>
+                    getIt<PartnerSettingsCubit>()
+                      ..loadSettings(), // 🆕 الـ Cubit الجديد
+                child: const PartnerSettingsView(), // 🆕 الـ View الجديد
+              );
+            },
           ),
         ],
       ),
@@ -616,7 +682,6 @@ class AppRouter {
       case UserRole.member:
         return RoutePaths.memberHome;
       case UserRole.guest:
-      default:
         return RoutePaths.login;
     }
   }
@@ -818,7 +883,7 @@ class _MemberShellScaffoldState extends State<_MemberShellScaffold> {
         context.go(RoutePaths.qr);
         break;
       case 3:
-        context.go(RoutePaths.classesCalendar);
+        context.go(RoutePaths.classes);
         break;
       case 4:
         context.go(RoutePaths.profileView);
@@ -828,91 +893,163 @@ class _MemberShellScaffoldState extends State<_MemberShellScaffold> {
 }
 
 /// Partner shell scaffold with navigation rail
-class _PartnerShellScaffold extends StatefulWidget {
-  const _PartnerShellScaffold({required this.child});
+// ═══════════════════════════════════════════════════════════════════════════════
+// PARTNER SHELL SCAFFOLD - ضعه في نهاية الملف
+// ═══════════════════════════════════════════════════════════════════════════════
 
+class _PartnerShellScaffold extends StatelessWidget {
   final Widget child;
 
-  @override
-  State<_PartnerShellScaffold> createState() => _PartnerShellScaffoldState();
-}
-
-class _PartnerShellScaffoldState extends State<_PartnerShellScaffold> {
-  int _currentIndex = 0;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _currentIndex = _getIndexForLocation(
-      GoRouterState.of(context).matchedLocation,
-    );
-  }
-
-  int _getIndexForLocation(String location) {
-    if (location.startsWith(RoutePaths.partnerDashboard)) {
-      return 0;
-    } else if (location.startsWith(RoutePaths.partnerScanner)) {
-      return 1;
-    } else if (location.startsWith(RoutePaths.partnerReports)) {
-      return 2;
-    } else if (location.startsWith(RoutePaths.partnerSettings)) {
-      return 3;
-    }
-    return 0;
-  }
-
-  void _onDestinationSelected(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        context.go(RoutePaths.partnerDashboard);
-        break;
-      case 1:
-        // مؤقتًا gymId ثابت; بعدين نربطه بالجيم بتاع الـ partner
-        context.go('${RoutePaths.partnerScanner}?gymId=gym_1');
-        break;
-      case 2:
-        context.go(RoutePaths.partnerReports);
-        break;
-      case 3:
-        context.go(RoutePaths.partnerSettings);
-        break;
-    }
-  }
+  const _PartnerShellScaffold({required this.child});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final isDark = context.isDarkMode;
+    final location = GoRouterState.of(context).uri.path;
+
     return Scaffold(
-      body: Row(
-        children: [
-          NavigationRail(
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.dashboard),
-                label: Text('Dashboard'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.qr_code_scanner),
-                label: Text('Scanner'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.analytics),
-                label: Text('Reports'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.settings),
-                label: Text('Settings'),
-              ),
-            ],
-            selectedIndex: _currentIndex,
-            onDestinationSelected: _onDestinationSelected,
+      body: child,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: isDark ? luxury.surfaceElevated : colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha:  isDark ? 0.3 : 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+          border: Border(
+            top: BorderSide(
+              color: luxury.gold.withValues(alpha:  0.1),
+              width: 1,
+            ),
           ),
-          const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: widget.child),
-        ],
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _PartnerNavItem(
+                  icon: Icons.dashboard_outlined,
+                  activeIcon: Icons.dashboard_rounded,
+                  label: 'Dashboard',
+                  isSelected: location == RoutePaths.partnerDashboard,
+                  onTap: () => context.go(RoutePaths.partnerDashboard),
+                ),
+                _PartnerNavItem(
+                  icon: Icons.qr_code_scanner_outlined,
+                  activeIcon: Icons.qr_code_scanner_rounded,
+                  label: 'Scanner',
+                  isSelected: location == RoutePaths.partnerScanner ||
+                      location.startsWith(RoutePaths.partnerScanner),
+                  onTap: () => context.go(RoutePaths.partnerScanner),
+                ),
+                _PartnerNavItem(
+                  icon: Icons.analytics_outlined,
+                  activeIcon: Icons.analytics_rounded,
+                  label: 'Reports',
+                  isSelected: location == RoutePaths.partnerReports,
+                  onTap: () => context.go(RoutePaths.partnerReports),
+                ),
+                _PartnerNavItem(
+                  icon: Icons.settings_outlined,
+                  activeIcon: Icons.settings_rounded,
+                  label: 'Settings',
+                  isSelected: location == RoutePaths.partnerSettings,
+                  onTap: () => context.go(RoutePaths.partnerSettings),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PARTNER NAV ITEM
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _PartnerNavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _PartnerNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 16.w : 12.w,
+          vertical: 8.h,
+        ),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [
+                    luxury.gold.withValues(alpha:  0.2),
+                    luxury.gold.withValues(alpha:  0.1),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(14.r),
+          border: isSelected
+              ? Border.all(color: luxury.gold.withValues(alpha:  0.3), width: 1.5)
+              : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: Icon(
+                isSelected ? activeIcon : icon,
+                key: ValueKey(isSelected),
+                color: isSelected ? luxury.gold : colorScheme.onSurfaceVariant,
+                size: isSelected ? 26.sp : 24.sp,
+              ),
+            ),
+            SizedBox(height: 4.h),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: isSelected ? 11.sp : 10.sp,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? luxury.gold : colorScheme.onSurfaceVariant,
+              ),
+              child: Text(label),
+            ),
+          ],
+        ),
       ),
     );
   }

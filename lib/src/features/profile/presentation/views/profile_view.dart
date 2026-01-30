@@ -438,7 +438,8 @@ class _SubscriptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final hasSubscription =
+    // Subscription status check - used for future conditional rendering
+    final _ =
         user.subscriptionStatus != null &&
         user.subscriptionStatus!.toLowerCase() != "no active subscription";
 
@@ -509,56 +510,6 @@ class _SubscriptionCard extends StatelessWidget {
   }
 }
 
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final List<Color> colors;
-
-  const _StatChip({
-    required this.icon,
-    required this.label,
-    required this.colors,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colors[0].withValues(alpha: 0.2),
-            colors[1].withValues(alpha: 0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colors[0].withValues(alpha: 0.3), width: 1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ShaderMask(
-            shaderCallback: (bounds) {
-              return LinearGradient(colors: colors).createShader(bounds);
-            },
-            child: Icon(icon, color: colorScheme.onPrimary, size: 16.sp),
-          ),
-          SizedBox(width: 6.w),
-          Text(
-            label,
-            style: GoogleFonts.spaceGrotesk(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-              color: colors[0],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ============================================================================
 // ACTIVITY SECTION
@@ -612,11 +563,25 @@ class _ActivitySection extends StatelessWidget {
               onTap: () => context.push(RoutePaths.history),
             ),
             _LuxuryMenuItem(
+              icon: Icons.fitness_center_rounded,
+              title: "Fitness Classes",
+              subtitle: "Browse and book classes",
+              gradientColors: [colorScheme.secondary, colorScheme.tertiary],
+              onTap: () => context.push('/member/classes'),
+            ),
+            _LuxuryMenuItem(
+              icon: Icons.event_available_rounded,
+              title: "My Class Bookings",
+              subtitle: "View your upcoming & past bookings",
+              gradientColors: [Colors.teal, Colors.teal.shade300],
+              onTap: () => context.push('/member/classes/bookings'),
+            ),
+            _LuxuryMenuItem(
               icon: Icons.card_giftcard_rounded,
               title: "Rewards & Points",
               subtitle: "View your rewards and referral code",
               gradientColors: [luxury.gold, luxury.goldLight],
-              onTap: () => context.push(RoutePaths.rewardsList),
+              onTap:  () => context.push('/member/rewards'),
             ),
           ],
         ),

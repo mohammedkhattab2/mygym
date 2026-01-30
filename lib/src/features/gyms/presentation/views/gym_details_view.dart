@@ -11,6 +11,7 @@ import 'package:mygym/src/features/gyms/presentation/widget/build_about_section.
 import 'package:mygym/src/features/gyms/presentation/widget/build_bottom_button.dart';
 import 'package:mygym/src/features/gyms/presentation/widget/build_contact_info.dart';
 import 'package:mygym/src/features/gyms/presentation/widget/build_facilities.dart';
+import 'package:mygym/src/features/gyms/presentation/widget/build_gym_classes_section.dart';
 import 'package:mygym/src/features/gyms/presentation/widget/build_reviews_section.dart';
 import 'package:mygym/src/features/gyms/presentation/widget/build_status_and_crowd.dart';
 import 'package:mygym/src/features/gyms/presentation/widget/build_title_section.dart';
@@ -34,7 +35,6 @@ class GymDetailsView extends StatefulWidget {
 }
 
 class _GymDetailsViewState extends State<GymDetailsView> {
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -90,8 +90,15 @@ class _GymDetailsViewState extends State<GymDetailsView> {
                         physics: const BouncingScrollPhysics(),
                         slivers: [
                           // Premium hero header
-                          _buildSliverHeader(context, gym, isFavorite, colorScheme, luxury, isDark),
-                          
+                          _buildSliverHeader(
+                            context,
+                            gym,
+                            isFavorite,
+                            colorScheme,
+                            luxury,
+                            isDark,
+                          ),
+
                           // Content sections
                           SliverToBoxAdapter(
                             child: Padding(
@@ -112,7 +119,13 @@ class _GymDetailsViewState extends State<GymDetailsView> {
                                   SizedBox(height: 28.h),
                                   BuildContactInfo(gym: gym),
                                   SizedBox(height: 28.h),
-                                  BuildReviewsSection(context: context, state: state),
+                                  BuildGymClassesSection(gym: gym),
+                                  SizedBox(height: 28.h),
+
+                                  BuildReviewsSection(
+                                    context: context,
+                                    state: state,
+                                  ),
                                   SizedBox(height: 100.h),
                                 ],
                               ),
@@ -133,9 +146,16 @@ class _GymDetailsViewState extends State<GymDetailsView> {
     );
   }
 
-  Widget _buildSliverHeader(BuildContext context, Gym gym, bool isFavorite, ColorScheme colorScheme, LuxuryThemeExtension luxury, bool isDark) {
+  Widget _buildSliverHeader(
+    BuildContext context,
+    Gym gym,
+    bool isFavorite,
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+    bool isDark,
+  ) {
     final heroLetter = gym.name.isNotEmpty ? gym.name[0].toUpperCase() : "G";
-    
+
     return SliverAppBar(
       expandedHeight: 260.h,
       pinned: true,
@@ -165,7 +185,8 @@ class _GymDetailsViewState extends State<GymDetailsView> {
             Positioned.fill(
               child: CustomPaint(
                 painter: _HeroPatternPainter(
-                  color: (isDark ? colorScheme.onSurface : colorScheme.surface).withValues(alpha: 0.03),
+                  color: (isDark ? colorScheme.onSurface : colorScheme.surface)
+                      .withValues(alpha: 0.03),
                 ),
               ),
             ),
@@ -245,9 +266,7 @@ class _GymDetailsViewState extends State<GymDetailsView> {
                 : Icons.favorite_border_rounded,
             iconColor: isFavorite ? Colors.red : null,
             onTap: () {
-              context.read<GymsBloc>().add(
-                GymsEvent.toggleFavorite(gym.id),
-              );
+              context.read<GymsBloc>().add(GymsEvent.toggleFavorite(gym.id));
             },
           ),
         ),
@@ -255,7 +274,10 @@ class _GymDetailsViewState extends State<GymDetailsView> {
     );
   }
 
-  Widget _buildLoadingState(ColorScheme colorScheme, LuxuryThemeExtension luxury) {
+  Widget _buildLoadingState(
+    ColorScheme colorScheme,
+    LuxuryThemeExtension luxury,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -386,7 +408,7 @@ class _HeroPatternPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     const spacing = 40.0;
-    
+
     // Draw diagonal lines
     for (double i = -size.height; i < size.width + size.height; i += spacing) {
       canvas.drawLine(

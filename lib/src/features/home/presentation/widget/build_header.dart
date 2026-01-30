@@ -111,7 +111,7 @@ class _CompactIconButton extends StatelessWidget {
           color: isDark ? luxury.surfaceElevated : colorScheme.surface,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: isDark ? luxury.borderLight.withOpacity(0.5) : colorScheme.outline.withOpacity(0.1),
+            color: isDark ? luxury.borderLight.withValues(alpha: 0.5) : colorScheme.outline.withValues(alpha: 0.1),
           ),
         ),
         child: Stack(
@@ -163,17 +163,17 @@ class _CompactProfileAvatar extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               colorScheme.primary,
-              colorScheme.secondary.withOpacity(0.8),
-              luxury.gold.withOpacity(isDark ? 0.4 : 0.3),
+              colorScheme.secondary.withValues(alpha: 0.8),
+              luxury.gold.withValues(alpha: isDark ? 0.4 : 0.3),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(color: luxury.gold.withOpacity(0.3)),
+          border: Border.all(color: luxury.gold.withValues(alpha: 0.3)),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.primary.withOpacity(isDark ? 0.25 : 0.15),
+              color: colorScheme.primary.withValues(alpha: isDark ? 0.25 : 0.15),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

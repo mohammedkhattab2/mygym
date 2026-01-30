@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../domain/entities/gym.dart';
 import 'gym_filter_state.dart';
 import 'gyms_bloc.dart';
 

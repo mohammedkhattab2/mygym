@@ -94,6 +94,11 @@ class AuthRepositoryImpl implements AuthRepository {
       // Save access token for AuthGuard (use Firebase ID token)
       await _localDataSource.saveAccessToken(idToken);
       
+      // Save token expiry (Firebase ID tokens expire in 1 hour, but we'll set 7 days for dev)
+      await _localDataSource.saveTokenExpiry(
+        DateTime.now().add(const Duration(days: 7)),
+      );
+      
       // Cache user locally
       await _localDataSource.cacheUser(userModel);
       
@@ -173,15 +178,32 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     // DEV MODE: Accept any 6-digit OTP and return dummy user
     // This allows testing OTP flow without a backend
+    //
+    // Special OTP codes for testing different roles:
+    // - "111111" = Partner role (gym owner/manager)
+    // - "222222" = Admin role (app administrator)
+    // - Any other 6-digit code = Member role (regular user)
     if (otp.length == 6) {
+      // Determine role based on OTP code
+      String roleString = 'member';
+      String userName = 'User';
+      
+      if (otp == '111111') {
+        roleString = 'partner';
+        userName = 'Partner User';
+      } else if (otp == '222222') {
+        roleString = 'admin';
+        userName = 'Admin User';
+      }
+      
       // Create a dummy user for development
       final dummyUser = UserModel(
         id: 'otp_user_${DateTime.now().millisecondsSinceEpoch}',
         email: '',
-        name: 'User',
+        name: userName,
         phone: phone,
         photoUrl: null,
-        roleString: 'member',
+        roleString: roleString,
         selectedCity: null,
         interests: [],
         createdAt: DateTime.now(),
@@ -194,6 +216,11 @@ class AuthRepositoryImpl implements AuthRepository {
       // Cache user locally
       await _localDataSource.cacheUser(dummyUser);
       await _localDataSource.saveAccessToken('dummy_otp_token_${DateTime.now().millisecondsSinceEpoch}');
+      
+      // Save token expiry (set 7 days for development)
+      await _localDataSource.saveTokenExpiry(
+        DateTime.now().add(const Duration(days: 7)),
+      );
       
       return Right(dummyUser.toEntity());
     }
@@ -283,8 +310,8 @@ class AuthRepositoryImpl implements AuthRepository {
         return Right(cachedUser.toEntity());
       }
       
-      // Return dummy user for development (no backend available)
-      return Right(_getDummyUser());
+      // No cached user found - user is not authenticated
+      return const Left(AuthFailure('No authenticated user found'));
       
       // TODO: Uncomment when backend is available
       // if (await _networkInfo.isConnected) {
@@ -314,31 +341,6 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       return Left(UnexpectedFailure(e.toString()));
     }
-  }
-
-  /// Returns a dummy user for development when no backend is available
-  User _getDummyUser() {
-    return User(
-      id: 'demo_user_123',
-      email: 'demo@mygym.app',
-      displayName: 'Demo User',
-      name: 'Demo User',
-      phoneNumber: '+20 123 456 7890',
-      phone: '+20 123 456 7890',
-      photoUrl: null,
-      role: UserRole.member,
-      isEmailVerified: true,
-      isPhoneVerified: true,
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-      lastLoginAt: DateTime.now(),
-      city: 'Cairo',
-      selectedCity: 'Cairo',
-      interests: ['Fitness', 'Cardio', 'Strength Training'],
-      subscriptionStatus: 'active',
-      remainingVisits: 15,
-      points: 250,
-      referralCode: 'DEMO2024',
-    );
   }
 
   @override
@@ -426,12 +428,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<bool> isLoggedIn() async {
-    // Return true for development (no backend available)
-    // This allows the app to load the dummy user
-    return true;
-    
-    // TODO: Uncomment when backend is available
-    // return _localDataSource.isLoggedIn();
+    // Check if user has a valid session stored locally
+    return _localDataSource.isLoggedIn();
   }
 
   @override

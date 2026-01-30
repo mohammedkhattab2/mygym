@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/router/route_paths.dart';
-import 'package:mygym/src/core/storage/secure_storage.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
+import 'package:mygym/src/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:mygym/src/features/auth/presentation/bloc/auth_state.dart';
 
 /// Premium Luxury OTP Verification View
 ///
@@ -60,7 +61,27 @@ class _OtpViewState extends State<OtpView> {
     final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
-    return Scaffold(
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        // Handle authenticated → navigate based on role
+        if (state.isAuthenticated && state.user != null) {
+          final user = state.user!;
+          if (user.isPartner) {
+            context.go(RoutePaths.partnerDashboard);
+          } else if (user.isAdmin) {
+            context.go(RoutePaths.adminDashboard);
+          } else {
+            context.go(RoutePaths.memberHome);
+          }
+        }
+
+        // Handle errors
+        if (state.hasError && state.errorMessage != null) {
+          setState(() => _isloading = false);
+          _showError(state.errorMessage!);
+        }
+      },
+      child: Scaffold(
       backgroundColor: colorScheme.surface,
       body: Container(
         width: double.infinity,
@@ -94,7 +115,7 @@ class _OtpViewState extends State<OtpView> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   void _startTimer() {
@@ -181,16 +202,12 @@ class _OtpViewState extends State<OtpView> {
     }
     setState(() => _isloading = true);
 
-    // Simulate API call delay
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (mounted) {
-      final secureStorage = GetIt.instance<SecureStorageService>();
-      await secureStorage.saveAccessToken('dummy_token_for_dev');
-
-      setState(() => _isloading = false);
-      context.go('/member/home');
-    }
+    // Use AuthCubit to verify OTP
+    // Special codes: 111111 = Partner, 222222 = Admin, others = Member
+    context.read<AuthCubit>().verifyOtp(
+      phone: widget.phoneNumber,
+      otp: code,
+    );
   }
 
   void _showError(String message) {

@@ -2,273 +2,127 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mygym/src/core/router/route_paths.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/classes/domain/entities/fitness_class.dart';
 import 'package:mygym/src/features/classes/presentation/cubit/classes_cubit.dart';
+import 'package:mygym/src/features/classes/presentation/cubit/classes_state.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class ClassesCalendarView extends StatelessWidget {
+class ClassesCalendarView extends StatefulWidget {
   const ClassesCalendarView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          "Classes",
-          style: textTheme.titleLarge?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: colorScheme.surface,
-      ),
-      body: BlocBuilder<ClassesCubit, ClassesState>(
-        builder: (context, state) {
-          if (state.isLoading && state.schedules.isEmpty) {
-            return Center(
-              child: CircularProgressIndicator(color: colorScheme.primary),
-            );
-          }
-          return Column(
-            children: [
-              _CalendarWidget(state: state),
-              const Divider(height: 1),
-              Expanded(child: _ClassesList(state: state)),
-            ],
-          );
-        },
-      ),
-    );
-  }
+  State<ClassesCalendarView> createState() => _ClassesCalendarViewState();
 }
 
-class _CalendarWidget extends StatelessWidget {
-  final ClassesState state;
-
-  const _CalendarWidget({required this.state});
+class _ClassesCalendarViewState extends State<ClassesCalendarView> {
+  late DateTime _focusedDay;
+  late DateTime _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    
-    return Padding(
-      padding: EdgeInsets.all(12.w),
-      child: TableCalendar<ClassSchedule>(
-        focusedDay: state.focusedDay,
-        firstDay: DateTime.now().subtract(const Duration(days: 365)),
-        lastDay: DateTime.now().add(const Duration(days: 365)),
-        selectedDayPredicate: (day) {
-          final d = DateTime(day.year, day.month, day.day);
-          final sel = DateTime(
-            state.selectedDay.year,
-            state.selectedDay.month,
-            state.selectedDay.day,
-          );
-          return d == sel;
-        },
-        calendarFormat: CalendarFormat.twoWeeks,
-        startingDayOfWeek: StartingDayOfWeek.monday,
-        headerStyle: HeaderStyle(
-          formatButtonVisible: false,
-          titleCentered: true,
-          titleTextStyle: textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-          ) ?? const TextStyle(),
-        ),
-        daysOfWeekStyle: DaysOfWeekStyle(
-          weekdayStyle: textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.bold,
-          ) ?? const TextStyle(),
-          weekendStyle: textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.bold,
-          ) ?? const TextStyle(),
-        ),
-        calendarStyle: CalendarStyle(
-          defaultTextStyle: textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w600,
-          ) ?? const TextStyle(),
-          weekendTextStyle: textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
-          ) ?? const TextStyle(),
-          todayDecoration: BoxDecoration(
-            color: colorScheme.primary.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
-          ),
-          selectedTextStyle: textTheme.bodySmall?.copyWith(
-            color: colorScheme.onPrimary,
-            fontWeight: FontWeight.bold,
-          ) ?? const TextStyle(),
-          todayTextStyle: textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
-          ) ?? const TextStyle(),
-          selectedDecoration: BoxDecoration(
-            color: colorScheme.primary,
-            shape: BoxShape.circle,
-          ),
-        ),
-        eventLoader: (day) {
-          final d = DateTime(day.year, day.month, day.day);
-          return state.schedules.where((s) {
-            final sd = DateTime(
-              s.startTime.year,
-              s.startTime.month,
-              s.startTime.day,
-            );
-            return sd == d;
-          }).toList();
-        },
-        onDaySelected: (selectedDay, focusedDay) {
-          context.read<ClassesCubit>().onDaySelected(selectedDay, focusedDay);
-        },
-      ),
-    );
+  void initState() {
+    super.initState();
+    _focusedDay = DateTime.now();
+    _selectedDay = DateTime.now();
   }
-}
-
-class _ClassesList extends StatelessWidget {
-  final ClassesState state;
-
-  const _ClassesList({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    
-    final classes = state.schedulesForSelectedDay;
-    if (classes.isEmpty) {
-      return Center(
-        child: Text(
-          "No classes for this day.",
-          style: textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-      );
-    }
-    return ListView.builder(
-      padding: EdgeInsets.all(16.w),
-      itemCount: classes.length,
-      itemBuilder: (context, index) {
-        final sched = classes[index];
-        return Padding(
-          padding: EdgeInsets.only(bottom: 10.h),
-          child: _ClassCard(schedule: sched),
-        );
-      },
-    );
-  }
-}
-
-class _ClassCard extends StatelessWidget {
-  final ClassSchedule schedule;
-
-  const _ClassCard({required this.schedule});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final textTheme = Theme.of(context).textTheme;
-    
-    final c = schedule.fitnessClass;
-    final start =
-        '${schedule.startTime.hour.toString().padLeft(2, '0')}:${schedule.startTime.minute.toString().padLeft(2, '0')}';
-    final end =
-        '${schedule.endTime.hour.toString().padLeft(2, '0')}:${schedule.endTime.minute.toString().padLeft(2, '0')}';
-    
-    return Container(
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: luxury.surfaceElevated,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      body: Container(
+        decoration: BoxDecoration(gradient: luxury.backgroundGradient),
+        child: SafeArea(
+          child: Column(
             children: [
-              Text(c.category.icon, style: TextStyle(fontSize: 20.sp)),
-              SizedBox(width: 8.w),
+              _buildAppBar(context),
               Expanded(
-                child: Text(
-                  c.name,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface,
+                child: BlocBuilder<ClassesCubit, ClassesState>(
+                  builder: (context, state) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildCalendar(context, state),
+                          SizedBox(height: 16.h),
+                          _buildSelectedDate(context, state),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBar(BuildContext context) {
+    final colorscheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => context.pop(),
+            child: Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: luxury.surfaceElevated,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: luxury.gold.withValues(alpha: 0.15)),
+              ),
+              child: Icon(
+                Icons.arrow_back_ios_new,
+                size: 18.sp,
+                color: colorscheme.onSurface,
+              ),
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "CLASS",
+                  style: GoogleFonts.montserrat(
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
+                    color: luxury.gold,
+                    letterSpacing: 2,
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            '${c.gymName} • ${c.instructor.name}',
-            style: textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.bold,
+                Text(
+                  "CALENDAR",
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.w700,
+                    color: colorscheme.surface,
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 4.h),
-          Text(
-            '$start - $end • ${c.durationMinutes} mins',
-            style: textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 6.h),
-          Row(
-            children: [
-              _ClassChip(label: c.difficulty.displayName),
-              SizedBox(width: 6.w),
-              _ClassChip(
-                label: schedule.isFull ? "Full" : '${schedule.spotsLeft} spots left',
+          GestureDetector(
+            onTap: () => context.push('/member/classes/bookings'),
+            child: Container(
+              padding: EdgeInsets.all(10.w),
+              decoration: BoxDecoration(
+                color: colorscheme.primaryContainer,
+                borderRadius: BorderRadius.circular(12.r),
               ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: !schedule.isBookable
-                  ? null
-                  : () {
-                      context.read<ClassesCubit>().bookClass(schedule.id);
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              child: Text(
-                schedule.isFull
-                    ? "Join waitlist"
-                    : (schedule.hasStarted ? "Started" : "Book"),
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+              child: Icon(
+                Icons.event_available,
+                size: 20.sp,
+                color: colorscheme.primary,
               ),
             ),
           ),
@@ -276,32 +130,286 @@ class _ClassCard extends StatelessWidget {
       ),
     );
   }
-}
 
-class _ClassChip extends StatelessWidget {
-  final String label;
-
-  const _ClassChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildCalendar(BuildContext context, ClassesState state) {
     final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    
+    final luxury = context.luxury;
+    final daysWithClasses = <DateTime>{};
+    for (final schedul in state.schedules) {
+      daysWithClasses.add(
+        DateTime(
+          schedul.startTime.year,
+          schedul.startTime.month,
+          schedul.startTime.day,
+        ),
+      );
+    }
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+        color: luxury.surfaceElevated,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: luxury.gold.withValues(alpha: 0.1)),
       ),
-      child: Text(
-        label,
-        style: textTheme.bodySmall?.copyWith(
-          color: colorScheme.onSurfaceVariant,
-          fontWeight: FontWeight.bold,
+      child: TableCalendar(
+        focusedDay: _focusedDay,
+        firstDay: DateTime.now().subtract(const Duration(days: 30)),
+        lastDay: DateTime.now().add(const Duration(days: 90)),
+        calendarFormat: _calendarFormat,
+        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+        onDaySelected: (selectedDay, focusedDay) {
+          setState(() {
+            _selectedDay = selectedDay;
+            _focusedDay = focusedDay;
+          });
+          _loadSchedulesForMonth(selectedDay);
+        },
+        onFormatChanged: (format) {
+          setState(() {
+            _calendarFormat = format;
+          });
+        },
+        onPageChanged: (focusedDay) {
+          _focusedDay = focusedDay;
+          _loadSchedulesForMonth(focusedDay);
+        },
+        eventLoader: (day) {
+          final dayOnly = DateTime(day.year, day.month, day.day);
+          if (daysWithClasses.contains(dayOnly)) {
+            return ["class"];
+          }
+          return [];
+        },
+        calendarStyle: CalendarStyle(
+          todayDecoration: BoxDecoration(
+            color: colorScheme.primary.withValues(alpha: 0.3),
+            shape: BoxShape.circle,
+          ),
+          todayTextStyle: TextStyle(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
+          selectedDecoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [colorScheme.primary, colorScheme.secondary],
+            ),
+            shape: BoxShape.circle,
+          ),
+          selectedTextStyle: TextStyle(
+            color: colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+          weekendTextStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+          markerDecoration: BoxDecoration(
+            color: luxury.gold,
+            shape: BoxShape.circle,
+          ),
+          markersMaxCount: 1,
+          markerSize: 6,
+          markerMargin: const EdgeInsets.only(top: 6),
+          outsideDaysVisible: false,
+        ),
+        headerStyle: HeaderStyle(
+          formatButtonVisible: true,
+          formatButtonDecoration: BoxDecoration(
+            color: colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          formatButtonTextStyle: TextStyle(
+            color: colorScheme.onPrimaryContainer,
+            fontSize: 12.sp,
+          ),
+          titleCentered: true,
+          titleTextStyle: GoogleFonts.playfairDisplay(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+          leftChevronIcon: Icon(
+            Icons.chevron_left,
+            color: colorScheme.onSurface,
+          ),
+          rightChevronIcon: Icon(
+            Icons.chevron_right,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: GoogleFonts.inter(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurfaceVariant,
+          ),
+          weekendStyle: GoogleFonts.inter(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSelectedDate(BuildContext context, ClassesState state) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final dateFormat = DateFormat('EEEE, MMMM d');
+    final timeFormat = DateFormat('h:mm a');
+
+    final selectedDayClasses = state.schedules.where((s) {
+      return s.startTime.year == _selectedDay.year &&
+          s.startTime.month == _selectedDay.month &&
+          s.startTime.day == _selectedDay.day;
+    }).toList();
+
+    selectedDayClasses.sort((a, b) => a.startTime.compareTo(b.startTime));
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: Row(
+              children: [
+                Icon(Icons.event, size: 18.sp, color: luxury.gold),
+                SizedBox(width: 8.w),
+                Text(
+                  dateFormat.format(_selectedDay),
+                  style: GoogleFonts.inter(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${selectedDayClasses.length} classes',
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 12.h),
+          if (selectedDayClasses.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(32.w),
+              decoration: BoxDecoration(
+                color: luxury.surfaceElevated,
+                borderRadius: BorderRadius.circular(16.r),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.event_busy,
+                    size: 48.sp,
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    "No classes on this day",
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...selectedDayClasses.map((schedual) {
+              final fitnessClass = schedual.fitnessClass;
+              final isBooked = state.isScheduleBooked(schedual.id);
+              return GestureDetector(
+                onTap: (){
+                  context.read<ClassesCubit>().selectSchedule(schedual);
+                  context.push('/member/classes/detail/${schedual.id}');
+                },
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 12.h),
+                  padding: EdgeInsets.all(16.w),
+                  decoration: BoxDecoration(
+                    color: luxury.surfaceElevated,
+                    borderRadius: BorderRadius.circular(14.r),
+                    border: Border.all(
+                      color: isBooked
+                      ? Colors.green.withValues(alpha: 0.3)
+                      :luxury.gold.withValues(alpha: 0.1)
+                    )
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 50.w,
+                        height: 50.w,
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Center(
+                          child: Text(
+                            fitnessClass.category.icon,
+                            style: TextStyle(fontSize: 24.sp),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w,),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              fitnessClass.name,
+                              style: GoogleFonts.inter(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 4.h,),
+                            Text(
+                              '${timeFormat.format(schedual.startTime)} • ${fitnessClass.instructor.name}',
+                               style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12.sp
+                               ),
+                            )
+                          ],
+                        )
+                        ),
+                        if (isBooked)
+                        Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 20.sp,
+                        ),
+                        SizedBox(width: 8.w,),
+                        Icon(
+                          Icons.chevron_right,
+                          color: colorScheme.onSurfaceVariant,
+                        )
+                    ],
+                  ),
+                ) ,
+              );
+            }),
+            SizedBox(height: 24.h,),
+            
+        ],
+      ),
+    );
+  }
+
+  void _loadSchedulesForMonth(DateTime day) {
+    final startOfMonth = DateTime(day.year, day.month, 1);
+    final endOfMonth = DateTime(day.year, day.month + 1, 0);
+    context.read<ClassesCubit>().loadSchedule(
+      startDate: startOfMonth,
+      endDate: endOfMonth,
     );
   }
 }

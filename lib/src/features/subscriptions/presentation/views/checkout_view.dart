@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/subscriptions/domain/entities/subscription.dart';
 import 'package:mygym/src/features/subscriptions/domain/repositories/subscription_repository.dart';
@@ -126,7 +125,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                       gradient: isDark
                           ? LinearGradient(
                               colors: [
-                                colorScheme.primary.withOpacity(0.15),
+                                colorScheme.primary.withValues(alpha:  0.15),
                                 colorScheme.surface,
                               ],
                               begin: Alignment.topCenter,
@@ -134,7 +133,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                             )
                           : LinearGradient(
                               colors: [
-                                colorScheme.primaryContainer.withOpacity(0.5),
+                                colorScheme.primaryContainer.withValues(alpha:  0.5),
                                 colorScheme.surface,
                               ],
                               begin: Alignment.topCenter,
@@ -158,7 +157,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                           : colorScheme.surface,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.2),
+                        color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha:  0.2),
                       ),
                     ),
                     child: Icon(
@@ -234,7 +233,6 @@ class _PlanHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final luxury = context.luxury;
     final colorScheme = context.colorScheme;
-    final isDark = context.isDarkMode;
 
     return Row(
       children: [
@@ -247,7 +245,7 @@ class _PlanHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
-                color: colorScheme.primary.withOpacity(0.3),
+                color: colorScheme.primary.withValues(alpha:  0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -335,14 +333,14 @@ class _LuxuryPromoCodeSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: hasValidPromo
-              ? luxury.success.withOpacity(0.3)
-              : (isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.15)),
+              ? luxury.success.withValues(alpha:  0.3)
+              : (isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha:  0.15)),
         ),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha:  0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -357,8 +355,8 @@ class _LuxuryPromoCodeSection extends StatelessWidget {
                 padding: EdgeInsets.all(10.w),
                 decoration: BoxDecoration(
                   color: hasValidPromo
-                      ? luxury.success.withOpacity(0.1)
-                      : colorScheme.primary.withOpacity(0.1),
+                      ? luxury.success.withValues(alpha:  0.1)
+                      : colorScheme.primary.withValues(alpha:  0.1),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
@@ -388,7 +386,7 @@ class _LuxuryPromoCodeSection extends StatelessWidget {
                     filled: true,
                     fillColor: isDark
                         ? luxury.surfacePremium
-                        : colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                        : colorScheme.surfaceContainerHighest.withValues(alpha:  0.5),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14.r),
                       borderSide: BorderSide.none,
@@ -454,8 +452,8 @@ class _LuxuryPromoCodeSection extends StatelessWidget {
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
                 color: promoResult!.isValid
-                    ? luxury.success.withOpacity(0.1)
-                    : colorScheme.error.withOpacity(0.1),
+                    ? luxury.success.withValues(alpha:  0.1)
+                    : colorScheme.error.withValues(alpha: .1),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Row(
@@ -517,7 +515,7 @@ class _LuxuryPaymentMethodSection extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(10.w),
               decoration: BoxDecoration(
-                color: colorScheme.primary.withOpacity(0.1),
+                color: colorScheme.primary.withValues(alpha:  0.1),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(
@@ -549,19 +547,19 @@ class _LuxuryPaymentMethodSection extends StatelessWidget {
                   padding: EdgeInsets.all(16.w),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? colorScheme.primary.withOpacity(isDark ? 0.15 : 0.08)
+                        ? colorScheme.primary.withValues(alpha:  isDark ? 0.15 : 0.08)
                         : (isDark ? luxury.surfaceElevated : colorScheme.surface),
                     borderRadius: BorderRadius.circular(16.r),
                     border: Border.all(
                       color: isSelected
                           ? colorScheme.primary
-                          : (isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.15)),
+                          : (isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha:  0.15)),
                       width: isSelected ? 2 : 1,
                     ),
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
-                              color: colorScheme.primary.withOpacity(0.15),
+                              color: colorScheme.primary.withValues(alpha:  0.15),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -575,10 +573,10 @@ class _LuxuryPaymentMethodSection extends StatelessWidget {
                         height: 48.w,
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? colorScheme.primary.withOpacity(0.15)
+                              ? colorScheme.primary.withValues(alpha:  0.15)
                               : (isDark
                                   ? luxury.surfacePremium
-                                  : colorScheme.surfaceContainerHighest.withOpacity(0.5)),
+                                  : colorScheme.surfaceContainerHighest.withValues(alpha:  0.5)),
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                         child: Icon(
@@ -617,7 +615,7 @@ class _LuxuryPaymentMethodSection extends StatelessWidget {
                           border: Border.all(
                             color: isSelected
                                 ? colorScheme.primary
-                                : (isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.3)),
+                                : (isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha:  0.3)),
                             width: 2,
                           ),
                         ),
@@ -664,13 +662,13 @@ class _LuxuryOrderSummary extends StatelessWidget {
         color: isDark ? luxury.surfaceElevated : colorScheme.surface,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: isDark ? luxury.borderGold : luxury.gold.withOpacity(0.2),
+          color: isDark ? luxury.borderGold : luxury.gold.withValues(alpha:  0.2),
         ),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha:  0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -684,7 +682,7 @@ class _LuxuryOrderSummary extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(10.w),
                 decoration: BoxDecoration(
-                  color: luxury.gold.withOpacity(0.1),
+                  color: luxury.gold.withValues(alpha:  0.1),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
@@ -722,7 +720,7 @@ class _LuxuryOrderSummary extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16.h),
             child: Divider(
-              color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.15),
+              color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha:  0.15),
             ),
           ),
           Row(
@@ -813,12 +811,12 @@ class _LuxuryCheckoutButton extends StatelessWidget {
         color: isDark ? luxury.surfaceElevated : colorScheme.surface,
         border: Border(
           top: BorderSide(
-            color: isDark ? luxury.borderLight : colorScheme.outline.withOpacity(0.1),
+            color: isDark ? luxury.borderLight : colorScheme.outline.withValues(alpha:  0.1),
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            color: Colors.black.withValues(alpha:  isDark ? 0.3 : 0.08),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -835,7 +833,7 @@ class _LuxuryCheckoutButton extends StatelessWidget {
             boxShadow: isEnabled && !isLoading
                 ? [
                     BoxShadow(
-                      color: colorScheme.primary.withOpacity(0.4),
+                      color: colorScheme.primary.withValues(alpha:  0.4),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),

@@ -24,12 +24,22 @@ class VisitHistoryView extends StatefulWidget {
 
 class _VisitHistoryViewState extends State<VisitHistoryView> {
   late Future<List<VisitEntry>> _futureVisits;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _setSystemUI();
-    _futureVisits = context.read<QrCheckinCubit>().getVisitHistory(limit: 50);
+    // Note: Context-dependent operations moved to didChangeDependencies()
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _isInitialized = true;
+      _setSystemUI();
+      _futureVisits = context.read<QrCheckinCubit>().getVisitHistory(limit: 50);
+    }
   }
 
   void _setSystemUI() {
@@ -47,7 +57,6 @@ class _VisitHistoryViewState extends State<VisitHistoryView> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,

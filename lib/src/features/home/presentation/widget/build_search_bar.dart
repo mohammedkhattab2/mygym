@@ -32,12 +32,12 @@ class BuildSearchBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(14.r),
             border: Border.all(
               color: isDark
-                  ? luxury.gold.withOpacity(0.1)
-                  : colorScheme.outline.withOpacity(0.12),
+                  ? luxury.gold.withValues(alpha: 0.1)
+                  : colorScheme.outline.withValues(alpha: 0.12),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),

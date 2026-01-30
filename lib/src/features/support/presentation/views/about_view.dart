@@ -39,7 +39,6 @@ class _AboutViewState extends State<AboutView> {
     _setSystemUI(context);
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,

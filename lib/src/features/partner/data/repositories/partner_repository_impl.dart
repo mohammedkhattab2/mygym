@@ -27,10 +27,12 @@ class PartnerRepositoryImpl implements PartnerRepository {
   }
 
   // helpers لو حبيت تستعمل gymId ثابت بسرعة
+  @override
   Future<PartnerReport> getMyGymReport(ReportPeriod period) {
     return getReport(gymId: _dummyGymId, period: period);
   }
 
+  @override
   Future<PartnerSettings> getMyGymSettings() {
     return getSettings(gymId: _dummyGymId);
   }

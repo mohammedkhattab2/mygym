@@ -81,6 +81,11 @@ class AuthLocalDataSource {
   Future<void> cacheUser(UserModel user) async {
     final userJson = jsonEncode(user.toJson());
     await _userBox.put(StorageKeys.cachedUser, userJson);
+    
+    // Also save user role to secure storage for RoleGuard
+    if (user.roleString != null) {
+      await _secureStorage.write(StorageKeys.userRole, user.roleString!);
+    }
   }
 
   /// Get cached user data

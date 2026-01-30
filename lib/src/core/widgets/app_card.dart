@@ -41,10 +41,10 @@ class AppCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
     final effectiveBgColor = backgroundColor ??
-        (isDark ? AppColors.surfaceDark : AppColors.surface);
+        (isDark ? AppColors.surfaceDark : AppColors.surfaceElevated);
     final effectiveBorderColor = borderColor ??
-        (isDark ? AppColors.borderDark : AppColors.border);
-    final effectiveBorderWidth = borderWidth ?? 1;
+        (isDark ? AppColors.borderDark : AppColors.borderLight);
+    final effectiveBorderWidth = borderWidth ?? (isDark ? 1 : 0.8);
 
     Widget card = Container(
       margin: margin,
@@ -56,14 +56,35 @@ class AppCard extends StatelessWidget {
           width: effectiveBorderWidth,
         ),
         boxShadow: enableShadow
-            ? [
-                BoxShadow(
-                  color: AppColors.cardShadowDark.withValues(alpha: isDark ? 0.2 : 0.08),
-                  blurRadius: 12.r,
-                  offset: Offset(0, 4.h),
-                ),
-              ]
-            : null,
+            ? isDark
+                ? [
+                    BoxShadow(
+                      color: AppColors.cardShadowDark.withValues(alpha: 0.2),
+                      blurRadius: 12.r,
+                      offset: Offset(0, 4.h),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: AppColors.cardShadowLight,
+                      blurRadius: 16.r,
+                      offset: Offset(0, 4.h),
+                    ),
+                    BoxShadow(
+                      color: AppColors.cardShadowLightMedium,
+                      blurRadius: 6.r,
+                      offset: Offset(0, 2.h),
+                    ),
+                  ]
+            : !isDark
+                ? [
+                    BoxShadow(
+                      color: AppColors.cardShadowLight,
+                      blurRadius: 8.r,
+                      offset: Offset(0, 2.h),
+                    ),
+                  ]
+                : null,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
@@ -73,6 +94,12 @@ class AppCard extends StatelessWidget {
               ? InkWell(
                   onTap: onTap,
                   borderRadius: BorderRadius.circular(effectiveBorderRadius),
+                  splashColor: isDark
+                      ? AppColors.white.withValues(alpha: 0.08)
+                      : AppColors.primary.withValues(alpha: 0.08),
+                  highlightColor: isDark
+                      ? AppColors.white.withValues(alpha: 0.04)
+                      : AppColors.primary.withValues(alpha: 0.04),
                   child: Padding(
                     padding: padding ?? ResponsivePadding.card,
                     child: child,
@@ -117,6 +144,7 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final effectiveBorderRadius = borderRadius ?? ResponsiveSizes.radiusLg;
 
     return Container(
@@ -124,9 +152,18 @@ class GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
         border: Border.all(
-          color: AppColors.glassBorder,
-          width: 1,
+          color: isDark ? AppColors.glassBorder : AppColors.borderLight,
+          width: isDark ? 1 : 0.8,
         ),
+        boxShadow: !isDark
+            ? [
+                BoxShadow(
+                  color: AppColors.cardShadowLight,
+                  blurRadius: 12.r,
+                  offset: Offset(0, 4.h),
+                ),
+              ]
+            : null,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(effectiveBorderRadius),
@@ -134,7 +171,9 @@ class GlassCard extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: opacity),
+              color: isDark
+                  ? Colors.white.withValues(alpha: opacity)
+                  : AppColors.surfacePremium.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(effectiveBorderRadius),
             ),
             child: Material(
@@ -143,6 +182,9 @@ class GlassCard extends StatelessWidget {
                   ? InkWell(
                       onTap: onTap,
                       borderRadius: BorderRadius.circular(effectiveBorderRadius),
+                      splashColor: isDark
+                          ? AppColors.white.withValues(alpha: 0.1)
+                          : AppColors.primary.withValues(alpha: 0.08),
                       child: Padding(
                         padding: padding ?? ResponsivePadding.card,
                         child: child,
@@ -261,6 +303,7 @@ class GymCard extends StatelessWidget {
     return AppCard(
       padding: EdgeInsets.zero,
       onTap: onTap,
+      enableShadow: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -275,7 +318,7 @@ class GymCard extends StatelessWidget {
                 child: Container(
                   height: ResponsiveSizes.cardImageMedium,
                   width: double.infinity,
-                  color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey200,
+                  color: isDark ? AppColors.surfaceElevatedDark : AppColors.backgroundSecondary,
                   child: imageUrl != null && imageUrl!.isNotEmpty
                       ? Image.network(
                           imageUrl!,
@@ -291,10 +334,20 @@ class GymCard extends StatelessWidget {
                 top: 12.h,
                 left: 12.w,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
                     color: isOpen ? AppColors.gymOpen : AppColors.gymClosed,
                     borderRadius: BorderRadius.circular(ResponsiveSizes.radiusRound),
+                    boxShadow: !isDark
+                        ? [
+                            BoxShadow(
+                              color: (isOpen ? AppColors.gymOpen : AppColors.gymClosed)
+                                  .withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -325,12 +378,27 @@ class GymCard extends StatelessWidget {
                   top: 12.h,
                   right: onFavorite != null ? 52.w : 12.w,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                     decoration: BoxDecoration(
                       color: isDark
                           ? AppColors.surfaceDark.withValues(alpha: 0.95)
-                          : Colors.white.withValues(alpha: 0.95),
+                          : AppColors.surfacePremium,
                       borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
+                      border: !isDark
+                          ? Border.all(
+                              color: AppColors.borderLight,
+                              width: 0.5,
+                            )
+                          : null,
+                      boxShadow: !isDark
+                          ? [
+                              BoxShadow(
+                                color: AppColors.cardShadowLight,
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -379,12 +447,27 @@ class GymCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: isDark
                               ? AppColors.surfaceDark.withValues(alpha: 0.95)
-                              : Colors.white.withValues(alpha: 0.95),
+                              : AppColors.surfacePremium,
                           shape: BoxShape.circle,
+                          border: !isDark
+                              ? Border.all(
+                                  color: AppColors.borderLight,
+                                  width: 0.5,
+                                )
+                              : null,
+                          boxShadow: !isDark
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.cardShadowLight,
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : null,
                         ),
                         child: Icon(
                           isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                          color: isFavorite ? AppColors.error : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimary),
+                          color: isFavorite ? AppColors.error : (isDark ? AppColors.textPrimaryDark : AppColors.textSecondary),
                           size: 20.sp,
                         ),
                       ),
@@ -406,22 +489,32 @@ class GymCard extends StatelessWidget {
                   style: AppTextStyles.titleMedium.copyWith(
                     fontSize: ResponsiveFontSizes.titleMedium,
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+                    letterSpacing: -0.3,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 
-                SizedBox(height: 6.h),
+                SizedBox(height: 8.h),
                 
                 // Address and distance
                 Row(
                   children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 14.sp,
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                    Container(
+                      padding: EdgeInsets.all(4.w),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppColors.primary.withValues(alpha: 0.15)
+                            : AppColors.primaryLight.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Icon(
+                        Icons.location_on_outlined,
+                        size: 14.sp,
+                        color: AppColors.primary,
+                      ),
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
                         address,
@@ -434,12 +527,20 @@ class GymCard extends StatelessWidget {
                       ),
                     ),
                     if (distance != null) ...[
-                      SizedBox(width: 8.w),
+                      SizedBox(width: 10.w),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
+                          color: isDark
+                              ? AppColors.primary.withValues(alpha: 0.15)
+                              : AppColors.primaryLight.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
+                          border: !isDark
+                              ? Border.all(
+                                  color: AppColors.primary.withValues(alpha: 0.15),
+                                  width: 0.5,
+                                )
+                              : null,
                         ),
                         child: Text(
                           distance!,
@@ -456,13 +557,13 @@ class GymCard extends StatelessWidget {
                 
                 // Crowd level
                 if (crowdLevel != null) ...[
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 12.h),
                   _CrowdLevelIndicator(level: crowdLevel!),
                 ],
                 
                 // Facilities
                 if (facilities.isNotEmpty) ...[
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 12.h),
                   _FacilitiesRow(facilities: facilities, isDark: isDark),
                 ],
               ],
@@ -604,11 +705,19 @@ class _FacilitiesRow extends StatelessWidget {
     return Row(
       children: [
         ...displayFacilities.map((facility) => Container(
-              margin: EdgeInsets.only(right: 6.w),
+              margin: EdgeInsets.only(right: 8.w),
               padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
-                borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
+                color: isDark
+                    ? AppColors.surfaceElevatedDark
+                    : AppColors.backgroundSecondary,
+                borderRadius: BorderRadius.circular(8.r),
+                border: !isDark
+                    ? Border.all(
+                        color: AppColors.borderLight,
+                        width: 0.5,
+                      )
+                    : null,
               ),
               child: Icon(
                 _getIcon(facility),
@@ -620,8 +729,16 @@ class _FacilitiesRow extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.surfaceElevatedDark : AppColors.grey100,
-              borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSm),
+              color: isDark
+                  ? AppColors.surfaceElevatedDark
+                  : AppColors.backgroundSecondary,
+              borderRadius: BorderRadius.circular(8.r),
+              border: !isDark
+                  ? Border.all(
+                      color: AppColors.borderLight,
+                      width: 0.5,
+                    )
+                  : null,
             ),
             child: Text(
               '+$remaining',

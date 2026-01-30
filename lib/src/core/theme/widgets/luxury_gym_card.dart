@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
 /// Compact Luxury Gym Card - Magical Edition
@@ -60,19 +61,29 @@ class LuxuryGymCard extends StatelessWidget {
           border: Border.all(
             color: isDark
                 ? Colors.white.withValues(alpha: 0.06)
-                : Colors.black.withValues(alpha: 0.04),
+                : AppColors.border,
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.3)
+                  : AppColors.cardShadowLight,
+              blurRadius: isDark ? 12 : 16,
+              offset: Offset(0, isDark ? 4 : 6),
+              spreadRadius: isDark ? 0 : 1,
             ),
+            if (!isDark)
+              BoxShadow(
+                color: AppColors.cardShadowLight.withValues(alpha: 0.5),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Top section with emoji/image
             _buildTopSection(colorScheme, luxury, isDark, accentColor),
@@ -101,8 +112,8 @@ class LuxuryGymCard extends StatelessWidget {
                   accentColor.withValues(alpha: 0.03),
                 ]
               : [
-                  accentColor.withValues(alpha: 0.06),
-                  accentColor.withValues(alpha: 0.02),
+                  AppColors.surfaceElevated,
+                  accentColor.withValues(alpha: 0.04),
                 ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -121,14 +132,14 @@ class LuxuryGymCard extends StatelessWidget {
                 : Icon(
                     Icons.fitness_center_rounded,
                     size: size.emojiSize * 0.6,
-                    color: accentColor.withValues(alpha: 0.4),
+                    color: accentColor.withValues(alpha: isDark ? 0.4 : 0.3),
                   ),
           ),
           // Badge row
           Positioned(
-            top: 8.h,
-            left: 8.w,
-            right: 8.w,
+            top: 10.h,
+            left: 10.w,
+            right: 10.w,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -153,15 +164,22 @@ class LuxuryGymCard extends StatelessWidget {
 
   Widget _buildBadge(String text, Color color, bool isDark) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(4.r),
+        borderRadius: BorderRadius.circular(6.r),
+        boxShadow: !isDark ? [
+          BoxShadow(
+            color: color.withValues(alpha: 0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ] : null,
       ),
       child: Text(
         text,
         style: GoogleFonts.inter(
-          fontSize: 8.sp,
+          fontSize: 9.sp,
           fontWeight: FontWeight.w700,
           color: Colors.white,
           letterSpacing: 0.3,
@@ -176,24 +194,35 @@ class LuxuryGymCard extends StatelessWidget {
     bool isDark,
   ) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: isDark
             ? Colors.black.withValues(alpha: 0.6)
-            : Colors.white.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(4.r),
+            : Colors.white,
+        borderRadius: BorderRadius.circular(6.r),
+        border: !isDark ? Border.all(
+          color: AppColors.borderLight,
+          width: 1,
+        ) : null,
+        boxShadow: !isDark ? [
+          BoxShadow(
+            color: AppColors.cardShadowLight,
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ] : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.star_rounded, size: 10.sp, color: luxury.gold),
-          SizedBox(width: 2.w),
+          Icon(Icons.star_rounded, size: 11.sp, color: luxury.gold),
+          SizedBox(width: 3.w),
           Text(
             rating.toStringAsFixed(1),
             style: GoogleFonts.inter(
-              fontSize: 10.sp,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : colorScheme.onSurface,
+              color: isDark ? Colors.white : AppColors.textPrimary,
             ),
           ),
         ],
@@ -208,9 +237,13 @@ class LuxuryGymCard extends StatelessWidget {
     Color accentColor,
   ) {
     return Padding(
-      padding: EdgeInsets.all(size.contentPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: size.contentPadding,
+        vertical: size.contentPadding * 0.8,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Gym name
           Text(
@@ -218,20 +251,21 @@ class LuxuryGymCard extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: size.titleSize,
               fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
+              color: isDark ? colorScheme.onSurface : AppColors.textPrimary,
               height: 1.2,
+              letterSpacing: -0.2,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 4.h),
+          SizedBox(height: 3.h),
           // Location
           Row(
             children: [
               Icon(
                 Icons.location_on_outlined,
                 size: 11.sp,
-                color: luxury.textMuted,
+                color: isDark ? luxury.textMuted : AppColors.textTertiary,
               ),
               SizedBox(width: 3.w),
               Expanded(
@@ -240,7 +274,8 @@ class LuxuryGymCard extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: size.subtitleSize,
                     fontWeight: FontWeight.w400,
-                    color: luxury.textMuted,
+                    color: isDark ? luxury.textMuted : AppColors.textSecondary,
+                    height: 1.2,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -248,13 +283,17 @@ class LuxuryGymCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 6.h),
           // Distance chip
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: isDark ? 0.12 : 0.08),
               borderRadius: BorderRadius.circular(6.r),
+              border: !isDark ? Border.all(
+                color: accentColor.withValues(alpha: 0.15),
+                width: 1,
+              ) : null,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -264,7 +303,7 @@ class LuxuryGymCard extends StatelessWidget {
                 Text(
                   distance,
                   style: GoogleFonts.inter(
-                    fontSize: 10.sp,
+                    fontSize: 9.sp,
                     fontWeight: FontWeight.w600,
                     color: accentColor,
                   ),

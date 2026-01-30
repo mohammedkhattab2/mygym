@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
 /// Premium Luxury Section Header - Unified Design System
@@ -33,7 +34,6 @@ class LuxurySectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
     final effectiveAccentColor = accentColor ?? colorScheme.primary;
@@ -51,19 +51,31 @@ class LuxurySectionHeader extends StatelessWidget {
                 // Accent bar
                 if (showAccentBar)
                   Container(
-                    width: 3.w,
-                    height: 22.h,
-                    margin: EdgeInsets.only(right: 12.w),
+                    width: 3.5.w,
+                    height: 24.h,
+                    margin: EdgeInsets.only(right: 14.w),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          effectiveAccentColor,
-                          effectiveAccentColor.withValues(alpha: 0.4),
-                        ],
+                        colors: isDark
+                            ? [
+                                effectiveAccentColor,
+                                effectiveAccentColor.withValues(alpha: 0.4),
+                              ]
+                            : [
+                                effectiveAccentColor,
+                                effectiveAccentColor.withValues(alpha: 0.6),
+                              ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ),
                       borderRadius: BorderRadius.circular(2.r),
+                      boxShadow: !isDark ? [
+                        BoxShadow(
+                          color: effectiveAccentColor.withValues(alpha: 0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ] : null,
                     ),
                   ),
                 // Title and subtitle
@@ -76,18 +88,22 @@ class LuxurySectionHeader extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
-                          letterSpacing: -0.3,
+                          color: isDark
+                              ? colorScheme.onSurface
+                              : AppColors.textPrimary,
+                          letterSpacing: -0.4,
                         ),
                       ),
                       if (subtitle != null) ...[
-                        SizedBox(height: 2.h),
+                        SizedBox(height: 3.h),
                         Text(
                           subtitle!,
                           style: GoogleFonts.inter(
-                            fontSize: 12.sp,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w400,
-                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: isDark
+                                ? colorScheme.onSurface.withValues(alpha: 0.5)
+                                : AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -102,8 +118,18 @@ class LuxurySectionHeader extends StatelessWidget {
             GestureDetector(
               onTap: onSeeAllTap,
               behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 14.w),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? colorScheme.primary.withValues(alpha: 0.1)
+                      : AppColors.primaryLight.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: !isDark ? Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                    width: 1,
+                  ) : null,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -111,19 +137,15 @@ class LuxurySectionHeader extends StatelessWidget {
                       seeAllText,
                       style: GoogleFonts.inter(
                         fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? colorScheme.onSurface.withValues(alpha: 0.7)
-                            : colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.primary,
                       ),
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: 5.w),
                     Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 12.sp,
-                      color: isDark
-                          ? colorScheme.onSurface.withValues(alpha: 0.5)
-                          : colorScheme.primary.withValues(alpha: 0.7),
+                      color: colorScheme.primary,
                     ),
                   ],
                 ),
@@ -165,53 +187,87 @@ class LuxurySectionHeaderWithBadge extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Title with badge
-          Row(
-            children: [
-              Container(
-                width: 3.w,
-                height: 22.h,
-                margin: EdgeInsets.only(right: 12.w),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                  letterSpacing: -0.3,
-                ),
-              ),
-              if (badgeText != null) ...[
-                SizedBox(width: 10.w),
+          Expanded(
+            child: Row(
+              children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  width: 3.5.w,
+                  height: 24.h,
+                  margin: EdgeInsets.only(right: 14.w),
                   decoration: BoxDecoration(
-                    color: (badgeColor ?? luxury.success).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6.r),
+                    gradient: LinearGradient(
+                      colors: [
+                        colorScheme.primary,
+                        colorScheme.primary.withValues(alpha: isDark ? 0.4 : 0.6),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(2.r),
+                    boxShadow: !isDark ? [
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ] : null,
                   ),
+                ),
+                Flexible(
                   child: Text(
-                    badgeText!,
+                    title,
                     style: GoogleFonts.inter(
-                      fontSize: 10.sp,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w600,
-                      color: badgeColor ?? luxury.success,
+                      color: isDark
+                          ? colorScheme.onSurface
+                          : AppColors.textPrimary,
+                      letterSpacing: -0.4,
                     ),
                   ),
                 ),
+                if (badgeText != null) ...[
+                  SizedBox(width: 12.w),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                    decoration: BoxDecoration(
+                      color: (badgeColor ?? luxury.success).withValues(alpha: isDark ? 0.15 : 0.1),
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: !isDark ? Border.all(
+                        color: (badgeColor ?? luxury.success).withValues(alpha: 0.15),
+                        width: 1,
+                      ) : null,
+                    ),
+                    child: Text(
+                      badgeText!,
+                      style: GoogleFonts.inter(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: badgeColor ?? luxury.success,
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
           // See all action
           if (onSeeAllTap != null)
             GestureDetector(
               onTap: onSeeAllTap,
               behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 14.w),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? colorScheme.primary.withValues(alpha: 0.1)
+                      : AppColors.primaryLight.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: !isDark ? Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                    width: 1,
+                  ) : null,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -219,19 +275,15 @@ class LuxurySectionHeaderWithBadge extends StatelessWidget {
                       'See all',
                       style: GoogleFonts.inter(
                         fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? colorScheme.onSurface.withValues(alpha: 0.7)
-                            : colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.primary,
                       ),
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: 5.w),
                     Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 12.sp,
-                      color: isDark
-                          ? colorScheme.onSurface.withValues(alpha: 0.5)
-                          : colorScheme.primary.withValues(alpha: 0.7),
+                      color: colorScheme.primary,
                     ),
                   ],
                 ),
