@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/partner/domain/entities/partner_entities.dart';
-import 'package:mygym/src/features/partner/presentation/widget/retention_stat.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/retention_stat.dart';
 
 class UserRetentionCard extends StatelessWidget {
   final UserRetention retention;

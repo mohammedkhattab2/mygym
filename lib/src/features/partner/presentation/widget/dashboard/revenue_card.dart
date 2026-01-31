@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/partner/domain/entities/partner_entities.dart';
-import 'package:mygym/src/features/partner/presentation/widget/growth_badge.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/growth_badge.dart';
 
 class RevenueCard extends StatelessWidget {
   final RevenueSummary revenue;

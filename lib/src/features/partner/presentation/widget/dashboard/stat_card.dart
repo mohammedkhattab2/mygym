@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
-import 'package:mygym/src/features/partner/presentation/widget/growth_badge.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/growth_badge.dart';
 
 class StatCard extends StatelessWidget {
   final IconData icon;

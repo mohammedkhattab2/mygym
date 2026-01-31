@@ -6,12 +6,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mygym/src/core/router/route_paths.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/partner/presentation/cubit/partner_dashboard_cubit.dart';
-import 'package:mygym/src/features/partner/presentation/widget/daily_stats_chart.dart';
-import 'package:mygym/src/features/partner/presentation/widget/peak_hours_section.dart';
-import 'package:mygym/src/features/partner/presentation/widget/period_selector.dart';
-import 'package:mygym/src/features/partner/presentation/widget/revenue_card.dart';
-import 'package:mygym/src/features/partner/presentation/widget/stats_overview.dart';
-import 'package:mygym/src/features/partner/presentation/widget/user_retention_card.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/daily_stats_chart.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/peak_hours_section.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/period_selector.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/revenue_card.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/stats_overview.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/user_retention_card.dart';
 
 class PartnerDashboardView extends StatelessWidget {
   const PartnerDashboardView({super.key});

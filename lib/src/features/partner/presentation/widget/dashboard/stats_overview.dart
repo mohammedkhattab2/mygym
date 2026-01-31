@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mygym/src/features/partner/domain/entities/partner_entities.dart';
-import 'package:mygym/src/features/partner/presentation/widget/stat_card.dart';
+import 'package:mygym/src/features/partner/presentation/widget/dashboard/stat_card.dart';
 
 class StatsOverview extends StatelessWidget {
   final PartnerReport report;
