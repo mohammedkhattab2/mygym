@@ -16,7 +16,9 @@ import 'package:mygym/src/features/gyms/presentation/bloc/gym_filter_cubit.dart'
 import 'package:mygym/src/features/gyms/presentation/views/gym_filter_view.dart';
 import 'package:mygym/src/features/home/presentation/views/home_view.dart';
 import 'package:mygym/src/features/partner/presentation/cubit/partner_settings_cubit.dart';
+import 'package:mygym/src/features/partner/presentation/cubit/blocked_users_cubit.dart';
 import 'package:mygym/src/features/partner/presentation/views/partner_settings_view.dart';
+import 'package:mygym/src/features/partner/presentation/views/blocked_users_view.dart';
 import 'package:mygym/src/features/rewards/presentation/cubit/rewards_cubit.dart';
 import 'package:mygym/src/features/rewards/presentation/views/my_vouchers_view.dart';
 import 'package:mygym/src/features/rewards/presentation/views/points_history_view.dart';
@@ -612,6 +614,20 @@ class AppRouter {
                     getIt<PartnerSettingsCubit>()
                       ..loadSettings(), // 🆕 الـ Cubit الجديد
                 child: const PartnerSettingsView(), // 🆕 الـ View الجديد
+              );
+            },
+          ),
+
+          // ─────────────────────────────────────────────────────────────────────────
+          // Blocked Users - صفحة المستخدمين المحظورين
+          // ─────────────────────────────────────────────────────────────────────────
+          GoRoute(
+            path: RoutePaths.partnerBlockedUsers,
+            name: 'partner-blocked-users',
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<BlockedUsersCubit>()..loadBlockedUsers(),
+                child: const BlockedUsersView(),
               );
             },
           ),

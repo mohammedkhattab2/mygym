@@ -71,6 +71,7 @@ class RoutePaths {
   static const String partnerScanner = '$partner/scanner';
   static const String partnerReports = '$partner/reports';
   static const String partnerSettings = '$partner/settings';
+  static const String partnerBlockedUsers = '$partner/blocked-users';
   
   // Admin
   static const String admin = '/admin';

@@ -51,6 +51,8 @@ import '../../features/partner/data/repositories/partner_repository_impl.dart'
     as _i57;
 import '../../features/partner/domain/repositories/partner_repository.dart'
     as _i1042;
+import '../../features/partner/presentation/cubit/blocked_users_cubit.dart'
+    as _i470;
 import '../../features/partner/presentation/cubit/partner_dashboard_cubit.dart'
     as _i8;
 import '../../features/partner/presentation/cubit/partner_settings_cubit.dart'
@@ -191,6 +193,8 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i8.PartnerDashboardCubit(gh<_i1042.PartnerRepository>()));
     gh.factory<_i518.PartnerSettingsCubit>(
         () => _i518.PartnerSettingsCubit(gh<_i1042.PartnerRepository>()));
+    gh.factory<_i470.BlockedUsersCubit>(
+        () => _i470.BlockedUsersCubit(gh<_i1042.PartnerRepository>()));
     gh.lazySingleton<_i631.QrRepository>(() => _i971.QrRepositoryImpl(
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),

@@ -8,9 +8,12 @@ class PartnerLocalDataSource {
     _seedDummyData();
   }
 
-  late final PartnerSettings _settings;
+  late PartnerSettings _settings;
   late final PartnerReport _dailyReport;
   late final PartnerReport _weeklyReport;
+  
+  // Blocked users storage (mutable for demo)
+  final Map<String, List<BlockedUser>> _blockedUsers = {};
 
   void _seedDummyData() {
     // Working hours: كل الأيام من 6AM لـ 11PM
@@ -26,13 +29,39 @@ class PartnerLocalDataSource {
       },
     );
 
+    // Seed some blocked users for demo
+    _blockedUsers['gym_1'] = [
+      BlockedUser(
+        visitorId: 'user_blocked_1',
+        visitorName: 'Ahmed Mohamed',
+        reason: 'Violated gym rules - damaged equipment',
+        blockedAt: DateTime.now().subtract(const Duration(days: 15)),
+        blockedBy: 'Manager',
+      ),
+      BlockedUser(
+        visitorId: 'user_blocked_2',
+        visitorName: 'Sara Ali',
+        reason: 'Membership fraud attempt',
+        blockedAt: DateTime.now().subtract(const Duration(days: 7)),
+        blockedBy: 'System',
+      ),
+      BlockedUser(
+        visitorId: 'user_blocked_3',
+        visitorName: 'Mohamed Hassan',
+        reason: 'Repeated policy violations',
+        blockedAt: DateTime.now().subtract(const Duration(days: 3)),
+        blockedBy: 'Manager',
+      ),
+    ];
+
+    // Initialize settings with blocked user IDs from the blocked users list
     _settings = PartnerSettings(
       gymId: 'gym_1',
       revenueSharePercentage: 70,
       maxDailyVisitsPerUser: 2,
       maxWeeklyVisitsPerUser: 10,
       allowNetworkSubscriptions: true,
-      blockedUserIds: const [],
+      blockedUserIds: _blockedUsers['gym_1']!.map((u) => u.visitorId).toList(),
       workingHours: workingHours,
       autoUpdateOccupancy: true,
       maxCapacity: 80,
@@ -183,5 +212,122 @@ class PartnerLocalDataSource {
       default:
         return _weeklyReport;
     }
+  }
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Settings Management
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  /// Update full settings
+  Future<void> updateSettings(PartnerSettings settings) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    _settings = settings;
+  }
+  
+  /// Update partial settings and return updated settings
+  Future<PartnerSettings> updatePartialSettings({
+    required String gymId,
+    int? maxCapacity,
+    bool? autoUpdateOccupancy,
+    bool? allowNetworkSubscriptions,
+    int? maxDailyVisitsPerUser,
+    int? maxWeeklyVisitsPerUser,
+    GymWorkingHours? workingHours,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    _settings = PartnerSettings(
+      gymId: _settings.gymId,
+      revenueSharePercentage: _settings.revenueSharePercentage,
+      maxDailyVisitsPerUser: maxDailyVisitsPerUser ?? _settings.maxDailyVisitsPerUser,
+      maxWeeklyVisitsPerUser: maxWeeklyVisitsPerUser ?? _settings.maxWeeklyVisitsPerUser,
+      allowNetworkSubscriptions: allowNetworkSubscriptions ?? _settings.allowNetworkSubscriptions,
+      blockedUserIds: _settings.blockedUserIds,
+      workingHours: workingHours ?? _settings.workingHours,
+      autoUpdateOccupancy: autoUpdateOccupancy ?? _settings.autoUpdateOccupancy,
+      maxCapacity: maxCapacity ?? _settings.maxCapacity,
+    );
+    
+    return _settings;
+  }
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Blocked Users Management
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  /// Get all blocked users for a gym
+  Future<List<BlockedUser>> getBlockedUsers(String gymId) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    return _blockedUsers[gymId] ?? [];
+  }
+  
+  /// Block a user
+  Future<void> blockUser({
+    required String gymId,
+    required String visitorId,
+    required String visitorName,
+    String? reason,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    final blockedUser = BlockedUser(
+      visitorId: visitorId,
+      visitorName: visitorName,
+      reason: reason,
+      blockedAt: DateTime.now(),
+      blockedBy: 'Partner', // In real app, get from auth
+    );
+    
+    _blockedUsers.putIfAbsent(gymId, () => []);
+    
+    // Check if already blocked
+    final existingIndex = _blockedUsers[gymId]!
+        .indexWhere((u) => u.visitorId == visitorId);
+    
+    if (existingIndex == -1) {
+      _blockedUsers[gymId]!.add(blockedUser);
+    }
+    
+    // Also update settings blocked list
+    final currentBlockedIds = List<String>.from(_settings.blockedUserIds);
+    if (!currentBlockedIds.contains(visitorId)) {
+      currentBlockedIds.add(visitorId);
+      _settings = PartnerSettings(
+        gymId: _settings.gymId,
+        revenueSharePercentage: _settings.revenueSharePercentage,
+        maxDailyVisitsPerUser: _settings.maxDailyVisitsPerUser,
+        maxWeeklyVisitsPerUser: _settings.maxWeeklyVisitsPerUser,
+        allowNetworkSubscriptions: _settings.allowNetworkSubscriptions,
+        blockedUserIds: currentBlockedIds,
+        workingHours: _settings.workingHours,
+        autoUpdateOccupancy: _settings.autoUpdateOccupancy,
+        maxCapacity: _settings.maxCapacity,
+      );
+    }
+  }
+  
+  /// Unblock a user
+  Future<void> unblockUser({
+    required String gymId,
+    required String visitorId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    
+    _blockedUsers[gymId]?.removeWhere((u) => u.visitorId == visitorId);
+    
+    // Also update settings blocked list
+    final currentBlockedIds = List<String>.from(_settings.blockedUserIds);
+    currentBlockedIds.remove(visitorId);
+    _settings = PartnerSettings(
+      gymId: _settings.gymId,
+      revenueSharePercentage: _settings.revenueSharePercentage,
+      maxDailyVisitsPerUser: _settings.maxDailyVisitsPerUser,
+      maxWeeklyVisitsPerUser: _settings.maxWeeklyVisitsPerUser,
+      allowNetworkSubscriptions: _settings.allowNetworkSubscriptions,
+      blockedUserIds: currentBlockedIds,
+      workingHours: _settings.workingHours,
+      autoUpdateOccupancy: _settings.autoUpdateOccupancy,
+      maxCapacity: _settings.maxCapacity,
+    );
   }
 }

@@ -127,13 +127,15 @@ class DailyBreakdownCard extends StatelessWidget {
             return Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
               decoration: BoxDecoration(
-                color: isLast? luxury.gold.withValues(alpha: 0.05) : null,
-                border: Border(
-                  bottom: BorderSide(
-                    color: colorScheme.outline.withValues(alpha: 0.1) ,
-                    width: isLast ? 0:1 ,
-                  )
-                ),
+                color: isLast ? luxury.gold.withValues(alpha: 0.05) : null,
+                border: isLast
+                    ? null
+                    : Border(
+                        bottom: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
+                      ),
                 borderRadius: isLast ? BorderRadius.circular(8.r) : null,
               ),
               child: Row(
@@ -142,26 +144,29 @@ class DailyBreakdownCard extends StatelessWidget {
                     flex: 3,
                     child: Row(
                       children: [
-                        if(isLast)
-                        Container(
-                          width: 6.w,
-                          height: 6.w,
-                          margin: EdgeInsets.only(right: 6.w),
-                          decoration: BoxDecoration(
-                            color: luxury.gold,
-                            shape: BoxShape.circle
+                        if (isLast)
+                          Container(
+                            width: 6.w,
+                            height: 6.w,
+                            margin: EdgeInsets.only(right: 6.w),
+                            decoration: BoxDecoration(
+                              color: luxury.gold,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        Flexible(
+                          child: Text(
+                            dateFormat.format(stat.date),
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: isLast ? FontWeight.w700 : FontWeight.w500,
+                              color: isLast ? luxury.gold : null,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Text(
-                          dateFormat.format(stat.date),
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: isLast? FontWeight.w700 : FontWeight.w500,
-                            color: isLast ? luxury.gold : null
-                          ),
-                        )
                       ],
-                    )
+                    ),
                   ),
                   Expanded(
                     flex: 2,

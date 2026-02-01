@@ -8,6 +8,7 @@ import 'package:mygym/src/features/partner/presentation/widget/dashboard/period_
 import 'package:mygym/src/features/partner/presentation/widget/reports/daily_breakdown_card.dart';
 import 'package:mygym/src/features/partner/presentation/widget/reports/export_option.dart';
 import 'package:mygym/src/features/partner/presentation/widget/reports/report_summary_card.dart';
+import 'package:mygym/src/features/partner/presentation/widget/reports/revenue_bundle_card.dart';
 import 'package:mygym/src/features/partner/presentation/widget/reports/revenue_report_card.dart';
 import 'package:mygym/src/features/partner/presentation/widget/reports/subscription_breakdown_card.dart';
 import 'package:mygym/src/features/partner/presentation/widget/reports/visit_report_card.dart';
@@ -99,7 +100,18 @@ class PartnerReportsView extends StatelessWidget {
                             visitsByType: state.currentReport!.visitSummary.visitsBySubscriptionType,
                           ),
                           ),
-                      )
+                      ),
+                      SliverToBoxAdapter(child: SizedBox(height: 20.h)),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          child: RevenueBundleCard(
+                            revenueByBundle: state.currentReport!.revenueSummary.revenueByBundle,
+                            currency: state.currentReport!.revenueSummary.currency,
+                          ) ,
+                          ),
+                      ),
+                       SliverToBoxAdapter(child: SizedBox(height: 100.h)),
                     ],
                   ],
                 ),

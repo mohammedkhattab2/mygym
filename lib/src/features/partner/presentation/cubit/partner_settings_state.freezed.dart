@@ -16,9 +16,18 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$PartnerSettingsState {
-// Settings data
+// Original settings from repository (for comparison)
+  PartnerSettings? get originalSettings =>
+      throw _privateConstructorUsedError; // Current editing settings
   PartnerSettings? get settings => throw _privateConstructorUsedError;
   GymWorkingHours? get editingWorkingHours =>
+      throw _privateConstructorUsedError; // Editing values (track changes before save)
+  int? get editingMaxCapacity => throw _privateConstructorUsedError;
+  bool? get editingAutoUpdateOccupancy => throw _privateConstructorUsedError;
+  bool? get editingAllowNetworkSubscriptions =>
+      throw _privateConstructorUsedError;
+  int? get editingMaxDailyVisits => throw _privateConstructorUsedError;
+  int? get editingMaxWeeklyVisits =>
       throw _privateConstructorUsedError; // Status
   PartnerSettingsStatus get loadStatus => throw _privateConstructorUsedError;
   PartnerSettingsStatus get saveStatus =>
@@ -38,8 +47,14 @@ abstract class $PartnerSettingsStateCopyWith<$Res> {
       _$PartnerSettingsStateCopyWithImpl<$Res, PartnerSettingsState>;
   @useResult
   $Res call(
-      {PartnerSettings? settings,
+      {PartnerSettings? originalSettings,
+      PartnerSettings? settings,
       GymWorkingHours? editingWorkingHours,
+      int? editingMaxCapacity,
+      bool? editingAutoUpdateOccupancy,
+      bool? editingAllowNetworkSubscriptions,
+      int? editingMaxDailyVisits,
+      int? editingMaxWeeklyVisits,
       PartnerSettingsStatus loadStatus,
       PartnerSettingsStatus saveStatus,
       String? errorMessage,
@@ -60,14 +75,24 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? originalSettings = freezed,
     Object? settings = freezed,
     Object? editingWorkingHours = freezed,
+    Object? editingMaxCapacity = freezed,
+    Object? editingAutoUpdateOccupancy = freezed,
+    Object? editingAllowNetworkSubscriptions = freezed,
+    Object? editingMaxDailyVisits = freezed,
+    Object? editingMaxWeeklyVisits = freezed,
     Object? loadStatus = null,
     Object? saveStatus = null,
     Object? errorMessage = freezed,
     Object? successMessage = freezed,
   }) {
     return _then(_value.copyWith(
+      originalSettings: freezed == originalSettings
+          ? _value.originalSettings
+          : originalSettings // ignore: cast_nullable_to_non_nullable
+              as PartnerSettings?,
       settings: freezed == settings
           ? _value.settings
           : settings // ignore: cast_nullable_to_non_nullable
@@ -76,6 +101,27 @@ class _$PartnerSettingsStateCopyWithImpl<$Res,
           ? _value.editingWorkingHours
           : editingWorkingHours // ignore: cast_nullable_to_non_nullable
               as GymWorkingHours?,
+      editingMaxCapacity: freezed == editingMaxCapacity
+          ? _value.editingMaxCapacity
+          : editingMaxCapacity // ignore: cast_nullable_to_non_nullable
+              as int?,
+      editingAutoUpdateOccupancy: freezed == editingAutoUpdateOccupancy
+          ? _value.editingAutoUpdateOccupancy
+          : editingAutoUpdateOccupancy // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      editingAllowNetworkSubscriptions: freezed ==
+              editingAllowNetworkSubscriptions
+          ? _value.editingAllowNetworkSubscriptions
+          : editingAllowNetworkSubscriptions // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      editingMaxDailyVisits: freezed == editingMaxDailyVisits
+          ? _value.editingMaxDailyVisits
+          : editingMaxDailyVisits // ignore: cast_nullable_to_non_nullable
+              as int?,
+      editingMaxWeeklyVisits: freezed == editingMaxWeeklyVisits
+          ? _value.editingMaxWeeklyVisits
+          : editingMaxWeeklyVisits // ignore: cast_nullable_to_non_nullable
+              as int?,
       loadStatus: null == loadStatus
           ? _value.loadStatus
           : loadStatus // ignore: cast_nullable_to_non_nullable
@@ -105,8 +151,14 @@ abstract class _$$PartnerSettingsStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {PartnerSettings? settings,
+      {PartnerSettings? originalSettings,
+      PartnerSettings? settings,
       GymWorkingHours? editingWorkingHours,
+      int? editingMaxCapacity,
+      bool? editingAutoUpdateOccupancy,
+      bool? editingAllowNetworkSubscriptions,
+      int? editingMaxDailyVisits,
+      int? editingMaxWeeklyVisits,
       PartnerSettingsStatus loadStatus,
       PartnerSettingsStatus saveStatus,
       String? errorMessage,
@@ -124,14 +176,24 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? originalSettings = freezed,
     Object? settings = freezed,
     Object? editingWorkingHours = freezed,
+    Object? editingMaxCapacity = freezed,
+    Object? editingAutoUpdateOccupancy = freezed,
+    Object? editingAllowNetworkSubscriptions = freezed,
+    Object? editingMaxDailyVisits = freezed,
+    Object? editingMaxWeeklyVisits = freezed,
     Object? loadStatus = null,
     Object? saveStatus = null,
     Object? errorMessage = freezed,
     Object? successMessage = freezed,
   }) {
     return _then(_$PartnerSettingsStateImpl(
+      originalSettings: freezed == originalSettings
+          ? _value.originalSettings
+          : originalSettings // ignore: cast_nullable_to_non_nullable
+              as PartnerSettings?,
       settings: freezed == settings
           ? _value.settings
           : settings // ignore: cast_nullable_to_non_nullable
@@ -140,6 +202,27 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
           ? _value.editingWorkingHours
           : editingWorkingHours // ignore: cast_nullable_to_non_nullable
               as GymWorkingHours?,
+      editingMaxCapacity: freezed == editingMaxCapacity
+          ? _value.editingMaxCapacity
+          : editingMaxCapacity // ignore: cast_nullable_to_non_nullable
+              as int?,
+      editingAutoUpdateOccupancy: freezed == editingAutoUpdateOccupancy
+          ? _value.editingAutoUpdateOccupancy
+          : editingAutoUpdateOccupancy // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      editingAllowNetworkSubscriptions: freezed ==
+              editingAllowNetworkSubscriptions
+          ? _value.editingAllowNetworkSubscriptions
+          : editingAllowNetworkSubscriptions // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      editingMaxDailyVisits: freezed == editingMaxDailyVisits
+          ? _value.editingMaxDailyVisits
+          : editingMaxDailyVisits // ignore: cast_nullable_to_non_nullable
+              as int?,
+      editingMaxWeeklyVisits: freezed == editingMaxWeeklyVisits
+          ? _value.editingMaxWeeklyVisits
+          : editingMaxWeeklyVisits // ignore: cast_nullable_to_non_nullable
+              as int?,
       loadStatus: null == loadStatus
           ? _value.loadStatus
           : loadStatus // ignore: cast_nullable_to_non_nullable
@@ -164,19 +247,39 @@ class __$$PartnerSettingsStateImplCopyWithImpl<$Res>
 
 class _$PartnerSettingsStateImpl extends _PartnerSettingsState {
   const _$PartnerSettingsStateImpl(
-      {this.settings,
+      {this.originalSettings,
+      this.settings,
       this.editingWorkingHours,
+      this.editingMaxCapacity,
+      this.editingAutoUpdateOccupancy,
+      this.editingAllowNetworkSubscriptions,
+      this.editingMaxDailyVisits,
+      this.editingMaxWeeklyVisits,
       this.loadStatus = PartnerSettingsStatus.initial,
       this.saveStatus = PartnerSettingsStatus.initial,
       this.errorMessage,
       this.successMessage})
       : super._();
 
-// Settings data
+// Original settings from repository (for comparison)
+  @override
+  final PartnerSettings? originalSettings;
+// Current editing settings
   @override
   final PartnerSettings? settings;
   @override
   final GymWorkingHours? editingWorkingHours;
+// Editing values (track changes before save)
+  @override
+  final int? editingMaxCapacity;
+  @override
+  final bool? editingAutoUpdateOccupancy;
+  @override
+  final bool? editingAllowNetworkSubscriptions;
+  @override
+  final int? editingMaxDailyVisits;
+  @override
+  final int? editingMaxWeeklyVisits;
 // Status
   @override
   @JsonKey()
@@ -192,7 +295,7 @@ class _$PartnerSettingsStateImpl extends _PartnerSettingsState {
 
   @override
   String toString() {
-    return 'PartnerSettingsState(settings: $settings, editingWorkingHours: $editingWorkingHours, loadStatus: $loadStatus, saveStatus: $saveStatus, errorMessage: $errorMessage, successMessage: $successMessage)';
+    return 'PartnerSettingsState(originalSettings: $originalSettings, settings: $settings, editingWorkingHours: $editingWorkingHours, editingMaxCapacity: $editingMaxCapacity, editingAutoUpdateOccupancy: $editingAutoUpdateOccupancy, editingAllowNetworkSubscriptions: $editingAllowNetworkSubscriptions, editingMaxDailyVisits: $editingMaxDailyVisits, editingMaxWeeklyVisits: $editingMaxWeeklyVisits, loadStatus: $loadStatus, saveStatus: $saveStatus, errorMessage: $errorMessage, successMessage: $successMessage)';
   }
 
   @override
@@ -200,10 +303,26 @@ class _$PartnerSettingsStateImpl extends _PartnerSettingsState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$PartnerSettingsStateImpl &&
+            (identical(other.originalSettings, originalSettings) ||
+                other.originalSettings == originalSettings) &&
             (identical(other.settings, settings) ||
                 other.settings == settings) &&
             (identical(other.editingWorkingHours, editingWorkingHours) ||
                 other.editingWorkingHours == editingWorkingHours) &&
+            (identical(other.editingMaxCapacity, editingMaxCapacity) ||
+                other.editingMaxCapacity == editingMaxCapacity) &&
+            (identical(other.editingAutoUpdateOccupancy,
+                    editingAutoUpdateOccupancy) ||
+                other.editingAutoUpdateOccupancy ==
+                    editingAutoUpdateOccupancy) &&
+            (identical(other.editingAllowNetworkSubscriptions,
+                    editingAllowNetworkSubscriptions) ||
+                other.editingAllowNetworkSubscriptions ==
+                    editingAllowNetworkSubscriptions) &&
+            (identical(other.editingMaxDailyVisits, editingMaxDailyVisits) ||
+                other.editingMaxDailyVisits == editingMaxDailyVisits) &&
+            (identical(other.editingMaxWeeklyVisits, editingMaxWeeklyVisits) ||
+                other.editingMaxWeeklyVisits == editingMaxWeeklyVisits) &&
             (identical(other.loadStatus, loadStatus) ||
                 other.loadStatus == loadStatus) &&
             (identical(other.saveStatus, saveStatus) ||
@@ -215,8 +334,20 @@ class _$PartnerSettingsStateImpl extends _PartnerSettingsState {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, settings, editingWorkingHours,
-      loadStatus, saveStatus, errorMessage, successMessage);
+  int get hashCode => Object.hash(
+      runtimeType,
+      originalSettings,
+      settings,
+      editingWorkingHours,
+      editingMaxCapacity,
+      editingAutoUpdateOccupancy,
+      editingAllowNetworkSubscriptions,
+      editingMaxDailyVisits,
+      editingMaxWeeklyVisits,
+      loadStatus,
+      saveStatus,
+      errorMessage,
+      successMessage);
 
   @JsonKey(ignore: true)
   @override
@@ -229,18 +360,36 @@ class _$PartnerSettingsStateImpl extends _PartnerSettingsState {
 
 abstract class _PartnerSettingsState extends PartnerSettingsState {
   const factory _PartnerSettingsState(
-      {final PartnerSettings? settings,
+      {final PartnerSettings? originalSettings,
+      final PartnerSettings? settings,
       final GymWorkingHours? editingWorkingHours,
+      final int? editingMaxCapacity,
+      final bool? editingAutoUpdateOccupancy,
+      final bool? editingAllowNetworkSubscriptions,
+      final int? editingMaxDailyVisits,
+      final int? editingMaxWeeklyVisits,
       final PartnerSettingsStatus loadStatus,
       final PartnerSettingsStatus saveStatus,
       final String? errorMessage,
       final String? successMessage}) = _$PartnerSettingsStateImpl;
   const _PartnerSettingsState._() : super._();
 
-  @override // Settings data
+  @override // Original settings from repository (for comparison)
+  PartnerSettings? get originalSettings;
+  @override // Current editing settings
   PartnerSettings? get settings;
   @override
   GymWorkingHours? get editingWorkingHours;
+  @override // Editing values (track changes before save)
+  int? get editingMaxCapacity;
+  @override
+  bool? get editingAutoUpdateOccupancy;
+  @override
+  bool? get editingAllowNetworkSubscriptions;
+  @override
+  int? get editingMaxDailyVisits;
+  @override
+  int? get editingMaxWeeklyVisits;
   @override // Status
   PartnerSettingsStatus get loadStatus;
   @override
