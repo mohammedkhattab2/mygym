@@ -4,7 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
+import 'package:mygym/src/features/admin/presentation/bloc/admin_dashboard_cubit.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_dashboard_view.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_gym_form_view.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_gyms_table_view.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_settings_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/login_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/otp_view.dart';
 import 'package:mygym/src/features/classes/presentation/cubit/classes_cubit.dart';
@@ -568,7 +574,7 @@ class AppRouter {
             builder: (context, state) {
               return BlocProvider(
                 create: (ctx) => getIt<PartnerDashboardCubit>()..loadInitial(),
-                child: const PartnerDashboardView(), 
+                child: const PartnerDashboardView(),
               );
             },
           ),
@@ -638,14 +644,16 @@ class AppRouter {
       ShellRoute(
         navigatorKey: _adminShellKey,
         builder: (context, state, child) {
-          return _AdminShellScaffold(child: child);
+          return BlocProvider(
+            create: (ctx) => getIt<AdminCubit>(),
+            child: _AdminShellScaffold(child: child),
+          );
         },
         routes: [
           GoRoute(
             path: RoutePaths.adminDashboard,
             name: 'admin-dashboard',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'Admin Dashboard'),
+            builder: (context, state) => const AdminDashboardView(),
           ),
           GoRoute(
             path: RoutePaths.adminGyms,
@@ -660,21 +668,19 @@ class AppRouter {
               GoRoute(
                 path: 'list',
                 name: 'admin-gyms-list',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Manage Gyms'),
+                builder: (context, state) => const AdminGymsTableView(),
               ),
               GoRoute(
                 path: 'add',
                 name: 'admin-add-gym',
-                builder: (context, state) =>
-                    const _PlaceholderPage(title: 'Add New Gym'),
+                builder: (context, state) => const AdminGymFormView(),
               ),
               GoRoute(
                 path: 'edit/:gymId',
                 name: 'admin-edit-gym',
                 builder: (context, state) {
                   final gymId = state.pathParameters['gymId']!;
-                  return _PlaceholderPage(title: 'Edit Gym: $gymId');
+                  return AdminGymFormView(gymId: gymId);
                 },
               ),
             ],
@@ -682,8 +688,7 @@ class AppRouter {
           GoRoute(
             path: RoutePaths.adminSettings,
             name: 'admin-settings',
-            builder: (context, state) =>
-                const _PlaceholderPage(title: 'Admin Settings'),
+            builder: (context, state) => const AdminSettingsView(),
           ),
         ],
       ),
@@ -932,14 +937,14 @@ class _PartnerShellScaffold extends StatelessWidget {
           color: isDark ? luxury.surfaceElevated : colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:  isDark ? 0.3 : 0.08),
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
               blurRadius: 20,
               offset: const Offset(0, -4),
             ),
           ],
           border: Border(
             top: BorderSide(
-              color: luxury.gold.withValues(alpha:  0.1),
+              color: luxury.gold.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
@@ -961,7 +966,8 @@ class _PartnerShellScaffold extends StatelessWidget {
                   icon: Icons.qr_code_scanner_outlined,
                   activeIcon: Icons.qr_code_scanner_rounded,
                   label: 'Scanner',
-                  isSelected: location == RoutePaths.partnerScanner ||
+                  isSelected:
+                      location == RoutePaths.partnerScanner ||
                       location.startsWith(RoutePaths.partnerScanner),
                   onTap: () => context.go(RoutePaths.partnerScanner),
                 ),
@@ -987,7 +993,6 @@ class _PartnerShellScaffold extends StatelessWidget {
     );
   }
 }
-
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PARTNER NAV ITEM
@@ -1027,8 +1032,8 @@ class _PartnerNavItem extends StatelessWidget {
           gradient: isSelected
               ? LinearGradient(
                   colors: [
-                    luxury.gold.withValues(alpha:  0.2),
-                    luxury.gold.withValues(alpha:  0.1),
+                    luxury.gold.withValues(alpha: 0.2),
+                    luxury.gold.withValues(alpha: 0.1),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -1036,7 +1041,10 @@ class _PartnerNavItem extends StatelessWidget {
               : null,
           borderRadius: BorderRadius.circular(14.r),
           border: isSelected
-              ? Border.all(color: luxury.gold.withValues(alpha:  0.3), width: 1.5)
+              ? Border.all(
+                  color: luxury.gold.withValues(alpha: 0.3),
+                  width: 1.5,
+                )
               : null,
         ),
         child: Column(
@@ -1071,49 +1079,856 @@ class _PartnerNavItem extends StatelessWidget {
   }
 }
 
-/// Admin shell scaffold with navigation rail
-class _AdminShellScaffold extends StatelessWidget {
+/// ═══════════════════════════════════════════════════════════════════════════════
+// ADMIN SHELL SCAFFOLD - Responsive Drawer (Web + Mobile)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _AdminShellScaffold extends StatefulWidget {
   const _AdminShellScaffold({required this.child});
 
   final Widget child;
 
   @override
+  State<_AdminShellScaffold> createState() => _AdminShellScaffoldState();
+}
+
+class _AdminShellScaffoldState extends State<_AdminShellScaffold> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
   Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.path;
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final isDark = context.isDarkMode;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth >= 1024;
+    final isTablet = screenWidth >= 768 && screenWidth < 1024;
+
     return Scaffold(
-      body: Row(
+      key: _scaffoldKey,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.background,
+      appBar: isWideScreen
+          ? null
+          : _buildAppBar(context, location, luxury, isDark, colorScheme),
+      drawer: isWideScreen
+          ? null
+          : _buildDrawer(context, location, isDrawer: true),
+      body: isWideScreen
+          ? Row(
+              children: [
+                _buildPermanentDrawer(context, location, isTablet),
+                Container(
+                  width: 1,
+                  color: luxury.borderLight.withValues(alpha: 0.5),
+                ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      _buildWebTopBar(
+                        context,
+                        location,
+                        luxury,
+                        isDark,
+                        colorScheme,
+                      ),
+                      Expanded(child: widget.child),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          : widget.child,
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    String location,
+    LuxuryThemeExtension luxury,
+    bool isDark,
+    ColorScheme colorScheme,
+  ) {
+    return AppBar(
+      backgroundColor: isDark ? luxury.surfaceElevated : colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      leading: IconButton(
+        icon: Icon(Icons.menu_rounded, color: luxury.gold, size: 26.sp),
+        onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+      ),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          NavigationRail(
-            extended: true,
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.dashboard),
-                label: Text('Dashboard'),
+          Container(
+            padding: EdgeInsets.all(6.r),
+            decoration: BoxDecoration(
+              gradient: luxury.goldGradient,
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(
+              Icons.admin_panel_settings_rounded,
+              color: Colors.white,
+              size: 18.sp,
+            ),
+          ),
+          SizedBox(width: 10.w),
+          Text(
+            _getTitleForLocation(location),
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: Badge(
+            smallSize: 8,
+            backgroundColor: luxury.gold,
+            child: Icon(
+              Icons.notifications_outlined,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          onPressed: () {},
+        ),
+        SizedBox(width: 8.w),
+      ],
+    );
+  }
+
+  Widget _buildWebTopBar(
+    BuildContext context,
+    String location,
+    LuxuryThemeExtension luxury,
+    bool isDark,
+    ColorScheme colorScheme,
+  ) {
+    return Container(
+      height: 64.h,
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      decoration: BoxDecoration(
+        color: isDark ? luxury.surfaceElevated : colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: luxury.borderLight.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          // Page title
+          Text(
+            _getTitleForLocation(location),
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const Spacer(),
+          // Search (optional)
+          if (location.contains('gyms'))
+            Container(
+              width: 280.w,
+              height: 40.h,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.black.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(10.r),
+                border: Border.all(
+                  color: luxury.borderLight.withValues(alpha: 0.5),
+                ),
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.fitness_center),
-                label: Text('Gyms'),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search gyms...',
+                  hintStyle: TextStyle(
+                    fontSize: 14.sp,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 20.sp,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 10.h,
+                  ),
+                ),
+                onChanged: (value) {
+                  context.read<AdminCubit>().searchGyms(value);
+                },
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.people),
-                label: Text('Users'),
+            ),
+          SizedBox(width: 16.w),
+          // Notifications
+          IconButton(
+            icon: Badge(
+              label: const Text('3'),
+              backgroundColor: luxury.gold,
+              child: Icon(
+                Icons.notifications_outlined,
+                color: colorScheme.onSurfaceVariant,
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.payments),
-                label: Text('Revenue'),
+            ),
+            onPressed: () {},
+          ),
+          SizedBox(width: 8.w),
+          // User menu
+          PopupMenuButton<String>(
+            offset: Offset(0, 45.h),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36.r,
+                  height: 36.r,
+                  decoration: BoxDecoration(
+                    gradient: luxury.goldGradient,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'A',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Admin User',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      'admin@mygym.com',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(width: 8.w),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ],
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(Icons.person_outline, size: 20.sp),
+                    SizedBox(width: 12.w),
+                    const Text('Profile'),
+                  ],
+                ),
               ),
-              NavigationRailDestination(
-                icon: Icon(Icons.settings),
-                label: Text('Settings'),
+              PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings_outlined, size: 20.sp),
+                    SizedBox(width: 12.w),
+                    const Text('Settings'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.logout_rounded,
+                      size: 20.sp,
+                      color: AppColors.error,
+                    ),
+                    SizedBox(width: 12.w),
+                    const Text(
+                      'Logout',
+                      style: TextStyle(color: AppColors.error),
+                    ),
+                  ],
+                ),
               ),
             ],
-            selectedIndex: 0,
-            onDestinationSelected: (index) {
-              // TODO: Implement navigation
+            onSelected: (value) {
+              if (value == 'logout') {
+                // Handle logout
+              }
             },
           ),
-          const VerticalDivider(thickness: 1, width: 1),
-          Expanded(child: child),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDrawer(
+    BuildContext context,
+    String location, {
+    required bool isDrawer,
+  }) {
+    return Drawer(
+      backgroundColor: context.isDarkMode
+          ? context.luxury.surfaceElevated
+          : Theme.of(context).colorScheme.surface,
+      child: _buildDrawerContent(context, location, isDrawer: isDrawer),
+    );
+  }
+
+  Widget _buildPermanentDrawer(
+    BuildContext context,
+    String location,
+    bool isCompact,
+  ) {
+    final luxury = context.luxury;
+    final isDark = context.isDarkMode;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: isCompact ? 80.w : 260.w,
+      decoration: BoxDecoration(
+        color: isDark
+            ? luxury.surfaceElevated
+            : Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(2, 0),
+          ),
+        ],
+      ),
+      child: _buildDrawerContent(
+        context,
+        location,
+        isDrawer: false,
+        isCompact: isCompact,
+      ),
+    );
+  }
+
+  Widget _buildDrawerContent(
+    BuildContext context,
+    String location, {
+    required bool isDrawer,
+    bool isCompact = false,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+    final isDark = context.isDarkMode;
+
+    return Column(
+      children: [
+        // ═══════════════════════════════════════════════════════════════════
+        // HEADER
+        // ═══════════════════════════════════════════════════════════════════
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(
+            isCompact ? 12.w : 20.w,
+            50.h,
+            isCompact ? 12.w : 20.w,
+            20.h,
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                luxury.gold.withValues(alpha: 0.15),
+                luxury.gold.withValues(alpha: 0.05),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: isCompact
+              ? Center(
+                  child: Container(
+                    padding: EdgeInsets.all(12.r),
+                    decoration: BoxDecoration(
+                      gradient: luxury.goldGradient,
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    child: Icon(
+                      Icons.admin_panel_settings_rounded,
+                      color: Colors.white,
+                      size: 28.sp,
+                    ),
+                  ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(12.r),
+                      decoration: BoxDecoration(
+                        gradient: luxury.goldGradient,
+                        borderRadius: BorderRadius.circular(14.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: luxury.gold.withValues(alpha: 0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.admin_panel_settings_rounded,
+                        color: Colors.white,
+                        size: 28.sp,
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'MyGym Admin',
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w800,
+                        color: luxury.gold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Management Console',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+
+        // ═══════════════════════════════════════════════════════════════════
+        // NAVIGATION ITEMS
+        // ═══════════════════════════════════════════════════════════════════
+        Expanded(
+          child: ListView(
+            padding: EdgeInsets.symmetric(
+              vertical: 16.h,
+              horizontal: isCompact ? 8.w : 12.w,
+            ),
+            children: [
+              _AdminNavItem(
+                icon: Icons.dashboard_outlined,
+                activeIcon: Icons.dashboard_rounded,
+                label: 'Dashboard',
+                isSelected: location == RoutePaths.adminDashboard,
+                isCompact: isCompact,
+                onTap: () {
+                  if (isDrawer) Navigator.pop(context);
+                  context.go(RoutePaths.adminDashboard);
+                },
+              ),
+              SizedBox(height: 4.h),
+              _AdminNavItem(
+                icon: Icons.fitness_center_outlined,
+                activeIcon: Icons.fitness_center_rounded,
+                label: 'Gyms',
+                isSelected: location.contains('/admin/gyms'),
+                isCompact: isCompact,
+                badge: '24',
+                onTap: () {
+                  if (isDrawer) Navigator.pop(context);
+                  context.go(RoutePaths.adminGymsList);
+                },
+              ),
+              SizedBox(height: 4.h),
+              _AdminNavItem(
+                icon: Icons.people_outline_rounded,
+                activeIcon: Icons.people_rounded,
+                label: 'Users',
+                isSelected: location.contains('/admin/users'),
+                isCompact: isCompact,
+                onTap: () {
+                  if (isDrawer) Navigator.pop(context);
+                  // context.go(RoutePaths.adminUsers);
+                },
+              ),
+              SizedBox(height: 4.h),
+              _AdminNavItem(
+                icon: Icons.card_membership_outlined,
+                activeIcon: Icons.card_membership_rounded,
+                label: 'Subscriptions',
+                isSelected: location.contains('/admin/subscriptions'),
+                isCompact: isCompact,
+                onTap: () {
+                  if (isDrawer) Navigator.pop(context);
+                },
+              ),
+              SizedBox(height: 4.h),
+              _AdminNavItem(
+                icon: Icons.payments_outlined,
+                activeIcon: Icons.payments_rounded,
+                label: 'Revenue',
+                isSelected: location.contains('/admin/revenue'),
+                isCompact: isCompact,
+                onTap: () {
+                  if (isDrawer) Navigator.pop(context);
+                },
+              ),
+
+              // Divider
+              if (!isCompact) ...[
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  child: Divider(
+                    color: luxury.borderLight.withValues(alpha: 0.3),
+                    thickness: 1,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 16.w, bottom: 8.h),
+                  child: Text(
+                    'SYSTEM',
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.5,
+                      ),
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
+              ] else
+                SizedBox(height: 16.h),
+
+              _AdminNavItem(
+                icon: Icons.analytics_outlined,
+                activeIcon: Icons.analytics_rounded,
+                label: 'Analytics',
+                isSelected: location.contains('/admin/analytics'),
+                isCompact: isCompact,
+                onTap: () {
+                  if (isDrawer) Navigator.pop(context);
+                },
+              ),
+              SizedBox(height: 4.h),
+              _AdminNavItem(
+                icon: Icons.settings_outlined,
+                activeIcon: Icons.settings_rounded,
+                label: 'Settings',
+                isSelected: location == RoutePaths.adminSettings,
+                isCompact: isCompact,
+                onTap: () {
+                  if (isDrawer) Navigator.pop(context);
+                  context.go(RoutePaths.adminSettings);
+                },
+              ),
+            ],
+          ),
+        ),
+
+        // ═══════════════════════════════════════════════════════════════════
+        // FOOTER
+        // ═══════════════════════════════════════════════════════════════════
+        if (!isCompact)
+          Container(
+            padding: EdgeInsets.all(16.r),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.2)
+                  : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              border: Border(
+                top: BorderSide(
+                  color: luxury.borderLight.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 40.r,
+                  height: 40.r,
+                  decoration: BoxDecoration(
+                    gradient: luxury.goldGradient,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'A',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18.sp,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Admin User',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      Text(
+                        'admin@mygym.com',
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.logout_rounded,
+                    color: AppColors.error,
+                    size: 20.sp,
+                  ),
+                  onPressed: () {
+                    // Handle logout
+                  },
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  String _getTitleForLocation(String location) {
+    if (location.contains('dashboard')) return 'Dashboard';
+    if (location.contains('gyms/add')) return 'Add New Gym';
+    if (location.contains('gyms/edit')) return 'Edit Gym';
+    if (location.contains('gyms')) return 'Gym Management';
+    if (location.contains('users')) return 'User Management';
+    if (location.contains('revenue')) return 'Revenue';
+    if (location.contains('subscriptions')) return 'Subscriptions';
+    if (location.contains('analytics')) return 'Analytics';
+    if (location.contains('settings')) return 'Settings';
+    return 'Admin Panel';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ADMIN NAV ITEM WIDGET
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _AdminNavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isSelected;
+  final bool isCompact;
+  final String? badge;
+  final VoidCallback onTap;
+
+  const _AdminNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isSelected,
+    this.isCompact = false,
+    this.badge,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final luxury = context.luxury;
+
+    if (isCompact) {
+      return Tooltip(
+        message: label,
+        preferBelow: false,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(12.r),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.all(12.r),
+              decoration: BoxDecoration(
+                gradient: isSelected
+                    ? LinearGradient(
+                        colors: [
+                          luxury.gold.withValues(alpha: 0.2),
+                          luxury.gold.withValues(alpha: 0.1),
+                        ],
+                      )
+                    : null,
+                borderRadius: BorderRadius.circular(12.r),
+                border: isSelected
+                    ? Border.all(
+                        color: luxury.gold.withValues(alpha: 0.3),
+                        width: 1.5,
+                      )
+                    : null,
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(
+                    isSelected ? activeIcon : icon,
+                    color: isSelected
+                        ? luxury.gold
+                        : colorScheme.onSurfaceVariant,
+                    size: 24.sp,
+                  ),
+                  if (badge != null)
+                    Positioned(
+                      top: -6,
+                      right: -6,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4.w,
+                          vertical: 1.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: luxury.gold,
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Text(
+                          badge!,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12.r),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            gradient: isSelected
+                ? LinearGradient(
+                    colors: [
+                      luxury.gold.withValues(alpha: 0.2),
+                      luxury.gold.withValues(alpha: 0.08),
+                    ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  )
+                : null,
+            borderRadius: BorderRadius.circular(12.r),
+            border: isSelected
+                ? Border.all(
+                    color: luxury.gold.withValues(alpha: 0.3),
+                    width: 1.5,
+                  )
+                : null,
+          ),
+          child: Row(
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  isSelected ? activeIcon : icon,
+                  key: ValueKey(isSelected),
+                  color: isSelected
+                      ? luxury.gold
+                      : colorScheme.onSurfaceVariant,
+                  size: 22.sp,
+                ),
+              ),
+              SizedBox(width: 14.w),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected ? luxury.gold : colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              if (badge != null) ...[
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? luxury.gold
+                        : colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Text(
+                    badge!,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected
+                          ? Colors.white
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ] else if (isSelected) ...[
+                Container(
+                  width: 6.r,
+                  height: 6.r,
+                  decoration: BoxDecoration(
+                    color: luxury.gold,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: luxury.gold.withValues(alpha: 0.5),
+                        blurRadius: 6,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

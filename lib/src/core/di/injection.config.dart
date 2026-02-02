@@ -189,12 +189,12 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i196.SupportCubit>(
         () => _i196.SupportCubit(gh<_i275.SupportRepository>()));
+    gh.factory<_i470.BlockedUsersCubit>(
+        () => _i470.BlockedUsersCubit(gh<_i1042.PartnerRepository>()));
     gh.factory<_i8.PartnerDashboardCubit>(
         () => _i8.PartnerDashboardCubit(gh<_i1042.PartnerRepository>()));
     gh.factory<_i518.PartnerSettingsCubit>(
         () => _i518.PartnerSettingsCubit(gh<_i1042.PartnerRepository>()));
-    gh.factory<_i470.BlockedUsersCubit>(
-        () => _i470.BlockedUsersCubit(gh<_i1042.PartnerRepository>()));
     gh.lazySingleton<_i631.QrRepository>(() => _i971.QrRepositoryImpl(
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),
@@ -205,13 +205,13 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i205.ClassesCubit>(
         () => _i205.ClassesCubit(gh<_i426.ClassesRepository>()));
-    gh.factory<_i273.AdminDashboardCubit>(
-        () => _i273.AdminDashboardCubit(gh<_i583.AdminRepository>()));
     gh.lazySingleton<_i81.AppRouter>(() => _i81.AppRouter(
           authGuard: gh<_i530.AuthGuard>(),
           roleGuard: gh<_i746.RoleGuard>(),
           subscriptionGuard: gh<_i204.SubscriptionGuard>(),
         ));
+    gh.factory<_i273.AdminCubit>(
+        () => _i273.AdminCubit(gh<_i583.AdminRepository>()));
     gh.factory<_i454.SubscriptionsCubit>(
         () => _i454.SubscriptionsCubit(gh<_i384.SubscriptionRepository>()));
     gh.factory<_i587.GymsBloc>(() => _i587.GymsBloc(gh<_i786.GymRepository>()));

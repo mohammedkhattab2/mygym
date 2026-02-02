@@ -2,23 +2,40 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/admin_gym.dart';
 import '../../domain/repositories/admin_repository.dart';
+import '../datasources/admin_local_data_source.dart';
 
 /// Implementation of [AdminRepository]
+/// Uses local mock data in development mode when backend is unavailable
 @LazySingleton(as: AdminRepository)
 class AdminRepositoryImpl implements AdminRepository {
   final DioClient _dioClient;
   final NetworkInfo _networkInfo;
+  final AdminLocalDataSource _localDataSource = AdminLocalDataSource();
 
   AdminRepositoryImpl(this._dioClient, this._networkInfo);
 
+  /// Check if we should use local data (development mode)
+  bool get _useLocalData => AppConfig.instance.isDebug;
+
   @override
   Future<Either<Failure, AdminDashboardStats>> getDashboardStats() async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final stats = await _localDataSource.getDashboardStats();
+        return Right(stats);
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -48,6 +65,16 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<Either<Failure, PaginatedGyms>> getGyms(AdminGymFilter filter) async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final gyms = await _localDataSource.getGyms(filter);
+        return Right(gyms);
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -86,6 +113,19 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<Either<Failure, AdminGym>> getGymById(String gymId) async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final gym = await _localDataSource.getGymById(gymId);
+        if (gym != null) {
+          return Right(gym);
+        }
+        return const Left(ServerFailure('Gym not found'));
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -175,6 +215,16 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<Either<Failure, List<AvailableCity>>> getAvailableCities() async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final cities = await _localDataSource.getAvailableCities();
+        return Right(cities);
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -198,6 +248,16 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<Either<Failure, List<AvailableFacility>>> getAvailableFacilities() async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final facilities = await _localDataSource.getAvailableFacilities();
+        return Right(facilities);
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -255,6 +315,16 @@ class AdminRepositoryImpl implements AdminRepository {
     DateTime startDate,
     DateTime endDate,
   ) async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final report = await _localDataSource.getGymRevenueReport(gymId, startDate, endDate);
+        return Right(report);
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
