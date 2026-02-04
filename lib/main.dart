@@ -37,7 +37,7 @@ Future<void> main() async {
 
   await Hive.initFlutter();
 
-  await configureDependencies();
+  await configureDependencies(environment: Env.dev);
 
   runApp(const MyGymAppWithLocalization());
 }

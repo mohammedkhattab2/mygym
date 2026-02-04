@@ -283,9 +283,9 @@ class AdminCubit extends Cubit<AdminState> {
 
 @freezed
 class AdminState with _$AdminState {
-  const factory AdminState.initial() = _Initial;
+  const factory AdminState.initial() = AdminInitial;
   
-  const factory AdminState.loading() = _Loading;
+  const factory AdminState.loading() = AdminLoading;
   
   const factory AdminState.loaded({
     required AdminDashboardStats stats,

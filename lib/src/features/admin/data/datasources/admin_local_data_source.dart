@@ -1,8 +1,11 @@
+import 'package:injectable/injectable.dart';
+
 import '../../domain/entities/admin_gym.dart';
 import '../../domain/repositories/admin_repository.dart';
 
 /// Local data source for admin dashboard with mock data
 /// Used for development when backend is not available
+@LazySingleton(env: [Environment.dev])
 class AdminLocalDataSource {
   // Simulated delay for realistic UX
   static const _delay = Duration(milliseconds: 500);

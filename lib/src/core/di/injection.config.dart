@@ -16,8 +16,12 @@ import 'package:hive_flutter/hive_flutter.dart' as _i986;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
+import '../../features/admin/data/datasources/admin_local_data_source.dart'
+    as _i691;
 import '../../features/admin/data/repositories/admin_repository_impl.dart'
     as _i335;
+import '../../features/admin/data/repositories/admin_repository_mock.dart'
+    as _i796;
 import '../../features/admin/domain/repositories/admin_repository.dart'
     as _i583;
 import '../../features/admin/presentation/bloc/admin_dashboard_cubit.dart'
@@ -100,6 +104,9 @@ import '../theme/cubit/theme_cubit.dart' as _i194;
 import 'modules/network_module.dart' as _i851;
 import 'modules/storage_module.dart' as _i148;
 
+const String _dev = 'dev';
+const String _prod = 'prod';
+
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
   Future<_i174.GetIt> init({
@@ -143,6 +150,10 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'settingsBox',
       preResolve: true,
     );
+    gh.lazySingleton<_i691.AdminLocalDataSource>(
+      () => _i691.AdminLocalDataSource(),
+      registerFor: {_dev},
+    );
     await gh.factoryAsync<_i986.Box<dynamic>>(
       () => storageModule.cacheBox,
       instanceName: 'cacheBox',
@@ -170,6 +181,17 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i932.NetworkInfoImpl(gh<_i895.Connectivity>()));
     gh.lazySingleton<_i1042.PartnerRepository>(
         () => _i57.PartnerRepositoryImpl(gh<_i824.PartnerLocalDataSource>()));
+    gh.lazySingleton<_i583.AdminRepository>(
+      () => _i335.AdminRepositoryImpl(
+        gh<_i667.DioClient>(),
+        gh<_i932.NetworkInfo>(),
+      ),
+      registerFor: {_prod},
+    );
+    gh.lazySingleton<_i583.AdminRepository>(
+      () => _i796.AdminRepositoryMock(gh<_i691.AdminLocalDataSource>()),
+      registerFor: {_dev},
+    );
     gh.factory<_i246.RewardsCubit>(
         () => _i246.RewardsCubit(gh<_i801.RewardsRepository>()));
     gh.lazySingleton<_i194.ThemeCubit>(
@@ -183,18 +205,14 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i667.DioClient>(),
               gh<_i932.NetworkInfo>(),
             ));
-    gh.lazySingleton<_i583.AdminRepository>(() => _i335.AdminRepositoryImpl(
-          gh<_i667.DioClient>(),
-          gh<_i932.NetworkInfo>(),
-        ));
     gh.factory<_i196.SupportCubit>(
         () => _i196.SupportCubit(gh<_i275.SupportRepository>()));
-    gh.factory<_i470.BlockedUsersCubit>(
-        () => _i470.BlockedUsersCubit(gh<_i1042.PartnerRepository>()));
     gh.factory<_i8.PartnerDashboardCubit>(
         () => _i8.PartnerDashboardCubit(gh<_i1042.PartnerRepository>()));
     gh.factory<_i518.PartnerSettingsCubit>(
         () => _i518.PartnerSettingsCubit(gh<_i1042.PartnerRepository>()));
+    gh.factory<_i470.BlockedUsersCubit>(
+        () => _i470.BlockedUsersCubit(gh<_i1042.PartnerRepository>()));
     gh.lazySingleton<_i631.QrRepository>(() => _i971.QrRepositoryImpl(
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),

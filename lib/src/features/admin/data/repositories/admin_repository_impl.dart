@@ -12,8 +12,8 @@ import '../../domain/repositories/admin_repository.dart';
 import '../datasources/admin_local_data_source.dart';
 
 /// Implementation of [AdminRepository]
-/// Uses local mock data in development mode when backend is unavailable
-@LazySingleton(as: AdminRepository)
+/// Uses real API calls in production environment
+@LazySingleton(as: AdminRepository, env: [Environment.prod])
 class AdminRepositoryImpl implements AdminRepository {
   final DioClient _dioClient;
   final NetworkInfo _networkInfo;

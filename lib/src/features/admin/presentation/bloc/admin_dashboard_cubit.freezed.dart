@@ -73,24 +73,24 @@ mixin _$AdminState {
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_Initial value) initial,
-    required TResult Function(_Loading value) loading,
+    required TResult Function(AdminInitial value) initial,
+    required TResult Function(AdminLoading value) loading,
     required TResult Function(_Loaded value) loaded,
     required TResult Function(_Error value) error,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_Initial value)? initial,
-    TResult? Function(_Loading value)? loading,
+    TResult? Function(AdminInitial value)? initial,
+    TResult? Function(AdminLoading value)? loading,
     TResult? Function(_Loaded value)? loaded,
     TResult? Function(_Error value)? error,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Initial value)? initial,
-    TResult Function(_Loading value)? loading,
+    TResult Function(AdminInitial value)? initial,
+    TResult Function(AdminLoading value)? loading,
     TResult Function(_Loaded value)? loaded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -117,25 +117,25 @@ class _$AdminStateCopyWithImpl<$Res, $Val extends AdminState>
 }
 
 /// @nodoc
-abstract class _$$InitialImplCopyWith<$Res> {
-  factory _$$InitialImplCopyWith(
-          _$InitialImpl value, $Res Function(_$InitialImpl) then) =
-      __$$InitialImplCopyWithImpl<$Res>;
+abstract class _$$AdminInitialImplCopyWith<$Res> {
+  factory _$$AdminInitialImplCopyWith(
+          _$AdminInitialImpl value, $Res Function(_$AdminInitialImpl) then) =
+      __$$AdminInitialImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class __$$InitialImplCopyWithImpl<$Res>
-    extends _$AdminStateCopyWithImpl<$Res, _$InitialImpl>
-    implements _$$InitialImplCopyWith<$Res> {
-  __$$InitialImplCopyWithImpl(
-      _$InitialImpl _value, $Res Function(_$InitialImpl) _then)
+class __$$AdminInitialImplCopyWithImpl<$Res>
+    extends _$AdminStateCopyWithImpl<$Res, _$AdminInitialImpl>
+    implements _$$AdminInitialImplCopyWith<$Res> {
+  __$$AdminInitialImplCopyWithImpl(
+      _$AdminInitialImpl _value, $Res Function(_$AdminInitialImpl) _then)
       : super(_value, _then);
 }
 
 /// @nodoc
 
-class _$InitialImpl implements _Initial {
-  const _$InitialImpl();
+class _$AdminInitialImpl implements AdminInitial {
+  const _$AdminInitialImpl();
 
   @override
   String toString() {
@@ -145,7 +145,7 @@ class _$InitialImpl implements _Initial {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$InitialImpl);
+        (other.runtimeType == runtimeType && other is _$AdminInitialImpl);
   }
 
   @override
@@ -221,8 +221,8 @@ class _$InitialImpl implements _Initial {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_Initial value) initial,
-    required TResult Function(_Loading value) loading,
+    required TResult Function(AdminInitial value) initial,
+    required TResult Function(AdminLoading value) loading,
     required TResult Function(_Loaded value) loaded,
     required TResult Function(_Error value) error,
   }) {
@@ -232,8 +232,8 @@ class _$InitialImpl implements _Initial {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_Initial value)? initial,
-    TResult? Function(_Loading value)? loading,
+    TResult? Function(AdminInitial value)? initial,
+    TResult? Function(AdminLoading value)? loading,
     TResult? Function(_Loaded value)? loaded,
     TResult? Function(_Error value)? error,
   }) {
@@ -243,8 +243,8 @@ class _$InitialImpl implements _Initial {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Initial value)? initial,
-    TResult Function(_Loading value)? loading,
+    TResult Function(AdminInitial value)? initial,
+    TResult Function(AdminLoading value)? loading,
     TResult Function(_Loaded value)? loaded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -256,30 +256,30 @@ class _$InitialImpl implements _Initial {
   }
 }
 
-abstract class _Initial implements AdminState {
-  const factory _Initial() = _$InitialImpl;
+abstract class AdminInitial implements AdminState {
+  const factory AdminInitial() = _$AdminInitialImpl;
 }
 
 /// @nodoc
-abstract class _$$LoadingImplCopyWith<$Res> {
-  factory _$$LoadingImplCopyWith(
-          _$LoadingImpl value, $Res Function(_$LoadingImpl) then) =
-      __$$LoadingImplCopyWithImpl<$Res>;
+abstract class _$$AdminLoadingImplCopyWith<$Res> {
+  factory _$$AdminLoadingImplCopyWith(
+          _$AdminLoadingImpl value, $Res Function(_$AdminLoadingImpl) then) =
+      __$$AdminLoadingImplCopyWithImpl<$Res>;
 }
 
 /// @nodoc
-class __$$LoadingImplCopyWithImpl<$Res>
-    extends _$AdminStateCopyWithImpl<$Res, _$LoadingImpl>
-    implements _$$LoadingImplCopyWith<$Res> {
-  __$$LoadingImplCopyWithImpl(
-      _$LoadingImpl _value, $Res Function(_$LoadingImpl) _then)
+class __$$AdminLoadingImplCopyWithImpl<$Res>
+    extends _$AdminStateCopyWithImpl<$Res, _$AdminLoadingImpl>
+    implements _$$AdminLoadingImplCopyWith<$Res> {
+  __$$AdminLoadingImplCopyWithImpl(
+      _$AdminLoadingImpl _value, $Res Function(_$AdminLoadingImpl) _then)
       : super(_value, _then);
 }
 
 /// @nodoc
 
-class _$LoadingImpl implements _Loading {
-  const _$LoadingImpl();
+class _$AdminLoadingImpl implements AdminLoading {
+  const _$AdminLoadingImpl();
 
   @override
   String toString() {
@@ -289,7 +289,7 @@ class _$LoadingImpl implements _Loading {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$LoadingImpl);
+        (other.runtimeType == runtimeType && other is _$AdminLoadingImpl);
   }
 
   @override
@@ -365,8 +365,8 @@ class _$LoadingImpl implements _Loading {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_Initial value) initial,
-    required TResult Function(_Loading value) loading,
+    required TResult Function(AdminInitial value) initial,
+    required TResult Function(AdminLoading value) loading,
     required TResult Function(_Loaded value) loaded,
     required TResult Function(_Error value) error,
   }) {
@@ -376,8 +376,8 @@ class _$LoadingImpl implements _Loading {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_Initial value)? initial,
-    TResult? Function(_Loading value)? loading,
+    TResult? Function(AdminInitial value)? initial,
+    TResult? Function(AdminLoading value)? loading,
     TResult? Function(_Loaded value)? loaded,
     TResult? Function(_Error value)? error,
   }) {
@@ -387,8 +387,8 @@ class _$LoadingImpl implements _Loading {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Initial value)? initial,
-    TResult Function(_Loading value)? loading,
+    TResult Function(AdminInitial value)? initial,
+    TResult Function(AdminLoading value)? loading,
     TResult Function(_Loaded value)? loaded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -400,8 +400,8 @@ class _$LoadingImpl implements _Loading {
   }
 }
 
-abstract class _Loading implements AdminState {
-  const factory _Loading() = _$LoadingImpl;
+abstract class AdminLoading implements AdminState {
+  const factory AdminLoading() = _$AdminLoadingImpl;
 }
 
 /// @nodoc
@@ -650,8 +650,8 @@ class _$LoadedImpl implements _Loaded {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_Initial value) initial,
-    required TResult Function(_Loading value) loading,
+    required TResult Function(AdminInitial value) initial,
+    required TResult Function(AdminLoading value) loading,
     required TResult Function(_Loaded value) loaded,
     required TResult Function(_Error value) error,
   }) {
@@ -661,8 +661,8 @@ class _$LoadedImpl implements _Loaded {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_Initial value)? initial,
-    TResult? Function(_Loading value)? loading,
+    TResult? Function(AdminInitial value)? initial,
+    TResult? Function(AdminLoading value)? loading,
     TResult? Function(_Loaded value)? loaded,
     TResult? Function(_Error value)? error,
   }) {
@@ -672,8 +672,8 @@ class _$LoadedImpl implements _Loaded {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Initial value)? initial,
-    TResult Function(_Loading value)? loading,
+    TResult Function(AdminInitial value)? initial,
+    TResult Function(AdminLoading value)? loading,
     TResult Function(_Loaded value)? loaded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -842,8 +842,8 @@ class _$ErrorImpl implements _Error {
   @override
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
-    required TResult Function(_Initial value) initial,
-    required TResult Function(_Loading value) loading,
+    required TResult Function(AdminInitial value) initial,
+    required TResult Function(AdminLoading value) loading,
     required TResult Function(_Loaded value) loaded,
     required TResult Function(_Error value) error,
   }) {
@@ -853,8 +853,8 @@ class _$ErrorImpl implements _Error {
   @override
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_Initial value)? initial,
-    TResult? Function(_Loading value)? loading,
+    TResult? Function(AdminInitial value)? initial,
+    TResult? Function(AdminLoading value)? loading,
     TResult? Function(_Loaded value)? loaded,
     TResult? Function(_Error value)? error,
   }) {
@@ -864,8 +864,8 @@ class _$ErrorImpl implements _Error {
   @override
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
-    TResult Function(_Initial value)? initial,
-    TResult Function(_Loading value)? loading,
+    TResult Function(AdminInitial value)? initial,
+    TResult Function(AdminLoading value)? loading,
     TResult Function(_Loaded value)? loaded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
