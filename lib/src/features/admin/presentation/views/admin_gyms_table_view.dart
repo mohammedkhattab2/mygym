@@ -204,21 +204,21 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
     final isDark = context.isDarkMode;
 
     return Container(
-      margin: EdgeInsets.fromLTRB(20.r, 16.r, 20.r, 12.r),
+      margin: EdgeInsets.fromLTRB(16.r, 8.r, 16.r, 8.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Top row: Title + Add button
           _buildTitleRow(context, totalGyms, stats),
-          SizedBox(height: 16.h),
+          SizedBox(height: 10.h),
           // Stats cards row
           _buildStatsCards(context, totalGyms, stats),
-          SizedBox(height: 16.h),
+          SizedBox(height: 10.h),
           // Search and filters card
           _buildFiltersCard(context),
           // Bulk actions
           if (_selectedIds.isNotEmpty) ...[
-            SizedBox(height: 12.h),
+            SizedBox(height: 8.h),
             _buildBulkActions(context),
           ],
         ],
@@ -282,7 +282,7 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
                             : [const Color(0xFF1A1A2E), const Color(0xFF312E81)],
                       ).createShader(bounds),
                       child: Text(
-                        "Gym Management",
+                        "Gym ",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.cormorantGaramond(
@@ -351,6 +351,14 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
             color: AppColors.error,
             isDark: isDark,
           ),
+          SizedBox(width: 12.w),
+          _buildStatCard(
+            value: '${stats.suspendedGyms}',
+            label: 'Suspended',
+            icon: Icons.pause_circle_outline_rounded,
+            color: Colors.grey,
+            isDark: isDark,
+          ),
         ],
       ),
     );
@@ -368,7 +376,7 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
         .toColor();
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
         gradient: LinearGradient(
@@ -455,7 +463,7 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
     final isDark = context.isDarkMode;
 
     return Container(
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
         gradient: LinearGradient(
@@ -1021,45 +1029,48 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Color(0xFFFFD700), Color(0xFFD4A574)],
-            ).createShader(bounds),
-            child: Icon(Icons.check_circle_rounded, color: Colors.white, size: 20.sp),
-          ),
-          SizedBox(width: 12.w),
-          Text(
-            '${_selectedIds.length} selected',
-            style: GoogleFonts.inter(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors.gold,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [Color(0xFFFFD700), Color(0xFFD4A574)],
+              ).createShader(bounds),
+              child: Icon(Icons.check_circle_rounded, color: Colors.white, size: 20.sp),
             ),
-          ),
-          const Spacer(),
-          BulkActionButton(
-            icon: Icons.check_circle_outline,
-            label: 'Activate',
-            color: AppColors.success,
-            onTap: () => _bulkUpdateStatus(GymStatus.active),
-          ),
-          SizedBox(width: 10.w),
-          BulkActionButton(
-            icon: Icons.block_rounded,
-            label: 'Block',
-            color: AppColors.error,
-            onTap: () => _bulkUpdateStatus(GymStatus.blocked),
-          ),
-          SizedBox(width: 10.w),
-          BulkActionButton(
-            icon: Icons.close_rounded,
-            label: 'Clear',
-            color: colorScheme.onSurfaceVariant,
-            onTap: () => setState(() => _selectedIds.clear()),
-          ),
-        ],
+            SizedBox(width: 12.w),
+            Text(
+              '${_selectedIds.length} selected',
+              style: GoogleFonts.inter(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.gold,
+              ),
+            ),
+            SizedBox(width: 16.w),
+            BulkActionButton(
+              icon: Icons.check_circle_outline,
+              label: 'Activate',
+              color: AppColors.success,
+              onTap: () => _bulkUpdateStatus(GymStatus.active),
+            ),
+            SizedBox(width: 10.w),
+            BulkActionButton(
+              icon: Icons.block_rounded,
+              label: 'Block',
+              color: AppColors.error,
+              onTap: () => _bulkUpdateStatus(GymStatus.blocked),
+            ),
+            SizedBox(width: 10.w),
+            BulkActionButton(
+              icon: Icons.close_rounded,
+              label: 'Clear',
+              color: colorScheme.onSurfaceVariant,
+              onTap: () => setState(() => _selectedIds.clear()),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1130,12 +1141,13 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24.r),
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: MediaQuery.of(context).size.width - 48.w,
-            ),
-            child: DataTable(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: MediaQuery.of(context).size.width - 48.w,
+              ),
+              child: DataTable(
               headingRowColor: WidgetStateProperty.all(
                 isDark
                     ? AppColors.gold.withValues(alpha: 0.08)
@@ -1150,14 +1162,15 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
                 }
                 return null;
               }),
-              headingRowHeight: 60.h,
-              dataRowMinHeight: 76.h,
-              dataRowMaxHeight: 76.h,
-              horizontalMargin: 28.w,
-              columnSpacing: 36.w,
+              headingRowHeight: 50.h,
+              dataRowMinHeight: 64.h,
+              dataRowMaxHeight: 64.h,
+              horizontalMargin: 20.w,
+              columnSpacing: 28.w,
               showCheckboxColumn: true,
               columns: _buildColumns(context),
               rows: gyms.map((gym) => _buildDataRow(context, gym)).toList(),
+              ),
             ),
           ),
         ),
@@ -1400,14 +1413,14 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
                 color: AppColors.info,
                 onTap: () => context.go('${RoutePaths.adminEditGym}/${gym.id}'),
               ),
-              SizedBox(width: 6.w),
+              SizedBox(width: 4.w),
               ActionIconButton(
                 icon: Icons.visibility_outlined,
                 tooltip: "View",
                 color: AppColors.gold,
                 onTap: () => _showGymDetails(context, gym),
               ),
-              SizedBox(width: 6.w),
+              SizedBox(width: 4.w),
               _buildMoreMenu(context, gym),
             ],
           ),

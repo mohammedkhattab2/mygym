@@ -10,28 +10,66 @@ class AdminLocalDataSource {
   // Simulated delay for realistic UX
   static const _delay = Duration(milliseconds: 500);
 
-  /// Get mock dashboard statistics
+  /// Get mock dashboard statistics - calculated from actual mock data
   Future<AdminDashboardStats> getDashboardStats() async {
     await Future.delayed(_delay);
-    return const AdminDashboardStats(
-      totalGyms: 45,
-      activeGyms: 38,
-      pendingGyms: 5,
-      blockedGyms: 2,
-      totalUsers: 12500,
-      activeSubscriptions: 8750,
-      totalRevenue: 1250000.0,
-      revenueThisMonth: 185000.0,
-      totalVisitsToday: 342,
-      totalVisitsThisWeek: 2150,
-      totalVisitsThisMonth: 8920,
-      cityBreakdown: [
-        CityStats(city: 'Cairo', gymCount: 18, userCount: 5200, revenue: 520000.0),
-        CityStats(city: 'Alexandria', gymCount: 12, userCount: 3100, revenue: 310000.0),
-        CityStats(city: 'Giza', gymCount: 8, userCount: 2400, revenue: 240000.0),
-        CityStats(city: 'Mansoura', gymCount: 4, userCount: 1100, revenue: 110000.0),
-        CityStats(city: 'Tanta', gymCount: 3, userCount: 700, revenue: 70000.0),
-      ],
+    
+    // Calculate stats from actual mock gyms
+    final totalGyms = _mockGyms.length;
+    final activeGyms = _mockGyms.where((g) => g.status == GymStatus.active).length;
+    final pendingGyms = _mockGyms.where((g) => g.status == GymStatus.pending).length;
+    final blockedGyms = _mockGyms.where((g) => g.status == GymStatus.blocked).length;
+    final suspendedGyms = _mockGyms.where((g) => g.status == GymStatus.suspended).length;
+    
+    // Calculate totals from gym stats
+    double totalRevenue = 0;
+    double revenueThisMonth = 0;
+    int totalVisitsThisMonth = 0;
+    int activeSubscribers = 0;
+    
+    for (final gym in _mockGyms) {
+      totalRevenue += gym.stats.totalRevenue;
+      revenueThisMonth += gym.stats.revenueThisMonth;
+      totalVisitsThisMonth += gym.stats.visitsThisMonth;
+      activeSubscribers += gym.stats.activeSubscribers;
+    }
+    
+    // Calculate city breakdown from actual data
+    final cityMap = <String, List<AdminGym>>{};
+    for (final gym in _mockGyms) {
+      cityMap.putIfAbsent(gym.city, () => []).add(gym);
+    }
+    
+    final cityBreakdown = cityMap.entries.map((entry) {
+      final cityGyms = entry.value;
+      double cityRevenue = 0;
+      int citySubscribers = 0;
+      for (final gym in cityGyms) {
+        cityRevenue += gym.stats.totalRevenue;
+        citySubscribers += gym.stats.activeSubscribers;
+      }
+      return CityStats(
+        city: entry.key,
+        gymCount: cityGyms.length,
+        userCount: citySubscribers,
+        revenue: cityRevenue,
+      );
+    }).toList();
+    
+    return AdminDashboardStats(
+      totalGyms: totalGyms,
+      activeGyms: activeGyms,
+      pendingGyms: pendingGyms,
+      blockedGyms: blockedGyms,
+      suspendedGyms: suspendedGyms,
+      totalUsers: activeSubscribers,
+      activeSubscriptions: activeSubscribers,
+      totalRevenue: totalRevenue,
+      revenueThisMonth: revenueThisMonth,
+      totalVisitsToday: (totalVisitsThisMonth / 30).round(),
+      totalVisitsThisWeek: (totalVisitsThisMonth / 4).round(),
+      totalVisitsThisMonth: totalVisitsThisMonth,
+      cityBreakdown: cityBreakdown,
     );
   }
 

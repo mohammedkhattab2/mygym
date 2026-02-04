@@ -655,11 +655,13 @@ class AppRouter {
             name: 'admin-dashboard',
             builder: (context, state) => const AdminDashboardView(),
           ),
+          // Gyms parent route with nested children
           GoRoute(
             path: RoutePaths.adminGyms,
             name: 'admin-gyms',
             redirect: (context, state) {
-              if (state.matchedLocation == RoutePaths.adminGyms) {
+              // Redirect /admin/gyms to /admin/gyms/list
+              if (state.uri.path == RoutePaths.adminGyms) {
                 return RoutePaths.adminGymsList;
               }
               return null;

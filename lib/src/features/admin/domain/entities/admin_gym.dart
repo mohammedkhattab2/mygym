@@ -288,6 +288,7 @@ class AdminDashboardStats {
   final int activeGyms;
   final int pendingGyms;
   final int blockedGyms;
+  final int suspendedGyms;
   final int totalUsers;
   final int activeSubscriptions;
   final double totalRevenue;
@@ -302,6 +303,7 @@ class AdminDashboardStats {
     this.activeGyms = 0,
     this.pendingGyms = 0,
     this.blockedGyms = 0,
+    this.suspendedGyms = 0,
     this.totalUsers = 0,
     this.activeSubscriptions = 0,
     this.totalRevenue = 0.0,
