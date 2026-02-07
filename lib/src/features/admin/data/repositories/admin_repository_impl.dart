@@ -142,6 +142,16 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<Either<Failure, AdminGym>> addGym(GymFormData formData) async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final gym = await _localDataSource.addGym(formData);
+        return Right(gym);
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -161,6 +171,19 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<Either<Failure, AdminGym>> updateGym(String gymId, GymFormData formData) async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final gym = await _localDataSource.updateGym(gymId, formData);
+        if (gym != null) {
+          return Right(gym);
+        }
+        return const Left(ServerFailure('Gym not found'));
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -180,6 +203,19 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<Either<Failure, void>> deleteGym(String gymId) async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final success = await _localDataSource.deleteGym(gymId);
+        if (success) {
+          return const Right(null);
+        }
+        return const Left(ServerFailure('Gym not found'));
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
@@ -196,6 +232,19 @@ class AdminRepositoryImpl implements AdminRepository {
 
   @override
   Future<Either<Failure, AdminGym>> changeGymStatus(String gymId, GymStatus status) async {
+    // Use local data in development mode
+    if (_useLocalData) {
+      try {
+        final gym = await _localDataSource.changeGymStatus(gymId, status);
+        if (gym != null) {
+          return Right(gym);
+        }
+        return const Left(ServerFailure('Gym not found'));
+      } catch (e) {
+        return Left(UnexpectedFailure(e.toString()));
+      }
+    }
+
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }

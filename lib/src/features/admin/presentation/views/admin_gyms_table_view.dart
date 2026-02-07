@@ -95,10 +95,19 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
                   ) {
                     return Column(
                       children: [
-                        _buildHeaderSection(context, totalGyms, stats),
+                        // Scrollable area for header + table
                         Expanded(
-                          child: _buildTableSection(context, gyms, isLoadingMore),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildHeaderSection(context, totalGyms, stats),
+                                _buildTableSection(context, gyms, isLoadingMore),
+                              ],
+                            ),
+                          ),
                         ),
+                        // Pagination - fixed at bottom
                         if (totalPages >= 1)
                           _buildPagination(
                             context,
@@ -285,7 +294,7 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
                         "Gym ",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.cormorantGaramond(
+                        style: GoogleFonts.raleway(
                           fontSize: 22.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -608,7 +617,7 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
           SizedBox(height: 20.h),
           Text(
             "Failed to load gyms",
-            style: GoogleFonts.cormorantGaramond(
+            style: GoogleFonts.raleway(
               fontSize: 22.sp,
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
@@ -1212,7 +1221,7 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
           SizedBox(height: 28.h),
           Text(
             "No Gyms Found",
-            style: GoogleFonts.cormorantGaramond(
+            style: GoogleFonts.raleway(
               fontSize: 26.sp,
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
@@ -1237,19 +1246,22 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
     final isDark = context.isDarkMode;
 
     Widget buildColumnLabel(String text) {
-      return ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          colors: isDark
-              ? [AppColors.gold, AppColors.goldLight]
-              : [const Color(0xFF1A1A2E), const Color(0xFF312E81)],
-        ).createShader(bounds),
-        child: Text(
-          text,
-          style: GoogleFonts.inter(
-            fontSize: 11.sp,
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
-            letterSpacing: 1.2,
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: isDark
+                ? [AppColors.gold, AppColors.goldLight]
+                : [const Color(0xFF1A1A2E), const Color(0xFF312E81)],
+          ).createShader(bounds),
+          child: Text(
+            text,
+            style: GoogleFonts.inter(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: 0.3,
+            ),
           ),
         ),
       );
@@ -1538,7 +1550,7 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
         title: Text(
           'Delete ${gym.name}?',
-          style: GoogleFonts.cormorantGaramond(
+          style: GoogleFonts.raleway(
             fontSize: 22.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -1591,8 +1603,8 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
     final isDark = context.isDarkMode;
 
     return Container(
-      margin: EdgeInsets.all(24.r),
-      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+      margin: EdgeInsets.symmetric(horizontal: 16.r, vertical: 12.r),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
         gradient: LinearGradient(

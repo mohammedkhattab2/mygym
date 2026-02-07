@@ -6,11 +6,21 @@ import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import 'package:mygym/src/core/theme/app_colors.dart';
 import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
+import 'package:mygym/src/features/admin/presentation/bloc/admin_analytics_cubit.dart';
 import 'package:mygym/src/features/admin/presentation/bloc/admin_dashboard_cubit.dart';
+import 'package:mygym/src/features/admin/presentation/bloc/admin_revenue_cubit.dart';
+import 'package:mygym/src/features/admin/presentation/bloc/admin_subscriptions_cubit.dart';
+import 'package:mygym/src/features/admin/presentation/bloc/admin_users_cubit.dart';
+import 'package:mygym/src/features/admin/presentation/bloc/subscription_plans_cubit.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_analytics_view.dart';
 import 'package:mygym/src/features/admin/presentation/views/admin_dashboard_view.dart';
 import 'package:mygym/src/features/admin/presentation/views/admin_gym_form_view.dart';
 import 'package:mygym/src/features/admin/presentation/views/admin_gyms_table_view.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_revenue_view.dart';
 import 'package:mygym/src/features/admin/presentation/views/admin_settings_view.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_subscription_plans_view.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_subscriptions_view.dart';
+import 'package:mygym/src/features/admin/presentation/views/admin_users_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/login_view.dart';
 import 'package:mygym/src/features/auth/presentation/views/otp_view.dart';
 import 'package:mygym/src/features/classes/presentation/cubit/classes_cubit.dart';
@@ -691,6 +701,56 @@ class AppRouter {
             path: RoutePaths.adminSettings,
             name: 'admin-settings',
             builder: (context, state) => const AdminSettingsView(),
+          ),
+          GoRoute(
+            path: RoutePaths.adminSubscriptions,
+            name: 'admin-subscriptions',
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<AdminSubscriptionsCubit>(),
+                child: const AdminSubscriptionsView(),
+              );
+            },
+          ),
+          GoRoute(
+            path: RoutePaths.adminAnalytics,
+            name: 'admin-analytics',
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<AdminAnalyticsCubit>(),
+                child: const AdminAnalyticsView(),
+              );
+            },
+          ),
+          GoRoute(
+            path: RoutePaths.adminPlans,
+            name: 'admin-plans',
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<SubscriptionPlansCubit>(),
+                child: const AdminSubscriptionPlansView(),
+              );
+            },
+          ),
+          GoRoute(
+            path: RoutePaths.adminRevenue,
+            name: 'admin-revenue',
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<AdminRevenueCubit>(),
+                child: const AdminRevenueView(),
+              );
+            },
+          ),
+          GoRoute(
+            path: RoutePaths.adminUsers,
+            name: 'admin-users',
+            builder: (context, state) {
+              return BlocProvider(
+                create: (ctx) => getIt<AdminUsersCubit>(),
+                child: const AdminUsersView(),
+              );
+            },
           ),
         ],
       ),
@@ -1572,7 +1632,7 @@ class _AdminShellScaffoldState extends State<_AdminShellScaffold> {
                 isCompact: isCompact,
                 onTap: () {
                   if (isDrawer) Navigator.pop(context);
-                  // context.go(RoutePaths.adminUsers);
+                  context.go(RoutePaths.adminUsers);
                 },
               ),
               SizedBox(height: 4.h),
@@ -1584,6 +1644,18 @@ class _AdminShellScaffoldState extends State<_AdminShellScaffold> {
                 isCompact: isCompact,
                 onTap: () {
                   if (isDrawer) Navigator.pop(context);
+                  context.go(RoutePaths.adminSubscriptions);
+                },
+              ),
+              _AdminNavItem(
+                icon: Icons.card_membership_outlined,
+                activeIcon: Icons.card_membership_rounded,
+                label: 'Plans & Offers',
+                isSelected: location.contains('/admin/plans'),
+                isCompact: isCompact,
+                onTap: () {
+                  if (isDrawer) Navigator.pop(context);
+                  context.go(RoutePaths.adminPlans);
                 },
               ),
               SizedBox(height: 4.h),
@@ -1595,9 +1667,9 @@ class _AdminShellScaffoldState extends State<_AdminShellScaffold> {
                 isCompact: isCompact,
                 onTap: () {
                   if (isDrawer) Navigator.pop(context);
+                  context.go(RoutePaths.adminRevenue);
                 },
               ),
-
               // Divider
               if (!isCompact) ...[
                 Padding(
@@ -1632,6 +1704,7 @@ class _AdminShellScaffoldState extends State<_AdminShellScaffold> {
                 isCompact: isCompact,
                 onTap: () {
                   if (isDrawer) Navigator.pop(context);
+                  context.go(RoutePaths.adminAnalytics);
                 },
               ),
               SizedBox(height: 4.h),

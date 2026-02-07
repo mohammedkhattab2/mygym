@@ -9,17 +9,20 @@ import '../../domain/repositories/admin_repository.dart';
 class AdminLocalDataSource {
   // Simulated delay for realistic UX
   static const _delay = Duration(milliseconds: 500);
+  
+  // Mutable list to allow adding new gyms
+  static final List<AdminGym> _gyms = List.from(_initialMockGyms);
 
   /// Get mock dashboard statistics - calculated from actual mock data
   Future<AdminDashboardStats> getDashboardStats() async {
     await Future.delayed(_delay);
     
     // Calculate stats from actual mock gyms
-    final totalGyms = _mockGyms.length;
-    final activeGyms = _mockGyms.where((g) => g.status == GymStatus.active).length;
-    final pendingGyms = _mockGyms.where((g) => g.status == GymStatus.pending).length;
-    final blockedGyms = _mockGyms.where((g) => g.status == GymStatus.blocked).length;
-    final suspendedGyms = _mockGyms.where((g) => g.status == GymStatus.suspended).length;
+    final totalGyms = _gyms.length;
+    final activeGyms = _gyms.where((g) => g.status == GymStatus.active).length;
+    final pendingGyms = _gyms.where((g) => g.status == GymStatus.pending).length;
+    final blockedGyms = _gyms.where((g) => g.status == GymStatus.blocked).length;
+    final suspendedGyms = _gyms.where((g) => g.status == GymStatus.suspended).length;
     
     // Calculate totals from gym stats
     double totalRevenue = 0;
@@ -27,7 +30,7 @@ class AdminLocalDataSource {
     int totalVisitsThisMonth = 0;
     int activeSubscribers = 0;
     
-    for (final gym in _mockGyms) {
+    for (final gym in _gyms) {
       totalRevenue += gym.stats.totalRevenue;
       revenueThisMonth += gym.stats.revenueThisMonth;
       totalVisitsThisMonth += gym.stats.visitsThisMonth;
@@ -36,7 +39,7 @@ class AdminLocalDataSource {
     
     // Calculate city breakdown from actual data
     final cityMap = <String, List<AdminGym>>{};
-    for (final gym in _mockGyms) {
+    for (final gym in _gyms) {
       cityMap.putIfAbsent(gym.city, () => []).add(gym);
     }
     
@@ -77,7 +80,7 @@ class AdminLocalDataSource {
   Future<PaginatedGyms> getGyms(AdminGymFilter filter) async {
     await Future.delayed(_delay);
     
-    var gyms = _mockGyms;
+    var gyms = _gyms;
     
     // Apply filters
     if (filter.status != null) {
@@ -120,10 +123,152 @@ class AdminLocalDataSource {
   Future<AdminGym?> getGymById(String gymId) async {
     await Future.delayed(_delay);
     try {
-      return _mockGyms.firstWhere((g) => g.id == gymId);
+      return _gyms.firstWhere((g) => g.id == gymId);
     } catch (_) {
       return null;
     }
+  }
+
+  /// Add new gym to local storage
+  Future<AdminGym> addGym(GymFormData formData) async {
+    await Future.delayed(_delay);
+    
+    // Generate a new ID
+    final newId = 'gym_${DateTime.now().millisecondsSinceEpoch}';
+    
+    // Convert facilities from IDs to AdminFacility objects
+    final allFacilities = await getAvailableFacilities();
+    final selectedFacilities = formData.facilityIds
+        .map((id) {
+          try {
+            final facility = allFacilities.firstWhere((f) => f.id == id);
+            return AdminFacility(
+              id: facility.id,
+              name: facility.name,
+              icon: facility.icon,
+            );
+          } catch (_) {
+            return AdminFacility(id: id, name: id);
+          }
+        })
+        .toList();
+    
+    final newGym = AdminGym(
+      id: newId,
+      name: formData.name,
+      city: formData.city,
+      address: formData.address,
+      latitude: formData.latitude,
+      longitude: formData.longitude,
+      status: GymStatus.pending,
+      dateAdded: DateTime.now(),
+      imageUrls: formData.imageUrls,
+      facilities: selectedFacilities,
+      customBundles: formData.customBundles,
+      settings: formData.settings,
+      stats: const AdminGymStats(),
+      partnerEmail: formData.partnerEmail,
+      partnerPhone: formData.partnerPhone,
+      notes: formData.notes,
+    );
+    
+    // Add to the beginning of the list
+    _gyms.insert(0, newGym);
+    
+    return newGym;
+  }
+
+  /// Update existing gym
+  Future<AdminGym?> updateGym(String gymId, GymFormData formData) async {
+    await Future.delayed(_delay);
+    
+    final index = _gyms.indexWhere((g) => g.id == gymId);
+    if (index == -1) return null;
+    
+    final existingGym = _gyms[index];
+    
+    // Convert facilities from IDs to AdminFacility objects
+    final allFacilities = await getAvailableFacilities();
+    final selectedFacilities = formData.facilityIds
+        .map((id) {
+          try {
+            final facility = allFacilities.firstWhere((f) => f.id == id);
+            return AdminFacility(
+              id: facility.id,
+              name: facility.name,
+              icon: facility.icon,
+            );
+          } catch (_) {
+            return AdminFacility(id: id, name: id);
+          }
+        })
+        .toList();
+    
+    final updatedGym = AdminGym(
+      id: gymId,
+      name: formData.name,
+      city: formData.city,
+      address: formData.address,
+      latitude: formData.latitude,
+      longitude: formData.longitude,
+      status: existingGym.status,
+      dateAdded: existingGym.dateAdded,
+      lastUpdated: DateTime.now(),
+      imageUrls: formData.imageUrls,
+      facilities: selectedFacilities,
+      customBundles: formData.customBundles,
+      settings: formData.settings,
+      stats: existingGym.stats,
+      partnerEmail: formData.partnerEmail,
+      partnerPhone: formData.partnerPhone,
+      notes: formData.notes,
+    );
+    
+    _gyms[index] = updatedGym;
+    
+    return updatedGym;
+  }
+
+  /// Delete gym
+  Future<bool> deleteGym(String gymId) async {
+    await Future.delayed(_delay);
+    final index = _gyms.indexWhere((g) => g.id == gymId);
+    if (index == -1) return false;
+    _gyms.removeAt(index);
+    return true;
+  }
+
+  /// Change gym status
+  Future<AdminGym?> changeGymStatus(String gymId, GymStatus status) async {
+    await Future.delayed(_delay);
+    
+    final index = _gyms.indexWhere((g) => g.id == gymId);
+    if (index == -1) return null;
+    
+    final existingGym = _gyms[index];
+    final updatedGym = AdminGym(
+      id: existingGym.id,
+      name: existingGym.name,
+      city: existingGym.city,
+      address: existingGym.address,
+      latitude: existingGym.latitude,
+      longitude: existingGym.longitude,
+      status: status,
+      dateAdded: existingGym.dateAdded,
+      lastUpdated: DateTime.now(),
+      imageUrls: existingGym.imageUrls,
+      facilities: existingGym.facilities,
+      customBundles: existingGym.customBundles,
+      settings: existingGym.settings,
+      stats: existingGym.stats,
+      partnerEmail: existingGym.partnerEmail,
+      partnerPhone: existingGym.partnerPhone,
+      notes: existingGym.notes,
+    );
+    
+    _gyms[index] = updatedGym;
+    
+    return updatedGym;
   }
 
   /// Get available cities
@@ -170,7 +315,7 @@ class AdminLocalDataSource {
     DateTime endDate,
   ) async {
     await Future.delayed(_delay);
-    final gym = _mockGyms.firstWhere((g) => g.id == gymId, orElse: () => _mockGyms.first);
+    final gym = _gyms.firstWhere((g) => g.id == gymId, orElse: () => _gyms.first);
     
     return GymRevenueReport(
       gymId: gymId,
@@ -227,8 +372,8 @@ class AdminLocalDataSource {
     return sorted;
   }
 
-  /// Mock gyms data
-  static final List<AdminGym> _mockGyms = [
+  /// Initial mock gyms data
+  static final List<AdminGym> _initialMockGyms = [
     AdminGym(
       id: 'gym_001',
       name: 'Gold\'s Gym Cairo',

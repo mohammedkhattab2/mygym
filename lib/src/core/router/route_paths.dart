@@ -86,4 +86,5 @@ static const String adminRevenue = '$admin/revenue';
 static const String adminSubscriptions = '$admin/subscriptions';
 static const String adminAnalytics = '$admin/analytics';
 static const String adminSettings = '$admin/settings';
+static const String adminPlans = '$admin/plans';
 }

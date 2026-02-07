@@ -22,10 +22,41 @@ import '../../features/admin/data/repositories/admin_repository_impl.dart'
     as _i335;
 import '../../features/admin/data/repositories/admin_repository_mock.dart'
     as _i796;
+import '../../features/admin/data/repositories/admin_subscriptions_repository_impl.dart'
+    as _i782;
+import '../../features/admin/data/repositories/admin_users_repository_impl.dart'
+    as _i1058;
+import '../../features/admin/data/repositories/mock_admin_analytics_repository.dart'
+    as _i337;
+import '../../features/admin/data/repositories/mock_admin_revenue_repository.dart'
+    as _i412;
+import '../../features/admin/data/repositories/mock_admin_subscriptions_repository.dart'
+    as _i155;
+import '../../features/admin/data/repositories/mock_subscription_plans_repository.dart'
+    as _i774;
+import '../../features/admin/domain/repositories/admin_analytics_repository.dart'
+    as _i221;
 import '../../features/admin/domain/repositories/admin_repository.dart'
     as _i583;
+import '../../features/admin/domain/repositories/admin_revenue_repository.dart'
+    as _i853;
+import '../../features/admin/domain/repositories/admin_subscriptions_repository.dart'
+    as _i548;
+import '../../features/admin/domain/repositories/admin_users_repository.dart'
+    as _i339;
+import '../../features/admin/domain/repositories/subscription_plans_repository.dart'
+    as _i569;
+import '../../features/admin/presentation/bloc/admin_analytics_cubit.dart'
+    as _i87;
 import '../../features/admin/presentation/bloc/admin_dashboard_cubit.dart'
     as _i273;
+import '../../features/admin/presentation/bloc/admin_revenue_cubit.dart'
+    as _i982;
+import '../../features/admin/presentation/bloc/admin_subscriptions_cubit.dart'
+    as _i361;
+import '../../features/admin/presentation/bloc/admin_users_cubit.dart' as _i341;
+import '../../features/admin/presentation/bloc/subscription_plans_cubit.dart'
+    as _i254;
 import '../../features/auth/data/datasources/auth_local_data_source.dart'
     as _i852;
 import '../../features/auth/data/datasources/auth_remote_data_source.dart'
@@ -145,10 +176,16 @@ extension GetItInjectableX on _i174.GetIt {
       instanceName: 'userBox',
       preResolve: true,
     );
+    gh.lazySingleton<_i569.SubscriptionPlansRepository>(
+        () => _i774.MockSubscriptionPlansRepository());
     await gh.factoryAsync<_i986.Box<dynamic>>(
       () => storageModule.settingsBox,
       instanceName: 'settingsBox',
       preResolve: true,
+    );
+    gh.lazySingleton<_i548.AdminSubscriptionsRepository>(
+      () => _i155.MockAdminSubscriptionsRepository(),
+      registerFor: {_dev},
     );
     gh.lazySingleton<_i691.AdminLocalDataSource>(
       () => _i691.AdminLocalDataSource(),
@@ -161,12 +198,20 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i674.SettingsRepository>(() =>
         _i955.SettingsRepositoryImpl(gh<_i599.SettingsLocalDataSource>()));
+    gh.lazySingleton<_i221.AdminAnalyticsRepository>(
+        () => _i337.MockAdminAnalyticsRepository());
+    gh.factory<_i87.AdminAnalyticsCubit>(
+        () => _i87.AdminAnalyticsCubit(gh<_i221.AdminAnalyticsRepository>()));
+    gh.lazySingleton<_i853.AdminRevenueRepository>(
+        () => _i412.MockAdminRevenueRepository());
     gh.lazySingleton<_i107.AuthRemoteDataSource>(
         () => _i107.AuthRemoteDataSourceImpl(gh<_i361.Dio>()));
     gh.lazySingleton<_i801.RewardsRepository>(
         () => _i862.RewardsRepositoryImpl());
     gh.lazySingleton<_i275.SupportRepository>(
         () => _i387.SupportRepositoryImpl(gh<_i855.SupportLocalDataSource>()));
+    gh.factory<_i254.SubscriptionPlansCubit>(() =>
+        _i254.SubscriptionPlansCubit(gh<_i569.SubscriptionPlansRepository>()));
     gh.factory<_i792.SettingsCubit>(
         () => _i792.SettingsCubit(gh<_i674.SettingsRepository>()));
     gh.lazySingleton<_i426.ClassesRepository>(
@@ -196,6 +241,11 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i246.RewardsCubit(gh<_i801.RewardsRepository>()));
     gh.lazySingleton<_i194.ThemeCubit>(
         () => _i194.ThemeCubit(gh<_i674.SettingsRepository>()));
+    gh.factory<_i361.AdminSubscriptionsCubit>(() =>
+        _i361.AdminSubscriptionsCubit(
+            gh<_i548.AdminSubscriptionsRepository>()));
+    gh.factory<_i982.AdminRevenueCubit>(
+        () => _i982.AdminRevenueCubit(gh<_i853.AdminRevenueRepository>()));
     gh.lazySingleton<_i852.AuthLocalDataSource>(() => _i852.AuthLocalDataSource(
           gh<_i619.SecureStorageService>(),
           gh<_i986.Box<String>>(instanceName: 'userBox'),
@@ -207,12 +257,17 @@ extension GetItInjectableX on _i174.GetIt {
             ));
     gh.factory<_i196.SupportCubit>(
         () => _i196.SupportCubit(gh<_i275.SupportRepository>()));
+    gh.lazySingleton<_i339.AdminUsersRepository>(
+        () => _i1058.AdminUsersRepositoryImpl(
+              gh<_i667.DioClient>(),
+              gh<_i932.NetworkInfo>(),
+            ));
+    gh.factory<_i470.BlockedUsersCubit>(
+        () => _i470.BlockedUsersCubit(gh<_i1042.PartnerRepository>()));
     gh.factory<_i8.PartnerDashboardCubit>(
         () => _i8.PartnerDashboardCubit(gh<_i1042.PartnerRepository>()));
     gh.factory<_i518.PartnerSettingsCubit>(
         () => _i518.PartnerSettingsCubit(gh<_i1042.PartnerRepository>()));
-    gh.factory<_i470.BlockedUsersCubit>(
-        () => _i470.BlockedUsersCubit(gh<_i1042.PartnerRepository>()));
     gh.lazySingleton<_i631.QrRepository>(() => _i971.QrRepositoryImpl(
           gh<_i667.DioClient>(),
           gh<_i932.NetworkInfo>(),
@@ -223,6 +278,13 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i205.ClassesCubit>(
         () => _i205.ClassesCubit(gh<_i426.ClassesRepository>()));
+    gh.lazySingleton<_i548.AdminSubscriptionsRepository>(
+      () => _i782.AdminSubscriptionsRepositoryImpl(
+        gh<_i667.DioClient>(),
+        gh<_i932.NetworkInfo>(),
+      ),
+      registerFor: {_prod},
+    );
     gh.lazySingleton<_i81.AppRouter>(() => _i81.AppRouter(
           authGuard: gh<_i530.AuthGuard>(),
           roleGuard: gh<_i746.RoleGuard>(),
@@ -230,6 +292,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i273.AdminCubit>(
         () => _i273.AdminCubit(gh<_i583.AdminRepository>()));
+    gh.factory<_i341.AdminUsersCubit>(
+        () => _i341.AdminUsersCubit(gh<_i339.AdminUsersRepository>()));
     gh.factory<_i454.SubscriptionsCubit>(
         () => _i454.SubscriptionsCubit(gh<_i384.SubscriptionRepository>()));
     gh.factory<_i587.GymsBloc>(() => _i587.GymsBloc(gh<_i786.GymRepository>()));

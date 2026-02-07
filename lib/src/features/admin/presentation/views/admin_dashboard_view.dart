@@ -319,7 +319,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                                   ).createShader(bounds),
                                   child: Text(
                                     "Welcome back, Admin!",
-                                    style: GoogleFonts.cormorantGaramond(
+                                    style: GoogleFonts.raleway(
                                       fontSize: 28.sp,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
@@ -503,7 +503,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 ).createShader(bounds),
                 child: Text(
                   value,
-                  style: GoogleFonts.cormorantGaramond(
+                  style: GoogleFonts.raleway(
                     fontSize: 22.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -700,7 +700,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
             SizedBox(height: 20.h),
             Text(
               "Failed to load dashboard",
-              style: GoogleFonts.cormorantGaramond(
+              style: GoogleFonts.raleway(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w700,
                 color: colorScheme.onSurface,
