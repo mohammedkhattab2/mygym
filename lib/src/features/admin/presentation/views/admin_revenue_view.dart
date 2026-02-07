@@ -121,26 +121,9 @@ class _AdminRevenueViewState extends State<AdminRevenueView>
       backgroundColor: Colors.transparent,
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDark
-                ? [
-                    const Color(0xFF030014),
-                    const Color(0xFF0A0520),
-                    const Color(0xFF150A30),
-                    const Color(0xFF0A0520),
-                    const Color(0xFF030014),
-                  ]
-                : [
-                    const Color(0xFFFFFDF7),
-                    const Color(0xFFF8F0FF),
-                    const Color(0xFFF0F7FF),
-                    const Color(0xFFF8F0FF),
-                    const Color(0xFFFFFDF7),
-                  ],
-            stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
-          ),
+          gradient: isDark
+              ? AppColors.backgroundGradientDark
+              : AppColors.backgroundGradientLight,
         ),
         child: Stack(
           children: [
@@ -408,88 +391,76 @@ class _AdminRevenueViewState extends State<AdminRevenueView>
             ),
           ),
         ),
-        // Row 1: Tier Breakdown + Pending Payouts
+        // Tier Breakdown
         SliverPadding(
           padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 0),
           sliver: SliverToBoxAdapter(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Tier Breakdown
-                Expanded(
-                  child: _buildSectionCard(
-                    context,
-                    title: 'Tier Breakdown',
-                    subtitle: 'Revenue by tier',
-                    icon: Icons.diamond_rounded,
-                    accentColor: const Color(0xFF8B5CF6),
-                    centeredHeader: false,
-                    trailing: _buildBadge(
-                      '${data.byTier.length} tiers',
-                      const Color(0xFF8B5CF6),
-                    ),
-                    child: _buildTierContentHorizontal(context, data.byTier),
-                  ),
-                ),
-                SizedBox(width: 20.w),
-                // Pending Payouts
-                Expanded(
-                  child: _buildSectionCard(
-                    context,
-                    title: 'Pending Payouts',
-                    subtitle: 'Awaiting distribution',
-                    icon: Icons.account_balance_wallet_rounded,
-                    accentColor: const Color(0xFFF59E0B),
-                    centeredHeader: false,
-                    trailing: _buildBadge(
-                      '${data.pendingPayouts.length}',
-                      const Color(0xFFF59E0B),
-                    ),
-                    child: _buildPayoutsContentHorizontal(context, data.pendingPayouts),
-                  ),
-                ),
-              ],
+            child: _buildSectionCard(
+              context,
+              title: 'Tier Breakdown',
+              subtitle: 'Revenue by tier',
+              icon: Icons.diamond_rounded,
+              accentColor: const Color(0xFF8B5CF6),
+              centeredHeader: false,
+              trailing: _buildBadge(
+                '${data.byTier.length} tiers',
+                const Color(0xFF8B5CF6),
+              ),
+              child: _buildTierContentHorizontal(context, data.byTier),
             ),
           ),
         ),
-        // Row 2: Gym Revenue + Recent Transactions
+        // Pending Payouts
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 0),
+          sliver: SliverToBoxAdapter(
+            child: _buildSectionCard(
+              context,
+              title: 'Pending Payouts',
+              subtitle: 'Awaiting distribution',
+              icon: Icons.account_balance_wallet_rounded,
+              accentColor: const Color(0xFFF59E0B),
+              centeredHeader: false,
+              trailing: _buildBadge(
+                '${data.pendingPayouts.length}',
+                const Color(0xFFF59E0B),
+              ),
+              child: _buildPayoutsContentHorizontal(context, data.pendingPayouts),
+            ),
+          ),
+        ),
+        // Gym Revenue
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 0),
+          sliver: SliverToBoxAdapter(
+            child: _buildSectionCard(
+              context,
+              title: 'Gym Revenue',
+              subtitle: 'Revenue by gym',
+              icon: Icons.castle_rounded,
+              accentColor: const Color(0xFF10B981),
+              centeredHeader: false,
+              trailing: _buildBadge(
+                '${data.byGym.length} gyms',
+                const Color(0xFF10B981),
+              ),
+              child: _buildGymTableHorizontal(context, data.byGym),
+            ),
+          ),
+        ),
+        // Recent Transactions
         SliverPadding(
           padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 40.h),
           sliver: SliverToBoxAdapter(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Gym Revenue
-                Expanded(
-                  child: _buildSectionCard(
-                    context,
-                    title: 'Gym Revenue',
-                    subtitle: 'Revenue by gym',
-                    icon: Icons.castle_rounded,
-                    accentColor: const Color(0xFF10B981),
-                    centeredHeader: false,
-                    trailing: _buildBadge(
-                      '${data.byGym.length} gyms',
-                      const Color(0xFF10B981),
-                    ),
-                    child: _buildGymTableHorizontal(context, data.byGym),
-                  ),
-                ),
-                SizedBox(width: 20.w),
-                // Recent Transactions
-                Expanded(
-                  child: _buildSectionCard(
-                    context,
-                    title: 'Recent Transactions',
-                    subtitle: 'Latest activity',
-                    icon: Icons.history_edu_rounded,
-                    accentColor: const Color(0xFFEC4899),
-                    centeredHeader: false,
-                    trailing: _buildViewAllButton(),
-                    child: _buildTransactionsContentHorizontal(context, data.recentTransactions),
-                  ),
-                ),
-              ],
+            child: _buildSectionCard(
+              context,
+              title: 'Recent Transactions',
+              subtitle: 'Latest activity',
+              icon: Icons.history_edu_rounded,
+              accentColor: const Color(0xFFEC4899),
+              centeredHeader: false,
+              trailing: _buildViewAllButton(),
+              child: _buildTransactionsContentHorizontal(context, data.recentTransactions),
             ),
           ),
         ),
@@ -901,59 +872,69 @@ class _AdminRevenueViewState extends State<AdminRevenueView>
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildStatCards(BuildContext context, RevenueOverview overview) {
-    // All 4 stat cards in a single row
-    return Row(
+    // 2x2 Grid layout — two rows, two cards per row
+    return Column(
       children: [
-        Expanded(
-          child: _buildStatCard(
-            context,
-            title: 'Total Revenue',
-            value: overview.totalRevenue,
-            subtitle: '${overview.totalTransactions} txns',
-            icon: Icons.account_balance_wallet_rounded,
-            accentColor: const Color(0xFFFFD700),
-            secondaryColor: const Color(0xFFD4A574),
-            isHighlighted: true,
-            growthPercent: 15.5,
-          ),
+        // First row
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                context,
+                title: 'Total Revenue',
+                value: overview.totalRevenue,
+                subtitle: '${overview.totalTransactions} txns',
+                icon: Icons.account_balance_wallet_rounded,
+                accentColor: const Color(0xFFFFD700),
+                secondaryColor: const Color(0xFFD4A574),
+                isHighlighted: true,
+                growthPercent: 15.5,
+              ),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: _buildStatCard(
+                context,
+                title: 'Platform Fees',
+                value: overview.totalPlatformFees,
+                subtitle: overview.totalRevenue > 0
+                    ? '${(overview.totalPlatformFees / overview.totalRevenue * 100).toStringAsFixed(1)}%'
+                    : '0%',
+                icon: Icons.toll_rounded,
+                accentColor: const Color(0xFF10B981),
+                secondaryColor: const Color(0xFF059669),
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 14.w),
-        Expanded(
-          child: _buildStatCard(
-            context,
-            title: 'Platform Fees',
-            value: overview.totalPlatformFees,
-            subtitle: overview.totalRevenue > 0
-                ? '${(overview.totalPlatformFees / overview.totalRevenue * 100).toStringAsFixed(1)}%'
-                : '0%',
-            icon: Icons.toll_rounded,
-            accentColor: const Color(0xFF10B981),
-            secondaryColor: const Color(0xFF059669),
-          ),
-        ),
-        SizedBox(width: 14.w),
-        Expanded(
-          child: _buildStatCard(
-            context,
-            title: 'Gym Payouts',
-            value: overview.totalGymPayouts,
-            subtitle: 'To partners',
-            icon: Icons.storefront_rounded,
-            accentColor: const Color(0xFF8B5CF6),
-            secondaryColor: const Color(0xFF7C3AED),
-          ),
-        ),
-        SizedBox(width: 14.w),
-        Expanded(
-          child: _buildStatCard(
-            context,
-            title: 'Pending',
-            value: overview.pendingPayouts,
-            subtitle: 'Awaiting',
-            icon: Icons.schedule_rounded,
-            accentColor: const Color(0xFFF59E0B),
-            secondaryColor: const Color(0xFFD97706),
-          ),
+        SizedBox(height: 14.h),
+        // Second row
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                context,
+                title: 'Gym Payouts',
+                value: overview.totalGymPayouts,
+                subtitle: 'To partners',
+                icon: Icons.storefront_rounded,
+                accentColor: const Color(0xFF8B5CF6),
+                secondaryColor: const Color(0xFF7C3AED),
+              ),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: _buildStatCard(
+                context,
+                title: 'Pending',
+                value: overview.pendingPayouts,
+                subtitle: 'Awaiting',
+                icon: Icons.schedule_rounded,
+                accentColor: const Color(0xFFF59E0B),
+                secondaryColor: const Color(0xFFD97706),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -1139,24 +1120,27 @@ class _AdminRevenueViewState extends State<AdminRevenueView>
           color: color.withValues(alpha: isDark ? 0.4 : 0.25),
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
-            size: 10.sp,
-            color: color,
-          ),
-          SizedBox(width: 2.w),
-          Text(
-            '${percent.toStringAsFixed(0)}%',
-            style: GoogleFonts.inter(
-              fontSize: 9.sp,
-              fontWeight: FontWeight.w700,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+              size: 10.sp,
               color: color,
             ),
-          ),
-        ],
+            SizedBox(width: 2.w),
+            Text(
+              '${percent.toStringAsFixed(0)}%',
+              style: GoogleFonts.inter(
+                fontSize: 9.sp,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

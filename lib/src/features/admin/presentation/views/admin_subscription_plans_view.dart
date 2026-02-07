@@ -11,6 +11,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/luxury_theme_extension.dart';
 import '../../domain/entities/subscription_plan.dart';
 import '../../domain/entities/admin_subscription.dart';
+import 'admin_add_plan_view.dart';
+import 'admin_add_promotion_view.dart';
 
 class AdminSubscriptionPlansView extends StatefulWidget {
   const AdminSubscriptionPlansView({super.key});
@@ -1649,27 +1651,23 @@ class _AdminSubscriptionPlansViewState
   // ═══════════════════════════════════════════════════════════════════════════
 
   void _showPlanForm(BuildContext context, {SubscriptionPlan? plan}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          plan == null ? 'Create Plan Form (Coming)' : 'Edit ${plan.name}',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<SubscriptionPlansCubit>(),
+          child: AdminAddPlanView(existingPlan: plan),
         ),
-        backgroundColor: AppColors.info,
       ),
     );
   }
 
   void _showPromotionForm(BuildContext context, {Promotion? promotion}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          promotion == null
-              ? 'Create Promotion Form (Coming)'
-              : 'Edit ${promotion.name}',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider.value(
+          value: context.read<SubscriptionPlansCubit>(),
+          child: AdminAddPromotionView(existingPromotion: promotion),
         ),
-        backgroundColor: AppColors.info,
       ),
     );
   }
