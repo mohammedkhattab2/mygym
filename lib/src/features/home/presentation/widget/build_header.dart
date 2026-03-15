@@ -49,18 +49,23 @@ class BuildHeader extends StatelessWidget {
                 SizedBox(height: 2.h),
                 Row(
                   children: [
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: isDark
-                            ? [colorScheme.onSurface, luxury.gold]
-                            : [colorScheme.primary, colorScheme.secondary],
-                      ).createShader(bounds),
-                      child: Text(
-                        userName,
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                    Expanded(
+                      child: ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: isDark
+                              ? [colorScheme.onSurface, luxury.gold]
+                              : [colorScheme.primary, colorScheme.secondary],
+                        ).createShader(bounds),
+                        child: Text(
+                          userName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -180,13 +185,19 @@ class _CompactProfileAvatar extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(
-            userName[0].toUpperCase(),
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
+          child: Builder(
+            builder: (context) {
+              final trimmed = userName.trim();
+              final initial = trimmed.isNotEmpty ? trimmed[0].toUpperCase() : '?';
+              return Text(
+                initial,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              );
+            },
           ),
         ),
       ),

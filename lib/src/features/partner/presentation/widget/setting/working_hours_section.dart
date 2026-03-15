@@ -19,15 +19,6 @@ class WorkingHoursSection extends StatelessWidget {
     final luxury = context.luxury;
 
     final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    final fullDays = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-    ];
 
     return SettingsCard(
       title: "Working Hours",

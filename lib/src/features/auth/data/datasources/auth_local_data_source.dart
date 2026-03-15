@@ -30,8 +30,10 @@ class AuthLocalDataSource {
   }
 
   /// Get saved access token
-  Future<String?> getAccessToken() async {
-    return _secureStorage.read(StorageKeys.accessToken);
+  ///
+  /// Returns an empty string when no token is stored.
+  Future<String> getAccessToken() async {
+    return await _secureStorage.read(StorageKeys.accessToken) ?? '';
   }
 
   /// Save refresh token securely
@@ -83,9 +85,7 @@ class AuthLocalDataSource {
     await _userBox.put(StorageKeys.cachedUser, userJson);
     
     // Also save user role to secure storage for RoleGuard
-    if (user.roleString != null) {
-      await _secureStorage.write(StorageKeys.userRole, user.roleString!);
-    }
+    await _secureStorage.write(StorageKeys.userRole, user.roleString);
   }
 
   /// Get cached user data
@@ -105,11 +105,11 @@ class AuthLocalDataSource {
 
   // ==================== Session Management ====================
 
-  /// Check if user is logged in (has valid token)
+  /// Check if user is logged in (has non-empty, non-expired token)
   Future<bool> isLoggedIn() async {
     final token = await getAccessToken();
-    if (token == null) return false;
-    
+    if (token.isEmpty) return false;
+
     final isExpired = await isTokenExpired();
     return !isExpired;
   }

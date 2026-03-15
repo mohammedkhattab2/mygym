@@ -554,12 +554,11 @@ class _AdminGymFormViewState extends State<AdminGymFormView> {
 
   Widget _buildSectionCard(
     BuildContext context, {
-    required String title,
-    required IconData icon,
-    required Color color,
-    required Widget child,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
+      required String title,
+      required IconData icon,
+      required Color color,
+      required Widget child,
+    }) {
     final isDark = context.isDarkMode;
 
     final secondaryColor = HSLColor.fromColor(color)
@@ -724,7 +723,6 @@ class _AdminGymFormViewState extends State<AdminGymFormView> {
   }
 
   Widget _buildLocationSection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
     
     final hasCoordinates = _latitudeController.text.isNotEmpty &&
@@ -926,7 +924,6 @@ class _AdminGymFormViewState extends State<AdminGymFormView> {
   }
 
   Widget _buildImagesSection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Column(
@@ -1014,7 +1011,6 @@ class _AdminGymFormViewState extends State<AdminGymFormView> {
   }
 
   Widget _buildImageTile(BuildContext context, String url, int index) {
-    final isDark = context.isDarkMode;
     final isLocalFile = url.startsWith('file://');
     final imagePath = isLocalFile ? url.substring(7) : url;
 
@@ -1280,20 +1276,18 @@ class _AdminGymFormViewState extends State<AdminGymFormView> {
                 ),
               ),
               Switch(
-                value: !hours.isClosed,
-                onChanged: (value) {
-                  setState(() {
-                    _workingHours[index] = WorkingHoursEntry(
-                      dayOfWeek: hours.dayOfWeek,
-                      openTime: hours.openTime,
-                      closeTime: hours.closeTime,
-                      isClosed: !value,
-                    );
-                  });
-                },
-                activeColor: AppColors.warning,
-                activeTrackColor: AppColors.warning.withValues(alpha: 0.3),
-              ),
+               value: !hours.isClosed,
+               onChanged: (value) {
+                 setState(() {
+                   _workingHours[index] = WorkingHoursEntry(
+                     dayOfWeek: hours.dayOfWeek,
+                     openTime: hours.openTime,
+                     closeTime: hours.closeTime,
+                     isClosed: !value,
+                   );
+                 });
+               },
+             ),
               SizedBox(width: 12.w),
               if (!hours.isClosed) ...[
                 Expanded(
@@ -1496,7 +1490,7 @@ class _AdminGymFormViewState extends State<AdminGymFormView> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: color,
+            activeThumbColor: color,
             activeTrackColor: color.withValues(alpha: 0.3),
           ),
         ],
@@ -1642,7 +1636,7 @@ class _AdminGymFormViewState extends State<AdminGymFormView> {
         ),
         SizedBox(height: 6.h),
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           items: items,
           onChanged: onChanged,
           validator: validator,
@@ -1816,7 +1810,9 @@ class _AdminGymFormViewState extends State<AdminGymFormView> {
       
       // Get current position
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
       
       setState(() {
@@ -2401,6 +2397,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                       onMapCreated: (controller) {
                         _mapController = controller;
                         if (widget.isDark) {
+                          // ignore: deprecated_member_use
                           _mapController?.setMapStyle(_darkMapStyle);
                         }
                       },
@@ -2597,7 +2594,9 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
       }
       
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
       
       final newPosition = LatLng(position.latitude, position.longitude);

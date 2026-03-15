@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 
 class TimePickerSection extends StatelessWidget {
   final String label;
@@ -24,7 +23,6 @@ class TimePickerSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

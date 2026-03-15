@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_underscores
+
 import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -304,7 +306,6 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
   }
 
   Widget _buildHeader(BuildContext context, AnalyticsRange range) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -661,9 +662,11 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
   Widget _buildMagicalExportButton(BuildContext context, bool isDark) {
     return PopupMenuButton<String>(
       onSelected: (format) async {
+        final messenger = ScaffoldMessenger.of(context);
         final url = await context.read<AdminAnalyticsCubit>().exportReport(format);
-        if (url != null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+        if (!mounted) return;
+        if (url != null) {
+          messenger.showSnackBar(
             SnackBar(
               content: Row(
                 children: [
@@ -695,7 +698,7 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
       ],
       child: AnimatedBuilder(
         animation: _pulse,
-        builder: (_, __) => Container(
+        builder: (_, _) => Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12.r),
@@ -1032,7 +1035,6 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
     required Widget child,
     Widget? trailing,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     final secondaryColor = HSLColor.fromColor(color)
@@ -1247,7 +1249,6 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
   }
 
   Widget _buildEngagementSection(BuildContext context, EngagementMetrics engagement) {
-    final isDark = context.isDarkMode;
 
     return _buildSectionCard(
       context,
@@ -1444,7 +1445,6 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
   }
 
   Widget _buildUserGrowthChart(BuildContext context, List<GrowthDataPoint> data) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     if (data.isEmpty) return const SizedBox.shrink();
@@ -1475,7 +1475,7 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
       physics: const BouncingScrollPhysics(),
       child: AnimatedBuilder(
         animation: _shimmer,
-        builder: (_, __) => Row(
+        builder: (_, _) => Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1964,6 +1964,7 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
     );
   }
 
+  // ignore: unused_element
   Widget _buildChartLegendItem(String label, Color color, bool isDark) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -2377,7 +2378,6 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
     required String value,
     required Color color,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Row(
@@ -2621,7 +2621,6 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
   }
 
   Widget _buildRetentionSection(BuildContext context, SubscriptionAnalytics analytics) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     final tierColors = {
@@ -2684,7 +2683,6 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
     required IconData icon,
     required bool isDark,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
 
     return AnimatedBuilder(
       animation: Listenable.merge([_pulse, _shimmer]),
@@ -3077,7 +3075,6 @@ class _AdminAnalyticsViewState extends State<AdminAnalyticsView>
   }
 
   Widget _buildErrorState(BuildContext context, String message) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Center(

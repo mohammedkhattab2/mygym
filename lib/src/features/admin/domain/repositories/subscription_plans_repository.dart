@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 
 import '../../../../core/error/failures.dart';
 import '../entities/subscription_plan.dart';
-import '../entities/admin_subscription.dart';
 
 abstract class SubscriptionPlansRepository {
   // Plans

@@ -863,8 +863,7 @@ class _AdminSubscriptionPlansViewState
               ),
               SizedBox(height: 20.h),
               ...promotions
-                  .map((promo) => _buildPromotionCard(context, promo))
-                  .toList(),
+                  .map((promo) => _buildPromotionCard(context, promo)),
               SizedBox(height: 32.h),
             ],
           ),
@@ -874,7 +873,6 @@ class _AdminSubscriptionPlansViewState
   }
 
   Widget _buildPromotionCard(BuildContext context, Promotion promo) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     final typeColors = {
@@ -1496,7 +1494,6 @@ class _AdminSubscriptionPlansViewState
   }
 
   Widget _buildErrorState(BuildContext context, String msg) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Center(

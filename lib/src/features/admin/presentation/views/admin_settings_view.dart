@@ -1290,7 +1290,6 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   }
 
   void _handleSaveSettings(BuildContext context) {
-    final luxury = context.luxury;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -1444,7 +1443,6 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     final activeColor = isDestructive ? AppColors.error : luxury.gold;
 
@@ -1542,7 +1540,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
             child: Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: activeColor,
+              activeThumbColor: activeColor,
               activeTrackColor: activeColor.withValues(alpha: 0.3),
               inactiveThumbColor: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
               inactiveTrackColor: colorScheme.surfaceContainerHighest,
@@ -1731,7 +1729,6 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),

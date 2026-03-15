@@ -1,3 +1,5 @@
+// ignore_for_file: use_null_aware_elements
+
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -773,10 +775,10 @@ class LuxurySectionHeader extends StatelessWidget {
                         : AppColors.textPrimaryDark,
                   ),
                 ),
-                if (subtitle != null) ...[
+                if (subtitle case final value?) ...[
                   RGap.h4,
                   Text(
-                    subtitle!,
+                    value,
                     style: AppTextStyles.bodySmall.copyWith(
                       fontSize: ResponsiveFontSizes.bodySmall,
                       color: AppColors.textSecondaryDark,
@@ -786,7 +788,7 @@ class LuxurySectionHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (action != null) action!,
+          if (action case final value?) value,
           if (actionText != null)
             TextButton(
               onPressed: onActionPressed,

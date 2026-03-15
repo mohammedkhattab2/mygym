@@ -175,8 +175,6 @@ class QuickActionsCard extends StatelessWidget {
   }
 
   Widget _buildLuxuryHeader(BuildContext context, bool isDark, LuxuryThemeExtension luxury) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Row(
       children: [
         // Luxurious gem-like icon container

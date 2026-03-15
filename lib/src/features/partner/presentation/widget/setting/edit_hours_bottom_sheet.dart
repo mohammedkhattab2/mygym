@@ -236,8 +236,6 @@ class _EditHoursBottomSheetState extends State<EditHoursBottomSheet> {
   }
 
   Widget _buildDurationInfo() {
-    final colorScheme = Theme.of(context).colorScheme;
-
     final openMinutes = _openHour * 60 + _openMinute;
     final closeMinutes = _closeHour * 60 + _closeMinute;
     final durationMinutes = closeMinutes - openMinutes;

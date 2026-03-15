@@ -12,7 +12,6 @@ class VisitReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final luxury = context.luxury;
     return Container(
       padding: EdgeInsets.all(20.w),

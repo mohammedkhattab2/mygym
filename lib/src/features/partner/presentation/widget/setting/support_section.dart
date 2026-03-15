@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/partner/presentation/widget/setting/settings_card.dart';
 import 'package:mygym/src/features/partner/presentation/widget/setting/support_item.dart';
 
@@ -9,8 +8,6 @@ class SupportSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     return SettingsCard(
       title: "Support", 
       icon: Icons.support_agent_rounded, 

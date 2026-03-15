@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:mygym/src/core/theme/luxury_theme_extension.dart';
 import 'package:mygym/src/features/partner/domain/entities/partner_entities.dart';
 
 class ReportSummaryCard extends StatelessWidget {
@@ -13,7 +12,6 @@ class ReportSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     final dateFormat = DateFormat('MMMM d, yyyy');
     return Container(
       padding: EdgeInsets.all(20.w),

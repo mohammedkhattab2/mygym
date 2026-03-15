@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -10,15 +9,8 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 @lazySingleton
 class FirebaseAuthHelper {
   final firebase_auth.FirebaseAuth _firebaseAuth;
-  final GoogleSignIn _googleSignIn;
 
-  FirebaseAuthHelper()
-      : _firebaseAuth = firebase_auth.FirebaseAuth.instance,
-        _googleSignIn = GoogleSignIn(
-          scopes: ['email', 'profile'],
-          // Use the web client ID from google-services.json for Android
-          serverClientId: '527651100896-3jk2nrb9p84tequh47tq605bfal70ehh.apps.googleusercontent.com',
-        );
+  FirebaseAuthHelper() : _firebaseAuth = firebase_auth.FirebaseAuth.instance;
 
   /// Get current Firebase user
   firebase_auth.User? get currentUser => _firebaseAuth.currentUser;
@@ -34,27 +26,16 @@ class FirebaseAuthHelper {
   /// Returns null if cancelled
   Future<String?> signInWithGoogle() async {
     try {
-      // Trigger the Google Sign-In flow
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      // Use FirebaseAuth's OAuth provider-based sign-in.
+      // This avoids relying on the google_sign_in plugin API surface.
+      final provider = firebase_auth.GoogleAuthProvider();
 
-      if (googleUser == null) {
-        // User cancelled the sign-in
-        return null;
-      }
+      // Request basic profile scopes (mainly relevant on web / desktop).
+      provider
+        ..addScope('email')
+        ..addScope('profile');
 
-      // Obtain the auth details
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      // Create credential
-      final credential = firebase_auth.GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in to Firebase
-      final userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
+      final userCredential = await _firebaseAuth.signInWithProvider(provider);
 
       // Return the ID token for backend verification
       return await userCredential.user?.getIdToken();
@@ -172,10 +153,7 @@ class FirebaseAuthHelper {
 
   /// Sign out from all providers
   Future<void> signOut() async {
-    await Future.wait([
-      _firebaseAuth.signOut(),
-      _googleSignIn.signOut(),
-    ]);
+    await _firebaseAuth.signOut();
   }
 
   // ============================================

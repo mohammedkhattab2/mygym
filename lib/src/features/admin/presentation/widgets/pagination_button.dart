@@ -17,7 +17,6 @@ class PaginationButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
     final activeColors = [AppColors.gold, AppColors.goldLight];

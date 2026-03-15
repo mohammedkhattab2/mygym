@@ -1,4 +1,4 @@
-import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -209,8 +209,6 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
     int totalGyms,
     AdminDashboardStats stats,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = context.isDarkMode;
 
     return Container(
       margin: EdgeInsets.fromLTRB(16.r, 8.r, 16.r, 8.r),
@@ -468,7 +466,6 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
   }
 
   Widget _buildFiltersCard(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -742,7 +739,6 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
 
   Widget _buildSearchField(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -819,7 +815,6 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
 
   Widget _buildStatusFilter(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -1105,8 +1100,6 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
     List<AdminGym> gyms,
     bool isLoadingMore,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
     if (gyms.isEmpty) {
@@ -1280,7 +1273,6 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
 
   DataRow _buildDataRow(BuildContext context, AdminGym gym) {
     final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
     return DataRow(
@@ -1599,7 +1591,6 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
     int totalPages,
     bool hasMore,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Container(
@@ -1709,18 +1700,3 @@ class _AdminGymsTableViewState extends State<AdminGymsTableView> {
   }
 }
 
-class _SparkleData {
-  final double? top;
-  final double? bottom;
-  final double? left;
-  final double? right;
-  final double size;
-
-  _SparkleData({
-    this.top,
-    this.bottom,
-    this.left,
-    this.right,
-    required this.size,
-  });
-}

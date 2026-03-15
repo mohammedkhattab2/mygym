@@ -81,8 +81,8 @@ class QrRepositoryImpl implements QrRepository {
           'token': token.token,
           'gym_id': gymId,
           'nonce': token.nonce,
-          if (userLatitude != null) 'user_latitude': userLatitude,
-          if (userLongitude != null) 'user_longitude': userLongitude,
+          'user_latitude': userLatitude,
+          'user_longitude': userLongitude,
         },
       );
 

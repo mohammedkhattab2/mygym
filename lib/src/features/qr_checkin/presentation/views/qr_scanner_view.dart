@@ -739,8 +739,6 @@ class _RecentScansSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final luxury = context.luxury;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -761,7 +759,7 @@ class _RecentScansSection extends StatelessWidget {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: scans.take(5).length,
-            separatorBuilder: (_, __) => SizedBox(width: 10.w),
+            separatorBuilder: (_, index) => SizedBox(width: 10.w),
             itemBuilder: (context, index) {
               final scan = scans[index];
               return _RecentScanChip(result: scan);
@@ -853,8 +851,6 @@ class _CameraErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final luxury = context.luxury;
-
     String errorMessage;
     IconData errorIcon;
 

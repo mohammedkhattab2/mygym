@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:mygym/src/features/admin/presentation/bloc/admin_users_cubit.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -45,7 +44,6 @@ class _AdminUsersViewState extends State<AdminUsersView> {
 
   @override
   Widget build(BuildContext context) {
-    final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
     return Scaffold(
@@ -194,10 +192,6 @@ class _AdminUsersViewState extends State<AdminUsersView> {
   }
 
   Widget _buildFloatingHeader(BuildContext context, UsersStats stats, int totalUsers) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
-    final isDark = context.isDarkMode;
-
     return Container(
       margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
       child: Column(
@@ -468,11 +462,14 @@ class _AdminUsersViewState extends State<AdminUsersView> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () async {
-          final url = await context.read<AdminUsersCubit>().exportUsers();
-          if (url != null && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Export ready: $url')),
-            );
+          final cubit = context.read<AdminUsersCubit>();
+          final url = await cubit.exportUsers();
+          if (url != null && context.mounted) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Export ready: $url')),
+              );
+            }
           }
         },
         borderRadius: BorderRadius.circular(10.r),
@@ -517,7 +514,6 @@ class _AdminUsersViewState extends State<AdminUsersView> {
 
   Widget _buildQuickStatsStrip(BuildContext context, UsersStats stats) {
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -1036,64 +1032,9 @@ class _AdminUsersViewState extends State<AdminUsersView> {
     );
   }
 
-  Widget _buildExportButton(BuildContext context) {
-    final luxury = context.luxury;
-    final isDark = context.isDarkMode;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () async {
-          final url = await context.read<AdminUsersCubit>().exportUsers();
-          if (url != null && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Export ready: $url')),
-            );
-          }
-        },
-        borderRadius: BorderRadius.circular(14.r),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [luxury.gold, luxury.gold.withValues(alpha: 0.85)],
-            ),
-            borderRadius: BorderRadius.circular(14.r),
-            boxShadow: [
-              BoxShadow(
-                color: luxury.gold.withValues(alpha: 0.35),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.download_rounded,
-                color: Colors.white,
-                size: 20.sp,
-              ),
-              SizedBox(width: 10.w),
-              Text(
-                'Export',
-                style: GoogleFonts.inter(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildUserCards(BuildContext context, List<AdminUser> users, bool isLoadingMore) {
     final luxury = context.luxury;
-    final isDark = context.isDarkMode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1166,7 +1107,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: users.length,
-          separatorBuilder: (_, __) => SizedBox(height: 16.h),
+          separatorBuilder: (_, _) => SizedBox(height: 16.h),
           itemBuilder: (context, index) => _buildUserCard(context, users[index]),
         ),
         
@@ -1931,7 +1872,6 @@ class _AdminUsersViewState extends State<AdminUsersView> {
 
   Widget _buildErrorState(BuildContext context, String message) {
     final luxury = context.luxury;
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Center(
@@ -2027,7 +1967,6 @@ class _AdminUsersViewState extends State<AdminUsersView> {
 
   Widget _buildEmptyState(BuildContext context) {
     final luxury = context.luxury;
-    final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 
     return Center(
@@ -2187,7 +2126,6 @@ class _AdminUsersViewState extends State<AdminUsersView> {
   }
 
   void _showDeleteConfirmation(BuildContext context, AdminUser user) {
-    final luxury = context.luxury;
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = context.isDarkMode;
 

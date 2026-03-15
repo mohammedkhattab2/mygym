@@ -10,7 +10,6 @@ class VisitLimitsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return SettingsCard(
       title: "Visit Limits", 
       icon: Icons.event_repeat_rounded, 

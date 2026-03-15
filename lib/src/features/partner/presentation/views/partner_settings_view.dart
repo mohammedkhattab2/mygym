@@ -11,14 +11,10 @@ import 'package:mygym/src/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:mygym/src/features/partner/domain/entities/partner_entities.dart';
 import 'package:mygym/src/features/partner/presentation/cubit/partner_settings_cubit.dart';
 import 'package:mygym/src/features/partner/presentation/cubit/partner_settings_state.dart';
-import 'package:mygym/src/features/partner/presentation/widget/setting/blocked_users_section.dart';
-import 'package:mygym/src/features/partner/presentation/widget/setting/capacity_section.dart';
 import 'package:mygym/src/features/partner/presentation/widget/setting/edit_hours_bottom_sheet.dart';
 import 'package:mygym/src/features/partner/presentation/widget/setting/gym_info_section.dart';
-import 'package:mygym/src/features/partner/presentation/widget/setting/network_settings_section.dart';
 import 'package:mygym/src/features/partner/presentation/widget/setting/revenue_share_card.dart';
 import 'package:mygym/src/features/partner/presentation/widget/setting/support_section.dart';
-import 'package:mygym/src/features/partner/presentation/widget/setting/visit_limits_section.dart';
 import 'package:mygym/src/features/partner/presentation/widget/setting/working_hours_section.dart';
 import 'package:mygym/src/features/partner/presentation/widget/setting/edit_capacity_bottom_sheet.dart';
 
@@ -346,7 +342,6 @@ class PartnerSettingsView extends StatelessWidget {
   }
 
   Widget _buildVisitLimitsSection(BuildContext context, PartnerSettingsState state) {
-    final colorScheme = Theme.of(context).colorScheme;
     final cubit = context.read<PartnerSettingsCubit>();
 
     return _SettingsCard(
@@ -395,8 +390,6 @@ class PartnerSettingsView extends StatelessWidget {
   }
 
   Widget _buildBlockedUsersSection(BuildContext context, PartnerSettingsState state) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     final blockedCount = state.settings?.blockedUserIds.length ?? 0;
 
     return _SettingsCard(

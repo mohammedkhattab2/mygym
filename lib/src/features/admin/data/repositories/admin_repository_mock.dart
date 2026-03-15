@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../../core/config/app_config.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/admin_gym.dart';
 import '../../domain/repositories/admin_repository.dart';

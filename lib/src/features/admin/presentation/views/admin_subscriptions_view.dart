@@ -81,20 +81,6 @@ class _AdminSubscriptionsViewState extends State<AdminSubscriptionsView> {
     }
   }
 
-  IconData _statusIcon(SubscriptionStatus status) {
-    switch (status) {
-      case SubscriptionStatus.active:
-        return Icons.check_circle_rounded;
-      case SubscriptionStatus.expired:
-        return Icons.cancel_rounded;
-      case SubscriptionStatus.cancelled:
-        return Icons.remove_circle_rounded;
-      case SubscriptionStatus.paused:
-        return Icons.pause_circle_rounded;
-      case SubscriptionStatus.pendingPayment:
-        return Icons.schedule_rounded;
-    }
-  }
 
   // ═══════════════════════════════════════════════════════════════
   // BUILD
@@ -185,7 +171,7 @@ class _AdminSubscriptionsViewState extends State<AdminSubscriptionsView> {
                                   ),
                                   sliver: SliverList.separated(
                                     itemCount: subs.length,
-                                    separatorBuilder: (_, __) =>
+                                    separatorBuilder: (_, _) =>
                                         SizedBox(height: 14.h),
                                     itemBuilder: (_, i) =>
                                         _buildSubscriptionCard(subs[i]),
@@ -727,9 +713,6 @@ class _AdminSubscriptionsViewState extends State<AdminSubscriptionsView> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInsightsRow(SubscriptionsStats stats) {
-    final luxury = context.luxury;
-    final isDark = context.isDarkMode;
-
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 0),
       child: Row(
@@ -864,7 +847,6 @@ class _AdminSubscriptionsViewState extends State<AdminSubscriptionsView> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildStatChipsStrip(SubscriptionsStats stats) {
-    final luxury = context.luxury;
     return Padding(
       padding: EdgeInsets.fromLTRB(20.w, 16.h, 0, 0),
       child: SingleChildScrollView(
@@ -1395,7 +1377,6 @@ class _AdminSubscriptionsViewState extends State<AdminSubscriptionsView> {
     final luxury = context.luxury;
     final isDark = context.isDarkMode;
     final tierColor = _tierColor(sub.tier);
-    final statusClr = _statusColor(sub.status);
 
     return Material(
       color: Colors.transparent,
@@ -2326,7 +2307,6 @@ class _AdminSubscriptionsViewState extends State<AdminSubscriptionsView> {
 
   void _showDetailsSheet(AdminSubscription sub) {
     final cs = Theme.of(context).colorScheme;
-    final luxury = context.luxury;
     final isDark = context.isDarkMode;
 
     showModalBottomSheet(
